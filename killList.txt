@@ -1,0 +1,13 @@
+ -Tab bars for:
+	 -Lobby
+	 -Modes
+		-Separate modes into training / non training
+	 -Leaderboard
+	 -Settings
+ -Combine play/away button into toggle
+ -Make player bars not terrible matching maccoland
+ -Delay match end on surrender
+ -Do not end match when all planets are lost
+ -Practice bot
+ -Rank flags
+ -Maccoworld elim for more than 2 players

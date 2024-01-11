@@ -1,0 +1,12 @@
+//List of functions in each file for easier navigation
+
+	<SaandConV3>
+
+	<HTML>
+resetLobbyHtml()
+lobby_tabs(e)
+getLadderTable()
+getLadderSorted()
+loadScoreboard()
+modeTab()
+settingsTab()
