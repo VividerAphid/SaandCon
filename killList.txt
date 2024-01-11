@@ -1,3 +1,7 @@
+ DOING:
+ -Separating functions out to be more manageable
+ 
+ QUEUE:
  -Tab bars for:
 	 -Lobby
 	 -Modes
@@ -11,3 +15,7 @@
  -Practice bot
  -Rank flags
  -Maccoworld elim for more than 2 players
+ -More control on pause button
+	-Away/play toggle
+	-Leave button?
+	
