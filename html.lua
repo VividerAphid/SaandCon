@@ -45,7 +45,7 @@ function lobby_tabs(e)
             <td><input type='button' class='tab' width='15%' pseudo='first'      disabled='true'                                           />
 			<td><input type='button' class='tab' width='22%' value='Lobby'       icon='icon-new_game'  onclick='/lobby'                    />
             <td><input type='button' class='tab' width='22%' value='Modes'       icon='icon-new_map'  onclick='/mode'                      />
-            <td><input type='button' class='tab' width='22%' value='Leaderboard' icon='icon-queue'    onclick='/leaderboard'               />
+            <td><input type='button' class='tab' width='22%' value='Ranks' icon='icon-queue'    onclick='/leaderboard'               />
             <td><input type='button' class='tab' width='22%' value='Settings'    icon='icon-options'  onclick='/settings'    pseudo='last' />
         </table>
     ]]

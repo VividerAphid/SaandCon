@@ -960,7 +960,7 @@ function galcon_classic_init()
             if mapStyle == 0 then
                 cost = math.floor(math.random(0,30))
             elseif mapStyle == 1 then
-                cost = math.floor(math.random(prod / 10, prod / 1.75))
+                cost = math.floor(math.random(prod / 20, prod / 1.50))--math.floor(math.random(prod / 10, prod / 1.75))
             elseif mapStyle == 2 then
                 cost = math.floor(math.random(0,20))
             elseif mapStyle > numMapStyles then
