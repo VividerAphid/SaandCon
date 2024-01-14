@@ -908,8 +908,8 @@ function galcon_classic_init()
 
     if GAME.galcon.gamemode == "Classic" then
         
-        local numMapStyles = 3
-        local mapStyle = 1 -- MIX: getMapStyle(numMapStyles) // Classic: 0 // PhilBuff: 1 // 12p: 2
+        local numMapStyles = 5
+        local mapStyle = 4 -- MIX: getMapStyle(numMapStyles) // Classic: 0 // PhilBuff: 1 // 12p: 2 // Saandbuff: 3 // wonk: 4
         if mapStyle == 0 then
             sw = sw / 1.1
             sh = sh / 1.1
@@ -925,6 +925,13 @@ function galcon_classic_init()
 
         local home_production, home_ships = 100, 100
         local home_r = prodToRadius(home_production)
+        local isWonk = true
+        
+        if isWonk then
+	    home_production = math.floor(math.random(1, 100))
+	    home_ships = math.floor(math.random(1, 100))
+	    home_r = prodToRadius(home_production)
+	end
 
         local a = math.random(0,360)
         for i,user in pairs(users) do
@@ -960,18 +967,23 @@ function galcon_classic_init()
             if mapStyle == 0 then
                 cost = math.floor(math.random(0,30))
             elseif mapStyle == 1 then
-				if prod >= 30 and prod < 51 then
-					cost = math.floor(math.random(5, 10))
-				elseif prod >= 51 and prod < 76 then
-					cost = math.floor(math.random(11, 30))
-				elseif prod >= 76 and prod < 90 then
-					cost = math.floor(math.random(30, 45))
-				elseif prod >= 90 then
-					cost = math.floor(math.random(45, 60))
-				end
-                --cost = --math.floor(math.random(prod / 20, prod / 1.50))--math.floor(math.random(prod / 10, prod / 1.75))
+                cost = math.floor(math.random(prod / 20, prod / 1.50))--math.floor(math.random(prod / 10, prod / 1.75))
             elseif mapStyle == 2 then
                 cost = math.floor(math.random(0,20))
+            elseif mapStyle == 3 then
+           	if prod >= 30 and prod < 51 then
+			cost = math.floor(math.random(5, 10))
+		elseif prod >= 51 and prod < 76 then
+			cost = math.floor(math.random(11, 30))
+		elseif prod >= 76 and prod < 90 then
+			cost = math.floor(math.random(30, 45))
+		elseif prod >= 90 then
+			cost = math.floor(math.random(45, 60))
+		end
+            elseif mapStyle == 4 then
+            	local costRatio = math.floor(home_ships * .5)
+            	cost = math.floor(math.random(0, costRatio))
+            	prod = math.floor(math.random(1, 100))
             elseif mapStyle > numMapStyles then
                 print("Error: mapStyle out of range ("..mapStyle..')')
             end

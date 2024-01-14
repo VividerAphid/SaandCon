@@ -14,15 +14,17 @@
 		-Wonk mode with randomised starting ships and scaled prod / neut costs
  -Combine play/away button into toggle
  -Make player bars not terrible matching maccoland
+	-Silly player titles underneath player name on rank flag
+	-Rank flags
  -Delay match end on surrender
  -Do not end match when all planets are lost
  -Practice bot(s)
- -Rank flags
  -Maccoworld style elim for more than 2 players
  -More control on pause button
 	-Away/play toggle
 	-Leave button?
  -Change SaandCon custom classic to "cost = math.floor(math.random(prod/20, prod / 1.50)"
+ -add in saandbuff map gen setting
  -"wardrobe" tab with ships, skins, colors
  -winner stays on
  -timer???????
