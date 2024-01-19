@@ -12,10 +12,12 @@
 		-EspCon map gen
 		-SaandCon map gens
 		-Wonk mode with randomised starting ships and scaled prod / neut costs
+ -Make rage quit button leave lobby
  -Combine play/away button into toggle
  -Make player bars not terrible matching maccoland
 	-Silly player titles underneath player name on rank flag
 	-Rank flags
+ -Race mode to have regular cluster mode like vacuum mode
  -Delay match end on surrender
  -Do not end match when all planets are lost
  -Practice bot(s)

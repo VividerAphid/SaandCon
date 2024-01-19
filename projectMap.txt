@@ -3,6 +3,7 @@
 	<SaandConV3>
 
 	<HTML>
+startupMenu()
 resetLobbyHtml()
 lobby_tabs(e)
 getLadderTable()
@@ -10,3 +11,26 @@ getLadderSorted()
 loadScoreboard()
 modeTab()
 settingsTab()
+gamemodeDescription()
+
+	<stages>
+stage2()
+stage3()
+stage4()
+stage5()
+stage6()
+
+	<utils>
+find_user()
+radiusToProd()
+prodToRadius()
+searchString()
+getEventUid()
+isNetMessageOrButton()
+string.fromHex()
+stringToNumber()
+getDistance()
+dump()
+
+	<mapkit>
+getMapStyle()

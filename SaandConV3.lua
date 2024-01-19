@@ -1,7 +1,9 @@
 require("mod_common_utils")
 require("mod_elo")
-require("html") 
-require("html") 
+require("utils")
+require("html")
+require("stages")
+require("mapkit")  
 
 LICENSE = [[
 mod_server.lua
@@ -28,22 +30,14 @@ function menu_init()
     GAME.modules.menu = GAME.modules.menu or {}
     local obj = GAME.modules.menu
     function obj:init()
-        g2.html = [[
-            <table>
-            <tr><td colspan=2><h1>Galcon 2 Server</h1>
-            <tr><td><p>&nbsp;</p>
-            <tr><td><input type='text' name='port' value='$PORT' />
-            <tr><td><p>&nbsp;</p>
-            <tr><td><input type='button' value='Start Server' onclick='host' />"
-            </table>
-            ]]
+        g2.html = startupMenu()
         GAME.data = json.decode(g2.data)
         if type(GAME.data) ~= "table" then GAME.data = {} end
         g2.form.port = GAME.data.port or "23099"
         g2.state = "menu"
         GAME.galcon.wins = 0
         GAME.galcon.scorecard = {}
-        GAME.galcon.gamemode = "Stages" or "Classic" or "Frenzy" or "Grid" or "Float" or "Line" or "Race"
+        GAME.galcon.gamemode = "Classic" or "Stages" or "Frenzy" or "Grid" or "Float" or "Line" or "Race"
         GAME.galcon.tournament = false
         GAME.galcon.setmode = false
         GAME.galcon.global = {
@@ -435,27 +429,6 @@ function clients_init()
     end
 end
 
-function searchString(string, pattern)
-    local words = {}
-    for word in string:gmatch(pattern) do
-        table.insert(words, word)
-    end
-    return words
-end
-
-function getEventUid(e)
-    if e.type == "net:message" then
-        return e.uid
-    else
-        -- any unintended consequences?
-        return g2.uid
-    end
-end
-
-function isNetMessageOrButton(e)
-    return e.type == "net:message" or e.type == "onclick"
-end
-
 function matchesCommand(string, searchCommand)
     if string == nil then
         return false
@@ -472,19 +445,6 @@ function matchesCommand(string, searchCommand)
         return true
     end
     return false
-end
-function searchString(string, pattern)
-    local words = {}
-    for word in string:gmatch(pattern) do
-        table.insert(words, word)
-    end
-    return words
-end
-
-function string.fromhex(str)
-    return (str:gsub('..', function (cc)
-        return string.char(tonumber(cc, 16))
-    end))
 end
 
 function limitColor(color)
@@ -538,15 +498,7 @@ function limitColor(color)
     end
     return color
 end
-function stringToNumber(string)
-    if string == "a" then string = 10 end
-    if string == "b" then string = 11 end 
-    if string == "c" then string = 12 end
-    if string == "d" then string = 13 end
-    if string == "e" then string = 14 end
-    if string == "f" then string = 15 end
-    return string
-end
+
 --------------------------------------------------------------------------------
 function params_set(k,v)
     GAME.params[k] = v
@@ -725,29 +677,6 @@ function playerInState(state)
     return players
     end
 end
-
-function gamemodeDescription()
-    local description = ""
-    if GAME.galcon.gamemode == "Float" then
-        description = [[
-        <tr><td class='box3'><h4>Don't let your float fleet hit planets or the red line in the middle.<br/>
-        Score points by feeding ships to the planet with a green circle <br/> with 100% of your ships.</h4>
-        ]]
-    end
-    if GAME.galcon.gamemode == "Grid" then
-        description = [[
-            <tr><td class='box3'><h4>SETTINGS: ]]..GAME.galcon.gametype..[[
-        ]]
-    end
-    return description
-end
-
-function getMapStyle(numMapStyles)
-    local random = math.random(0,numMapStyles - 1)
-
-    return random
-end
-
 --------------------------------------------------------------------------------
 function galcon_classic_init()
     GAME.galcon.float = {}
@@ -909,7 +838,7 @@ function galcon_classic_init()
     if GAME.galcon.gamemode == "Classic" then
         
         local numMapStyles = 5
-        local mapStyle = 4 -- MIX: getMapStyle(numMapStyles) // Classic: 0 // PhilBuff: 1 // 12p: 2 // Saandbuff: 3 // wonk: 4
+        local mapStyle = 3 -- MIX: getMapStyle(numMapStyles) // Classic: 0 // PhilBuff: 1 // 12p: 2 // Saandbuff: 3 // wonk: 4
         if mapStyle == 0 then
             sw = sw / 1.1
             sh = sh / 1.1
@@ -925,9 +854,8 @@ function galcon_classic_init()
 
         local home_production, home_ships = 100, 100
         local home_r = prodToRadius(home_production)
-        local isWonk = true
         
-        if isWonk then
+        if mapStyle == 4 then
 	    home_production = math.floor(math.random(1, 100))
 	    home_ships = math.floor(math.random(1, 100))
 	    home_r = prodToRadius(home_production)
@@ -1362,18 +1290,6 @@ function galcon_classic_init()
     local r = g2.search("planet")
 end
 
-function getDistance(x1, y1, x2, y2)
-    local distx = x1 - x2
-    local disty = y1 - y2
-
-    local a = distx^2
-    local b = disty^2
-
-    local c = a + b
-    local dist = math.sqrt(c)
-    return dist
-end
-
 function count_production()
     local r = {}
     local items = g2.search("planet -neutral")
@@ -1503,11 +1419,6 @@ function galcon_classic_loop()
     --net_send("","view",json.encode({math.random(-1000, 10),math.random(-1000, 10), math.random(10, 1000), math.random(10, 1000)}))
 end
 
-function find_user(uid)
-    for n,e in pairs(g2.search("user")) do
-        if e.user_uid == uid then return e end
-    end
-end
 function galcon_surrender(uid)
     local G = GAME.galcon
 
@@ -1517,62 +1428,6 @@ function galcon_surrender(uid)
         e:planet_chown(G.neutral)
     end
 end
-function stage2(uid)
-    local G = GAME.galcon
-
-    local user = find_user(uid)
-    if user == nil then return end
-    for n,e in pairs(g2.search("planet owner:"..G.neutral_hide)) do
-        e:planet_chown(G.neutral)
-    end
-end
-
-function stage3(uid)
-    local G = GAME.galcon
-
-    local user = find_user(uid)
-    if user == nil then return end
-    for n,e in pairs(g2.search("planet owner:"..G.neutral_hide2)) do
-        e:planet_chown(G.neutral)
-    end
-end
-
-function stage4()
-    local G = GAME.galcon
-
-    for n,e in pairs(g2.search("planet neutral")) do
-        if e.ships_value > 0 then
-            e.ships_value = e.ships_value - 1
-        end
-    end
-end
-
-function stage5()
-    local G = GAME.galcon
-
-    for n,e in pairs(g2.search("user")) do
-        e.fleet_v_factor = 1.5
-    end
-end
-
-function stage6()
-    local G = GAME.galcon
-
-    for n,e in pairs(g2.search("planet")) do
-        if e.ships_production > 0 then
-            e.ships_production = e.ships_production - 1
-        end
-    end
-end
-
-function radiusToProd(radius)
-    local prod = (radius*17 - 168)*5/12
-    return prod
-end
-
-function prodToRadius(p)
-    return (p * 12 / 5 + 168) / 17
-end
 
 function galcon_init()
     GAME.modules.galcon = GAME.modules.galcon or {}
@@ -1581,10 +1436,7 @@ function galcon_init()
     function obj:init()
         g2.state = "play"
         params_set("state","play")
-        params_set("html",[[<table>
-            <tr><td colspan=2><input type='button' value='Resume' onclick='resume' class='ibutton1' icon='icon-resume'/>
-            <tr><td><input type='button' value='Surrender' onclick='/surrender' class='ibutton1' icon='icon-surrender'/>
-            </table>]])
+        params_set("html",ingamePauseMenu())
         galcon_classic_init()
         self.time = 0
         self.wait = 1
@@ -1755,7 +1607,7 @@ function register_init()
             end
             playersPlay = #playersWithStatus("play") + #playersWithStatus("queue")
             -- update server list title
-            g2_api_call("register",json.encode({title="Super Beta SaandCon V3 2024 - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
+            g2_api_call("register",json.encode({title="Beta SaandCon V3 2024 - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
         end
     end
 end
@@ -1848,18 +1700,3 @@ function play_sound(name)
 end
 --------------------------------------------------------------------------------
 mod_init()
---print (g2.name)
---print(g2.uid)
---[[UTILITY FUNCTIONS]]--
-function dump(o)
-    if type(o) == 'table' then
-       local s = '{ '
-       for k,v in pairs(o) do
-          if type(k) ~= 'number' then k = '"'..k..'"' end
-          s = s .. '['..k..'] = ' .. dump(v) .. ','
-       end
-       return s .. '} '
-    else
-       return tostring(o)
-    end
-end

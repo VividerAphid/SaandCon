@@ -1,3 +1,14 @@
+function startupMenu()
+    return [[
+        <table>
+        <tr><td colspan=2><h1>Galcon 2 Server</h1>
+        <tr><td><p>&nbsp;</p>
+        <tr><td><input type='text' name='port' value='$PORT' />
+        <tr><td><p>&nbsp;</p>
+        <tr><td><input type='button' value='Start Server' onclick='host' />"
+        </table>
+        ]]
+end
 function resetLobbyHtml()
     if g2.state ~= "lobby" then
         return
@@ -101,4 +112,34 @@ end
 
 function settingsTab()
 	params_set("html", [[]])
+end
+
+function gamemodeDescription()
+    local description = ""
+    if GAME.galcon.gamemode == "Float" then
+        description = [[
+        <tr><td class='box3'><h4>Don't let your float fleet hit planets or the red line in the middle.<br/>
+        Score points by feeding ships to the planet with a green circle <br/> with 100% of your ships.</h4>
+        ]]
+    end
+    if GAME.galcon.gamemode == "Grid" then
+        description = [[
+            <tr><td class='box3'><h4>SETTINGS: ]]..GAME.galcon.gametype..[[
+        ]]
+    end
+    return description
+end
+
+function ingamePauseMenu()
+    --TODO: Make rage quit button leave lobby
+    return [[<table>
+    <tr><td colspan=2><input type='button' value='Resume' onclick='resume' class='ibutton1' icon='icon-resume'/>
+    <tr><td><input type='button' value='Surrender' onclick='/surrender' class='ibutton1' icon='icon-surrender'/>
+    <tr><td><input type='button' value='Rage Quit' onclick='/surrender' class='ibutton1' icon='icon-leave'/>
+    </table>]]
+
+    --Buttons to be added?
+    --    <tr><td><input type='button' value='Away' onclick='/away' class='ibutton1' icon='icon-away'/>
+    --    <tr><td><input type='button' value='Players' onclick='/players?' class='ibutton1' icon='icon-lobby'/>
+
 end
