@@ -44,7 +44,8 @@ function menu_init()
             MAX_PLAYERS = 2,
         }
     end
-    function obj:loop(t) end
+    function obj:loop(t)
+    end
     function obj:event(e)
         if e.type == 'onclick' and e.value == 'host' then
             GAME.data.port = g2.form.port
@@ -1416,7 +1417,43 @@ function galcon_classic_loop()
             galcon_stop(true,GAME.modules.galcon.timeout)
         end
     end
+    check_for_match_end()
     --net_send("","view",json.encode({math.random(-1000, 10),math.random(-1000, 10), math.random(10, 1000), math.random(10, 1000)}))
+end
+
+function check_for_match_end()
+    local G = GAME.galcon
+
+    local shipCounts = count_ships()
+    local numPlayersWithShips = 0
+    for k, v in pairs(shipCounts) do
+        numPlayersWithShips = numPlayersWithShips + 1
+    end
+
+    local prodCounts = count_production()
+    local numPlayersWithPlanets = 0
+    for k, v in pairs(prodCounts) do
+        numPlayersWithPlanets = numPlayersWithPlanets + 1
+    end
+
+    -- there was a single player and they have no ships anymore.
+    if #G.users <= 1 and numPlayersWithShips == 0 then
+        galcon_stop(false)
+    end
+    -- there were multiple players and one person completely died
+    if #G.users > 1 and numPlayersWithShips <= 1 then
+        if GAME.modules.galcon.timeout > 3 then
+            galcon_stop(true)
+        end
+    end
+    -- one person is floating around like a jackass OR a single person started a game alone.
+    if numPlayersWithPlanets <= 1 then
+        if GAME.modules.galcon.timeout > 10 then
+            galcon_stop(#G.users > 1)
+        end
+    else
+        GAME.modules.galcon.timeout = 0
+    end
 end
 
 function galcon_surrender(uid)

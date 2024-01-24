@@ -135,7 +135,7 @@ function ingamePauseMenu()
     return [[<table>
     <tr><td colspan=2><input type='button' value='Resume' onclick='resume' class='ibutton1' icon='icon-resume'/>
     <tr><td><input type='button' value='Surrender' onclick='/surrender' class='ibutton1' icon='icon-surrender'/>
-    <tr><td><input type='button' value='Rage Quit' onclick='/surrender' class='ibutton1' icon='icon-leave'/>
+    <tr><td><input type='button' value='Rage Quit' onclick='*leave' class='ibutton1' icon='icon-leave'/>
     </table>]]
 
     --Buttons to be added?

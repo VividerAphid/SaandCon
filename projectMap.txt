@@ -31,6 +31,7 @@ string.fromHex()
 stringToNumber()
 getDistance()
 dump()
+count_ships()
 
 	<mapkit>
 getMapStyle()

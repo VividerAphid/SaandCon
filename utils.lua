@@ -74,3 +74,19 @@ function dump(o)
        return tostring(o)
     end
 end
+
+function count_ships()
+    local r = {}
+    local items = g2.search("planet -neutral")
+    for _i, o in ipairs(items) do
+        local team = o:owner():team()
+        r[team] = (r[team] or 0) + o.ships_value
+    end
+
+    local fleets = g2.search("fleet")
+    for _i, o in ipairs(fleets) do
+        local team = o:owner():team()
+        r[team] = (r[team] or 0) + o.fleet_ships
+    end
+    return r
+end
