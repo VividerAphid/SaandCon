@@ -42,6 +42,7 @@ function menu_init()
         GAME.galcon.setmode = false
         GAME.galcon.global = {
             MAX_PLAYERS = 2,
+            silverMode = false,
         }
     end
     function obj:loop(t)
@@ -280,6 +281,25 @@ function clients_init()
                 net_send("","message",e.name .. " /reset")
                 clients_queue()
             end
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/silver" then
+            if e.name == "silvershad0w" or e.name == "HostAphid" then
+                net_send("", "message", "Bro is he!")
+                if GAME.galcon.global.silverMode then
+                    GAME.galcon.global.silverMode = false
+                    net_send("", "message", "SILVER MODE DEACTIVATED")
+                else
+                    GAME.galcon.global.silverMode = true
+                    net_send("", "message", "SILVER MODE ACTIVATED")
+                end
+            else
+                net_send("", "message", "You are not he!")
+            end
+            
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/mins" then
+            net_send("", "message", e.name .. " /mins")
+            net_send("", "message", "MINS MINS MINS MINS MINS MINS MINS MINS MINS MINS")
         end
         if e.type == 'net:message' and string.lower(string.sub(e.value, 1, 4)) == "/put" then
             if isAdmin(e.name) then
@@ -1365,7 +1385,11 @@ function galcon_stop(res,time)
 
             for j, u in pairs(GAME.galcon.scorecard) do
                 if winner.user_uid == j then
-                    u = u + 1
+                    if GAME.galcon.global.silverMode and (winner.title_value == "silvershad0w" or winner.title_value == "HostAphid") then
+                        u = u + 15
+                    else
+                        u = u + 1
+                    end
                     GAME.galcon.scorecard[j] = u
                 end
             end
@@ -1407,16 +1431,18 @@ function galcon_classic_loop()
     for k,v in pairs(r) do 
         total = total + 1 
     end
-    if getNumNonNeutralUsers() <= 1 and total == 0 then
-        if GAME.modules.galcon.timeout > 3 then
-            galcon_stop(false,GAME.modules.galcon.timeout)
-        end
-    end
-    if getNumNonNeutralUsers() > 1 and total <= 1 then
-        if GAME.modules.galcon.timeout > 3 then
-            galcon_stop(true,GAME.modules.galcon.timeout)
-        end
-    end
+    -- if getNumNonNeutralUsers() <= 1 and total == 0 then
+    --     if GAME.modules.galcon.timeout > 3 then
+    --         --galcon_stop(false,GAME.modules.galcon.timeout)
+    --         check_for_match_end()
+    --     end
+    -- end
+    -- if getNumNonNeutralUsers() > 1 and total <= 1 then
+    --     if GAME.modules.galcon.timeout > 3 then
+    --         --galcon_stop(true,GAME.modules.galcon.timeout)
+    --         check_for_match_end()
+    --     end
+    -- end
     check_for_match_end()
     --net_send("","view",json.encode({math.random(-1000, 10),math.random(-1000, 10), math.random(10, 1000), math.random(10, 1000)}))
 end
@@ -1438,17 +1464,20 @@ function check_for_match_end()
 
     -- there was a single player and they have no ships anymore.
     if #G.users <= 1 and numPlayersWithShips == 0 then
+        print("Single user no ships")
         galcon_stop(false)
     end
     -- there were multiple players and one person completely died
     if #G.users > 1 and numPlayersWithShips <= 1 then
         if GAME.modules.galcon.timeout > 3 then
+            print("Multi-user one died")
             galcon_stop(true)
         end
     end
     -- one person is floating around like a jackass OR a single person started a game alone.
-    if numPlayersWithPlanets <= 1 then
+    if numPlayersWithPlanets <= 1 and GAME.galcon.gamemode ~= "Float" then
         if GAME.modules.galcon.timeout > 10 then
+            print("Single user")
             galcon_stop(#G.users > 1)
         end
     else
@@ -1526,6 +1555,7 @@ function galcon_init()
         end
         if e.type == 'net:leave' then
             galcon_surrender(e.uid)
+            clients_leave(e.uid)
         end
         if (e.type == 'net:message' or e.type == 'onclick') and string.lower(e.value) == '/surrender' then
             if e.uid then
@@ -1535,6 +1565,18 @@ function galcon_init()
                 net_send("","message",g2.name.." /surrender")
                 galcon_surrender(g2.uid)
             end
+        end
+        if e.type == 'onclick' and string.lower(e.value) == '*leave' then
+            print('Rage Quit!')
+            -- if e.uid then
+            --     net_send("","message",e.name.." /surrender")
+            --     galcon_surrender(e.uid)
+            -- else 
+            --     net_send("","message",g2.name.." /surrender")
+            --     galcon_surrender(g2.uid)
+            -- end
+            net_send("", "message", e.name.." rage quit!")
+            clients_leave(e.uid)
         end
 
         if GAME.galcon.gamemode == "Stages" then
@@ -1593,6 +1635,23 @@ function galcon_init()
                 end
             end
         end
+    end
+end
+function clients_leave(e)
+    if e.uid ~= g2.uid then
+        net_send(e.uid,"state","quit")
+    end
+    if GAME.clients[e.uid] ~= nil then
+        if GAME.clients[e.uid].status == "play" and numWithStatus("play") == 1 and g2.state ~= "lobby" then
+            GAME.engine:next(GAME.modules.lobby)
+        end
+        GAME.clients[e.uid].status = "away"
+        clients_queue()
+        GAME.clients[e.uid] = nil
+        keywords_removeKeyword(e.name)
+        net_send("","message",e.name .. " left")
+        play_sound("sfx-leave")
+        clients_queue()
     end
 end
 function update_score(time)

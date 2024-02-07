@@ -35,3 +35,4 @@ count_ships()
 
 	<mapkit>
 getMapStyle()
+classicMapGen()
