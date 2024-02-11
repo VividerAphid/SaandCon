@@ -42,7 +42,10 @@ function menu_init()
         GAME.galcon.setmode = false
         GAME.galcon.global = {
             MAX_PLAYERS = 2,
-            silverMode = false,
+            stupidSettings = {
+                silverMode = false,
+                yodaFilter = false,
+            },
         }
     end
     function obj:loop(t)
@@ -285,17 +288,32 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == "/silver" then
             if e.name == "silvershad0w" or e.name == "HostAphid" then
                 net_send("", "message", "Bro is he!")
-                if GAME.galcon.global.silverMode then
-                    GAME.galcon.global.silverMode = false
+                if GAME.galcon.global.stupidSettings.silverMode then
+                    GAME.galcon.global.stupidSettings.silverMode = false
                     net_send("", "message", "SILVER MODE DEACTIVATED")
                 else
-                    GAME.galcon.global.silverMode = true
+                    GAME.galcon.global.stupidSettings.silverMode = true
                     net_send("", "message", "SILVER MODE ACTIVATED")
                 end
             else
                 net_send("", "message", "You are not he!")
             end
             
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/ggwp" then
+            net_send("", "message", e.name .. " /ggwp")
+            if e.name == "hurrinado334" or e.name == "HostAphid" then
+                net_send("", "message", "You are fragile enough...")
+                if GAME.galcon.global.stupidSettings.yodaFilter then
+                    GAME.galcon.global.stupidSettings.yodaFilter = false
+                    net_send("", "message", "Yoda filter deactivated!")
+                else
+                    GAME.galcon.global.stupidSettings.yodaFilter = true
+                    net_send("", "message", "Yoda filter active!")
+                end
+            else
+                net_send("", "message", "You are not fragile enough to be spared yodas berating.")
+            end
         end
         if e.type == 'net:message' and string.lower(e.value) == "/mins" then
             net_send("", "message", e.name .. " /mins")
@@ -546,7 +564,11 @@ function chat_init()
     local obj = GAME.modules.chat
     function obj:event(e)
         if e.type == 'net:message' and not isEmptyOrSlash(e.value) then
-            net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].name.."> "..e.value}))
+            if GAME.galcon.global.stupidSettings.yodaFilter and string.lower(GAME.clients[e.uid].name) == "master_yoda_" then
+                net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].name.."> ".."GG WP"}))
+            else
+                net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].name.."> "..e.value}))
+            end     
         end
     end
 end
@@ -1385,7 +1407,7 @@ function galcon_stop(res,time)
 
             for j, u in pairs(GAME.galcon.scorecard) do
                 if winner.user_uid == j then
-                    if GAME.galcon.global.silverMode and (winner.title_value == "silvershad0w" or winner.title_value == "HostAphid") then
+                    if GAME.galcon.global.stupidSettings.silverMode and (winner.title_value == "silvershad0w" or winner.title_value == "HostAphid") then
                         u = u + 15
                     else
                         u = u + 1
