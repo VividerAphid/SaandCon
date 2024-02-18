@@ -42,6 +42,8 @@ function menu_init()
         GAME.galcon.setmode = false
         GAME.galcon.global = {
             MAX_PLAYERS = 2,
+            SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
+            MAP_STYLE = 3,
             stupidSettings = {
                 silverMode = false,
                 yodaFilter = false,
@@ -186,19 +188,19 @@ function clients_init()
             end
         end
         if (e.type == 'net:message' and string.lower(e.value) == '/lobby') then
-            net_send("", "message", "<debug> net:message for lobby")
+            --net_send("", "message", "<debug> net:message for lobby")
             resetLobbyHtml(e)
         end
         if (e.type == 'net:message' and string.lower(e.value) == '/mode') then
-            net_send("", "message", "<debug> net:message for mode")
+            --net_send("", "message", "<debug> net:message for mode")
             modeTab(e)
         end
         if (e.type == 'net:message' and string.lower(e.value) == '/leaderboard') then
-            net_send("", "message", "<debug> net:message for leaderboard")
+            --net_send("", "message", "<debug> net:message for leaderboard")
             loadScoreboard(e)
         end
         if (e.type == 'net:message' and string.lower(e.value) == '/settings') then
-            net_send("", "message", "<debug> net:message for settings")
+            --net_send("", "message", "<debug> net:message for settings")
             settingsTab(e)
         end
         if e.type == 'net:message' and string.lower(e.value) == '/away' then
@@ -361,6 +363,7 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == "/classic" then
             if g2.state == "lobby" then
                 GAME.galcon.gamemode = "Classic"
+                GAME.galcon.global.SOLO_MODE = false
                 net_send("","message",e.name .. " /classic")
                 net_send("","message","Game mode changed to: Classic.")
                 clients_queue()
@@ -369,6 +372,7 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == "/stages" then
             if g2.state == "lobby" then
                 GAME.galcon.gamemode = "Stages"
+                GAME.galcon.global.SOLO_MODE = false
                 net_send("","message",e.name .. " /stages")
                 net_send("","message","Game mode changed to: Stages.")
                 clients_queue()
@@ -377,6 +381,7 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == "/frenzy" then
             if g2.state == "lobby" then
                 GAME.galcon.gamemode = "Frenzy"
+                GAME.galcon.global.SOLO_MODE = false
                 net_send("","message",e.name .. " /frenzy")
                 net_send("","message","Game mode changed to: Frenzy.")
                 clients_queue()
@@ -385,6 +390,7 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == "/grid" then
             if g2.state == "lobby" then
                 GAME.galcon.gamemode = "Grid"
+                GAME.galcon.global.SOLO_MODE = false
                 GAME.galcon.gametype = "Standard" or "Donut" or "Hexagon"
                 net_send("","message",e.name .. " /grid")
                 net_send("","message","Game mode changed to: Grid.")
@@ -416,6 +422,7 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == "/float" then
             if g2.state == "lobby" then
                 GAME.galcon.gamemode = "Float"
+                GAME.galcon.global.SOLO_MODE = true --DONT FORGET TO CHANGE THIS LATER IF FLOAT BECOMES 2 PLAYER
                 net_send("","message",e.name .. " /float")
                 net_send("","message","Game mode changed to: Float training.")
                 clients_queue()
@@ -424,6 +431,7 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == "/line" then
             if g2.state == "lobby" then
                 GAME.galcon.gamemode = "Line"
+                GAME.galcon.global.SOLO_MODE = true
                 net_send("","message",e.name .. " /line")
                 net_send("","message","Game mode changed to: Line.")
                 clients_queue()
@@ -432,6 +440,7 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == "/race" then
             if g2.state == "lobby" then
                 GAME.galcon.gamemode = "Race"
+                GAME.galcon.global.SOLO_MODE = false
                 net_send("","message",e.name .. " /race")
                 net_send("","message","Game mode changed to: Race.")
                 clients_queue()
@@ -446,6 +455,47 @@ function clients_init()
             if e.uid == g2.uid then
                 net_send(e.uid,"message","(Server -> "..e.name..") List of admin only commands: /abort, /awayall, /reset, /admin, /unadmin")
             end
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/solo" then
+            net_send("","message",e.name .. " /solo")
+            if(GAME.galcon.global.SOLO_MODE) then
+                net_send("", "message", "Solo mode off!")
+                GAME.galcon.global.SOLO_MODE = false
+            else
+                net_send("", "message", "Solo mode on!")
+                GAME.galcon.global.SOLO_MODE = true
+            end
+            resetLobbyHtml()
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/mapstyle mix" then
+            net_send("","message",e.name .. " /mapstyle mix")
+            GAME.galcon.global.MAP_STYLE = "mix"
+            resetLobbyHtml()
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/mapstyle classic" then
+            net_send("","message",e.name .. " /mapstyle classic")
+            GAME.galcon.global.MAP_STYLE = 0
+            resetLobbyHtml()
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/mapstyle philbuff" then
+            net_send("","message",e.name .. " /mapstyle philbuff")
+            GAME.galcon.global.MAP_STYLE = 1
+            resetLobbyHtml()
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/mapstyle 12p" then
+            net_send("","message",e.name .. " /mapstyle 12p")
+            GAME.galcon.global.MAP_STYLE = 2
+            resetLobbyHtml()
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/mapstyle saandbuff" then
+            net_send("","message",e.name .. " /mapstyle saandbuff")
+            GAME.galcon.global.MAP_STYLE = 3
+            resetLobbyHtml()
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/mapstyle wonk" then
+            net_send("","message",e.name .. " /mapstyle wonk")
+            GAME.galcon.global.MAP_STYLE = 4
+            resetLobbyHtml()
         end
         if e.type == 'net:message' and string.lower(e.value) == "/set" then
             GAME.galcon.setmode = true
@@ -689,22 +739,19 @@ function lobby_init()
             end
         end
 		if e.type == 'onclick' and e.value == '/lobby' then
-            net_send("", "message", "<debug> onclick for lobby")
+            --net_send("", "message", "<debug> onclick for lobby")
 			resetLobbyHtml(g2)
 		end
 		if e.type == 'onclick' and e.value == '/mode' then
-            net_send("", "message", "<debug> onclick for mode")
-            print("onclick for mode")
+            --net_send("", "message", "<debug> onclick for mode")
 			modeTab(g2)
 		end
 		if e.type == 'onclick' and e.value == '/leaderboard' then
-            net_send("", "message", "<debug> onclick for leaderboard")
-            print("onclick for ranks")
+            --net_send("", "message", "<debug> onclick for leaderboard")
 			loadScoreboard(g2)
 		end
 		if e.type == 'onclick' and e.value == '/settings' then
-            net_send("", "message", "<debug> onclick for settings")
-            print("onclick for settings")
+            --net_send("", "message", "<debug> onclick for settings")
 			settingsTab(g2)
 		end
     end
@@ -914,7 +961,14 @@ function galcon_classic_init()
     if GAME.galcon.gamemode == "Classic" then
         
         local numMapStyles = 5
-        local mapStyle = 3 -- MIX: getMapStyle(numMapStyles) // Classic: 0 // PhilBuff: 1 // 12p: 2 // Saandbuff: 3 // wonk: 4
+        --local mapStyle = 3 -- MIX: getMapStyle(numMapStyles) // Classic: 0 // PhilBuff: 1 // 12p: 2 // Saandbuff: 3 // wonk: 4
+        local mapStyle = -1
+        if(GAME.galcon.global.MAP_STYLE == "mix") then
+            mapStyle = getMapStyle(numMapStyles)            
+        else
+            mapStyle = GAME.galcon.global.MAP_STYLE
+        end
+
         if mapStyle == 0 then
             sw = sw / 1.1
             sh = sh / 1.1
@@ -1530,7 +1584,7 @@ function check_for_match_end()
         end
     end
     -- one person is floating around like a jackass OR a single person started a game alone.
-    if numPlayersWithPlanets <= 1 and GAME.galcon.gamemode ~= "Float" then
+    if numPlayersWithPlanets <= 1 and GAME.galcon.global.SOLO_MODE == false then
         if GAME.modules.galcon.timeout > 10 then
             print("Single user")
             galcon_stop(#G.users > 1)

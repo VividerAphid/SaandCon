@@ -6,7 +6,7 @@
 	 -Lobby
 	 -Modes
 		-Separate modes into training / non training
-	 -Leaderboard
+	X-Leaderboard
 	 -Settings
 		-Advanced settings for fine tweaks?
 		-EspCon map gen

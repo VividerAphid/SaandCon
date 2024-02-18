@@ -32,6 +32,7 @@ function resetLobbyHtml(e)
                 <tr><td class='box3'><h4>GAME MODE: ]]..GAME.galcon.gamemode..[[
             ]]..
                 gamemodeDescription()..
+                settingsBar()..
             [[
                 <tr><td>
                 <tr><td class='box2'><h2>PLAYERS</h2></td></tr>
@@ -65,7 +66,7 @@ function lobby_tabs(e)
         params_set("tabs", tabs)
     else
         net_send(e.uid, "tabs", tabs)
-        print(e.uid)
+        --print(e.uid)
     end
 end
 
@@ -98,7 +99,8 @@ end
 
 function loadScoreboard(e)
     local html = [[
-              --<tr><td><p>&nbsp;</p>
+              <table>
+              <tr><td><p>&nbsp;</p>
               <tr><td><h2>Leaderboard
             ]] ..
                 getLadderTable() .. [[
@@ -106,33 +108,85 @@ function loadScoreboard(e)
             ]]
     if e == nil then
         params_set("html", html)
-        print("setting for all!")
     else
         net_send(e.uid, "html", html)
-        print(e.uid)
     end
 end
 
 function modeTab(e)
-	local html = [[<table><tr><h2>Filler Text</h2></tr></table>]]
+	local html = [[
+        <table><tr><td>
+        <h2>Modes</h2>
+        <tr><td colspan=2><input type='button' value='Classic' onclick='/classic' class='button2' />
+        <tr><td colspan=2><input type='button' value='Stages' onclick='/stages' class='button2' />
+        <tr><td colspan=2><input type='button' value='Frenzy' onclick='/frenzy' class='button2' />
+        <tr><td colspan=2><input type='button' value='Grid' onclick='/grid' class='button2' />
+        <tr><td colspan=2><input type='button' value='Float' onclick='/float' class='button2' />
+        <tr><td colspan=2><input type='button' value='Line' onclick='/line' class='button2' />
+        <tr><td colspan=2><input type='button' value='Race' onclick='/race' class='button2' />
+        </td></tr>
+        </table>
+        ]]
     if e == nil then
         params_set("html", html)
-        print("setting for all!")
     else
         net_send(e.uid, "html", html)
-        print(e.uid)
     end
 end
 
 function settingsTab(e)
-    local html = [[<table><h2>Filler Text</h2></table>]]
+    local html = [[
+        <table><tr><td>
+        <h2>Settings</h2>
+        <tr><td colspan=2><input type='button' value='Solo Mode' onclick='/solo' class='button2' />
+        ]]
+        .. 
+        loadModeSpecificButtons() ..[[
+        </td></tr>
+        </table>
+        ]]
     if e == nil then
         params_set("html", html)
-        print("setting for all!")
     else
         net_send(e.uid, "html", html)
-        print(e.uid)
     end
+end
+
+function loadModeSpecificButtons()
+    local html = ""
+    if(GAME.galcon.gamemode == "Grid") then
+        html = "<tr><td><h3>Map Type<tr><td colspan=2><input type='button' value='Standard' onclick='/standard' class='button2' /><tr><td colspan=2><input type='button' value='Donut' onclick='/donut' class='button2' /><tr><td colspan=2><input type='button' value='Hexagon' onclick='/hexagon' class='button2' />"
+    elseif (GAME.galcon.gamemode == "Classic") then
+        html = "<tr><td><h3>Map Style <tr><td colspan=2><input type='button' value='Mix' onclick='/mapstyle mix' class='button2' /><tr><td colspan=2><input type='button' value='Classic' onclick='/mapstyle classic' class='button2' /><tr><td colspan=2><input type='button' value='PhilBuff' onclick='/mapstyle philbuff' class='button2' /><tr><td colspan=2><input type='button' value='12 Planet' onclick='/mapstyle 12p' class='button2' /><tr><td colspan=2><input type='button' value='SaandBuff' onclick='/mapstyle saandbuff' class='button2' /><tr><td colspan=2><input type='button' value='Wonk' onclick='/mapstyle wonk' class='button2' />"
+    end
+    return html
+end
+
+function settingsBar()
+    local html = [[
+        <tr><td class='box3'><h4>SETTINGS:
+        <br/>Solo Mode: ]]..soloModeText() .. [[
+
+        ]]
+        if GAME.galcon.gamemode == "Grid" then
+            html = html .. [[<br/>Map Type: ]]..GAME.galcon.gametype
+        elseif GAME.galcon.gamemode == "Classic" then
+            html = html .. [[<br/>Map Style: ]].. mapStyleText()
+        end
+    return html
+end
+
+function soloModeText()
+    if(GAME.galcon.global.SOLO_MODE) then
+        return "On"
+    else
+        return "Off"
+    end
+end
+
+function mapStyleText()
+    local table = {["mix"] = "Mix", [0] = "Classic", [1] = "PhilBuff", [2] = "12p", [3] = "SaandBuff", [4] = "Wonk"}
+    return table[GAME.galcon.global.MAP_STYLE]
 end
 
 function gamemodeDescription()
@@ -143,16 +197,11 @@ function gamemodeDescription()
         Score points by feeding ships to the planet with a green circle <br/> with 100% of your ships.</h4>
         ]]
     end
-    if GAME.galcon.gamemode == "Grid" then
-        description = [[
-            <tr><td class='box3'><h4>SETTINGS: ]]..GAME.galcon.gametype..[[
-        ]]
-    end
     return description
 end
 
 function ingamePauseMenu()
-    --TODO: Make rage quit button leave lobby
+    --TODO: Make rage quit button leave lobby AND not kick everyone else
     return [[<table>
     <tr><td colspan=2><input type='button' value='Resume' onclick='resume' class='ibutton1' icon='icon-resume'/>
     <tr><td><input type='button' value='Surrender' onclick='/surrender' class='ibutton1' icon='icon-surrender'/>

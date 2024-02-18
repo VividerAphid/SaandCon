@@ -11,7 +11,12 @@ getLadderSorted()
 loadScoreboard()
 modeTab()
 settingsTab()
+checkMode()
+settingsBar()
+soloModeText()
+mapStyleText()
 gamemodeDescription()
+ingamePauseMenu()
 
 	<stages>
 stage2()
