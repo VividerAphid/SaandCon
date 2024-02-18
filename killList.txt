@@ -12,7 +12,7 @@
 		-EspCon map gen
 		-SaandCon map gens
 		-Wonk mode with randomised starting ships and scaled prod / neut costs
- -Make rage quit button leave lobby
+ -Make rage quit button leave lobby and not kick everyone else
  -Combine play/away button into toggle
  -Make player bars not terrible matching maccoland
 	-Silly player titles underneath player name on rank flag

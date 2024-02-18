@@ -9,11 +9,11 @@ function startupMenu()
         </table>
         ]]
 end
-function resetLobbyHtml()
+function resetLobbyHtml(e)
     if g2.state ~= "lobby" then
         return
     end
-	lobby_tabs()
+	lobby_tabs(e)
     --params_set("tabs","<table class='box3' width=160><tr><td><h2>SaandCon</h2></table>")
     params_set(
         "html", [[
@@ -65,6 +65,7 @@ function lobby_tabs(e)
         params_set("tabs", tabs)
     else
         net_send(e.uid, "tabs", tabs)
+        print(e.uid)
     end
 end
 
@@ -95,23 +96,43 @@ function getLadderSorted()
     return ladder
 end
 
-function loadScoreboard()
-	params_set("html", [[
+function loadScoreboard(e)
+    local html = [[
               --<tr><td><p>&nbsp;</p>
               <tr><td><h2>Leaderboard
             ]] ..
                 getLadderTable() .. [[
                 </table>
             ]]
-	)
+    if e == nil then
+        params_set("html", html)
+        print("setting for all!")
+    else
+        net_send(e.uid, "html", html)
+        print(e.uid)
+    end
 end
 
-function modeTab()
-	params_set("html", [[]])
+function modeTab(e)
+	local html = [[<table><tr><h2>Filler Text</h2></tr></table>]]
+    if e == nil then
+        params_set("html", html)
+        print("setting for all!")
+    else
+        net_send(e.uid, "html", html)
+        print(e.uid)
+    end
 end
 
-function settingsTab()
-	params_set("html", [[]])
+function settingsTab(e)
+    local html = [[<table><h2>Filler Text</h2></table>]]
+    if e == nil then
+        params_set("html", html)
+        print("setting for all!")
+    else
+        net_send(e.uid, "html", html)
+        print(e.uid)
+    end
 end
 
 function gamemodeDescription()

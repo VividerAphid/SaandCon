@@ -185,6 +185,22 @@ function clients_init()
                 net_send("","message",e.name .. " is /queue")
             end
         end
+        if (e.type == 'net:message' and string.lower(e.value) == '/lobby') then
+            net_send("", "message", "<debug> net:message for lobby")
+            resetLobbyHtml(e)
+        end
+        if (e.type == 'net:message' and string.lower(e.value) == '/mode') then
+            net_send("", "message", "<debug> net:message for mode")
+            modeTab(e)
+        end
+        if (e.type == 'net:message' and string.lower(e.value) == '/leaderboard') then
+            net_send("", "message", "<debug> net:message for leaderboard")
+            loadScoreboard(e)
+        end
+        if (e.type == 'net:message' and string.lower(e.value) == '/settings') then
+            net_send("", "message", "<debug> net:message for settings")
+            settingsTab(e)
+        end
         if e.type == 'net:message' and string.lower(e.value) == '/away' then
             if GAME.clients[e.uid].status == "play" or GAME.clients[e.uid].status == "queue" then
                 GAME.clients[e.uid].status = "away"
@@ -312,6 +328,15 @@ function clients_init()
                     net_send("", "message", "Yoda filter active!")
                 end
             else
+                if string.lower(e.name) == "master_yoda_" then
+                    if GAME.galcon.global.stupidSettings.yodaFilter then
+                        net_send("", "message", "Nope you did this to yourself ".. e.name)
+                    else
+                        net_send("", "message", "If you insist on it being on...")
+                        GAME.galcon.global.stupidSettings.yodaFilter = true
+                        net_send("", "message", "Yoda filter active!")
+                    end
+                end
                 net_send("", "message", "You are not fragile enough to be spared yodas berating.")
             end
         end
@@ -639,6 +664,7 @@ function lobby_init()
                             v.status = "queue"
                             clients_queue()
                             net_send("","message",v.name .. " is /queue")
+
                         end
                     end
                 end
@@ -663,16 +689,23 @@ function lobby_init()
             end
         end
 		if e.type == 'onclick' and e.value == '/lobby' then
-			resetLobbyHtml()
+            net_send("", "message", "<debug> onclick for lobby")
+			resetLobbyHtml(g2)
 		end
 		if e.type == 'onclick' and e.value == '/mode' then
-			modeTab()
+            net_send("", "message", "<debug> onclick for mode")
+            print("onclick for mode")
+			modeTab(g2)
 		end
 		if e.type == 'onclick' and e.value == '/leaderboard' then
-			loadScoreboard()
+            net_send("", "message", "<debug> onclick for leaderboard")
+            print("onclick for ranks")
+			loadScoreboard(g2)
 		end
 		if e.type == 'onclick' and e.value == '/settings' then
-			settingsTab()
+            net_send("", "message", "<debug> onclick for settings")
+            print("onclick for settings")
+			settingsTab(g2)
 		end
     end
 end
