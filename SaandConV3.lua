@@ -613,6 +613,33 @@ function limitColor(color)
     return color
 end
 
+function darkenColor(color)
+    local r1, r2, g1, g2, b1, b2
+
+    r1 = string.sub(color,3,3)
+    r1 = stringToNumber(r1)
+    r1 = tonumber(r1)
+    r2 = string.sub(color,4,4)
+    r2 = stringToNumber(r2)
+    r2 = tonumber(r2)
+
+    g1 = string.sub(color,5,5)
+    g1 = stringToNumber(g1)
+    g1 = tonumber(g1)
+    g2 = string.sub(color,6,6)
+    g2 = stringToNumber(g2)
+    g2 = tonumber(g2)
+
+    b1 = string.sub(color,7,7)
+    b1 = stringToNumber(b1)
+    b1 = tonumber(b1)
+    b2 = string.sub(color,8,8)
+    b2 = stringToNumber(b2)
+    b2 = tonumber(b2)
+
+
+end
+
 --------------------------------------------------------------------------------
 function params_set(k,v)
     GAME.params[k] = v
@@ -764,41 +791,6 @@ function amountOfPlay()
         end
     end
     return #playState
-end
-function playerInState(state)
-    local players = ""
-    local playersList = {}
-    local playercolor = 0
-    for k,e in pairs(GAME.clients) do
-        local wins = 0
-        if e.status == state then
-            if e.color == 255 then
-                playercolor = "#0000ff"         --temporary fix
-            elseif e.color == 16711680 then
-                playercolor = "#ff0000"
-            elseif e.color == 5592405 then
-                playercolor = "#555555"
-            else 
-                playercolor = string.sub(e.color,3)
-                playercolor = "#"..playercolor
-            end
-            for j, u in pairs(GAME.galcon.scorecard) do
-                if e.uid == j then
-                    wins = u
-                end
-            end
-            if isAdmin(e.name) then
-                if string.sub(e.name,1,1) ~= "#" then
-                    players = players.."<tr><td><div font='font-gui2:25' color="..playercolor..">".."#"..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
-                end
-            else 
-                players = players.."<tr><td><div font='font-gui2:25' color="..playercolor..">" ..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
-            end
-        end
-    end
-    if players ~= nil then
-    return players
-    end
 end
 --------------------------------------------------------------------------------
 function galcon_classic_init()
@@ -1664,7 +1656,7 @@ function galcon_init()
         end
         if e.type == 'net:leave' then
             galcon_surrender(e.uid)
-            clients_leave(e.uid)
+            clients_leave(e)
         end
         if (e.type == 'net:message' or e.type == 'onclick') and string.lower(e.value) == '/surrender' then
             if e.uid then
@@ -1675,7 +1667,7 @@ function galcon_init()
                 galcon_surrender(g2.uid)
             end
         end
-        if e.type == 'onclick' and string.lower(e.value) == '*leave' then
+        if e.type == 'onclick' and string.lower(e.value) == '/ragequit' then
             print('Rage Quit!')
             -- if e.uid then
             --     net_send("","message",e.name.." /surrender")
@@ -1685,7 +1677,7 @@ function galcon_init()
             --     galcon_surrender(g2.uid)
             -- end
             net_send("", "message", e.name.." rage quit!")
-            clients_leave(e.uid)
+            clients_leave(e)
         end
 
         if GAME.galcon.gamemode == "Stages" then
@@ -1812,7 +1804,7 @@ function register_init()
             end
             playersPlay = #playersWithStatus("play") + #playersWithStatus("queue")
             -- update server list title
-            g2_api_call("register",json.encode({title="Beta SaandCon V3 2024 - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
+            g2_api_call("register",json.encode({title="DEV SAANDCON - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
         end
     end
 end

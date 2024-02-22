@@ -17,6 +17,7 @@ soloModeText()
 mapStyleText()
 gamemodeDescription()
 ingamePauseMenu()
+playerInState()
 
 	<stages>
 stage2()
