@@ -54,7 +54,7 @@ function hexToDecimal(str)
 end
 
 function decimalToHex(str)
-
+    
 end
 
 function stringToNumber(str)
