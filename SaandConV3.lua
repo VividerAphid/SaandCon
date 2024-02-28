@@ -1664,7 +1664,7 @@ function galcon_init()
         end
         if e.type == 'net:leave' then
             galcon_surrender(e.uid)
-            clients_leave(e.uid)
+            clients_leave(e)
         end
         if (e.type == 'net:message' or e.type == 'onclick') and string.lower(e.value) == '/surrender' then
             if e.uid then
