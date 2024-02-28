@@ -23,9 +23,9 @@ function resetLobbyHtml(e)
                 <tr><td></td></tr>
                 <tr><td colspan=2><input type='button' value='Start' onclick='/start' class='button1' /></td></tr>
                 <tr><td></td></tr>
-                <tr><td align='left'><input type='button' width=15 value='Play' onclick='/play' class='button2' /></td>
-                    <td align='center'><input type='button' width=15 value='Away' onclick='/away' class='button2' /></td>
-                    <td align='right'><input type='button' width=15 value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='button2' /></td></tr>
+                <tr><td><input type='button' value='Play' onclick='/play' class='button2' /></td></tr>
+                <tr><td><input type='button' value='Away' onclick='/away' class='button2' /></td></tr>
+                <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='button2' /></td></tr>
                 <tr><td colspan=2></td></tr>
                 <tr><td><div font='font-gui:12'>Type /help for a list of commands, gamemodes,...</div></td></tr>
             ]]..
@@ -175,6 +175,11 @@ function settingsBar()
         elseif GAME.galcon.gamemode == "Classic" then
             html = html .. [[<br/>Map Style: ]].. mapStyleText()
         end
+        if GAME.galcon.global.SEED_DATA.KEEP_SEED or GAME.galcon.global.SEED_DATA.CUSTOMISED then
+            html = html .. [[<br/>Seed: ]].. GAME.galcon.global.SEED_DATA.SEED
+        else
+            html = html .. [[<br/>Seed: Random]]
+        end
     return html
 end
 
@@ -207,9 +212,10 @@ function ingamePauseMenu()
     return [[<table>
     <tr><td colspan=2><input type='button' value='Resume' onclick='resume' class='ibutton1' icon='icon-resume'/>
     <tr><td><input type='button' value='Surrender' onclick='/surrender' class='ibutton1' icon='icon-surrender'/>
+    <tr><td><input type='button' value='Rage Quit' onclick='/ragequit' class='ibutton1' icon='icon-leave'/>
     </table>]]
 
-    --    <tr><td><input type='button' value='Rage Quit' onclick='*leave' class='ibutton1' icon='icon-leave'/>
+    --    
 
     --Buttons to be added?
     --    <tr><td><input type='button' value='Away' onclick='/away' class='ibutton1' icon='icon-away'/>
