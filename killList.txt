@@ -3,15 +3,15 @@
  
  QUEUE:
  -Tab bars for:
-	 -Lobby
-	 -Modes
+	X-Lobby
+	X-Modes
 		-Separate modes into training / non training
 	X-Leaderboard
-	 -Settings
+	X-Settings
 		-Advanced settings for fine tweaks?
 		-EspCon map gen
-		-SaandCon map gens
-		-Wonk mode with randomised starting ships and scaled prod / neut costs
+		X-SaandCon map gens
+		X-Wonk mode with randomised starting ships and scaled prod / neut costs
  -Make rage quit button leave lobby and not kick everyone else
  -Combine play/away button into toggle
  -Make player bars not terrible matching maccoland
@@ -22,9 +22,6 @@ X-Delay match end on surrender
 X-Do not end match when all planets are lost
  -Practice bot(s)
  -Maccoworld style elim for more than 2 players
- -More control on pause button
-	-Away/play toggle
-	-Leave button?
 X-Change SaandCon custom classic to "cost = math.floor(math.random(prod/20, prod / 1.50)"
  -add in saandbuff map gen setting
  -"wardrobe" tab with ships, skins, colors

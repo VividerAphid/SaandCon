@@ -44,6 +44,12 @@ function menu_init()
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
+            SEED_DATA = {
+                SEED = 1,
+                PREV_SEED = 1,
+                CUSTOMISED = false,
+                KEEP_SEED = false,
+            },
             stupidSettings = {
                 silverMode = false,
                 yodaFilter = false,
@@ -175,6 +181,7 @@ function clients_init()
             end
         end
         if e.type == 'net:leave' then
+            --print("called from first net:leave")
             GAME.clients[e.uid] = nil
             net_send("","message",e.name .. " left")
             g2.net_send("","sound","sfx-leave");
@@ -360,6 +367,19 @@ function clients_init()
             end
             clients_queue()
         end
+        if e.type == 'net:message' and string.lower(e.value) == '/ragequit' then
+            --print("called from rage quit message")
+            if e.uid then
+                galcon_surrender(e.uid)
+            else 
+                galcon_surrender(g2.uid)
+            end
+            GAME.clients[e.uid] = nil
+            clients_leave(e, true)
+        end
+        if e.type == 'net:message' and string.lower(e.value) == '/wardrobe' then
+            net_send("", "message", "Wardrobe coming soon!")
+        end
         if e.type == 'net:message' and string.lower(e.value) == "/classic" then
             if g2.state == "lobby" then
                 GAME.galcon.gamemode = "Classic"
@@ -367,6 +387,51 @@ function clients_init()
                 net_send("","message",e.name .. " /classic")
                 net_send("","message","Game mode changed to: Classic.")
                 clients_queue()
+            end
+        end
+        if e.type == 'net:message' and string.find(string.lower(e.value), "/seed") ~= nil then
+            net_send("", "message", e.name .." " .. e.value)
+            local extract = string.sub(e.value, 7, string.len(e.value))
+            local seed = math.random(os.time())
+            local customised = false
+            if string.len(extract) > 0 then
+                if tonumber(extract) ~= nil then
+                    local converted = tonumber(extract)
+                    if type(converted) == "number" and (math.floor(converted) == converted) then
+                        seed = converted
+                    else
+                        seed = toNumberExtended(extract)
+                    end
+                else
+                    seed = toNumberExtended(extract)
+                end
+                customised = true
+            end
+            GAME.galcon.global.SEED_DATA.SEED = seed
+            GAME.galcon.global.SEED_DATA.CUSTOMISED = customised
+            if customised then
+                resetLobbyHtml()
+            else
+                net_send("", "message", "Seed format not recognised, keeping random seed")
+                resetLobbyHtml()
+            end
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/replayseed" then
+            net_send("", "message", e.name .. "/replayseed")
+            GAME.galcon.global.SEED_DATA.SEED = GAME.galcon.global.SEED_DATA.PREV_SEED
+            GAME.galcon.global.SEED_DATA.CUSTOMISED = true
+            resetLobbyHtml()
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/keepseed" then
+            net_send("", "message", e.name .. "/keepseed")
+            if GAME.galcon.global.SEED_DATA.KEEP_SEED then
+                net_send("", "message", "keepseed off!")
+                GAME.galcon.global.SEED_DATA.KEEP_SEED = false
+            else
+                net_send("", "message", "keepseed on!")
+                GAME.galcon.global.SEED_DATA.KEEP_SEED = true
+                GAME.galcon.global.SEED_DATA.CUSTOMISED = true
+                GAME.galcon.global.SEED_DATA.SEED = GAME.galcon.global.SEED_DATA.PREV_SEED
             end
         end
         if e.type == 'net:message' and string.lower(e.value) == "/stages" then
@@ -613,6 +678,33 @@ function limitColor(color)
     return color
 end
 
+function darkenColor(color)
+    local r1, r2, g1, g2, b1, b2
+
+    r1 = string.sub(color,3,3)
+    r1 = stringToNumber(r1)
+    r1 = tonumber(r1)
+    r2 = string.sub(color,4,4)
+    r2 = stringToNumber(r2)
+    r2 = tonumber(r2)
+
+    g1 = string.sub(color,5,5)
+    g1 = stringToNumber(g1)
+    g1 = tonumber(g1)
+    g2 = string.sub(color,6,6)
+    g2 = stringToNumber(g2)
+    g2 = tonumber(g2)
+
+    b1 = string.sub(color,7,7)
+    b1 = stringToNumber(b1)
+    b1 = tonumber(b1)
+    b2 = string.sub(color,8,8)
+    b2 = stringToNumber(b2)
+    b2 = tonumber(b2)
+
+
+end
+
 --------------------------------------------------------------------------------
 function params_set(k,v)
     GAME.params[k] = v
@@ -754,6 +846,10 @@ function lobby_init()
             --net_send("", "message", "<debug> onclick for settings")
 			settingsTab(g2)
 		end
+        if e.type == 'onclick' and e.value == '/wardrobe' then
+            net_send("", "message", "Wardrobe coming soon!")
+		end
+        
     end
 end
 function amountOfPlay()
@@ -764,41 +860,6 @@ function amountOfPlay()
         end
     end
     return #playState
-end
-function playerInState(state)
-    local players = ""
-    local playersList = {}
-    local playercolor = 0
-    for k,e in pairs(GAME.clients) do
-        local wins = 0
-        if e.status == state then
-            if e.color == 255 then
-                playercolor = "#0000ff"         --temporary fix
-            elseif e.color == 16711680 then
-                playercolor = "#ff0000"
-            elseif e.color == 5592405 then
-                playercolor = "#555555"
-            else 
-                playercolor = string.sub(e.color,3)
-                playercolor = "#"..playercolor
-            end
-            for j, u in pairs(GAME.galcon.scorecard) do
-                if e.uid == j then
-                    wins = u
-                end
-            end
-            if isAdmin(e.name) then
-                if string.sub(e.name,1,1) ~= "#" then
-                    players = players.."<tr><td><div font='font-gui2:25' color="..playercolor..">".."#"..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
-                end
-            else 
-                players = players.."<tr><td><div font='font-gui2:25' color="..playercolor..">" ..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
-            end
-        end
-    end
-    if players ~= nil then
-    return players
-    end
 end
 --------------------------------------------------------------------------------
 function galcon_classic_init()
@@ -813,7 +874,15 @@ function galcon_classic_init()
     
     local G = GAME.galcon
     g2.game_reset();
+    
     local seed = os.time() -- + 1616606700
+    if GAME.galcon.global.SEED_DATA.CUSTOMISED then
+        seed = GAME.galcon.global.SEED_DATA.SEED
+        if GAME.galcon.global.SEED_DATA.KEEP_SEED == false then
+            GAME.galcon.global.SEED_DATA.CUSTOMISED = false
+        end
+    end
+    GAME.galcon.global.SEED_DATA.PREV_SEED = (seed % 1616606700)
     math.randomseed(seed)
     G.time = 0
     g2.state = "play"
@@ -1573,20 +1642,20 @@ function check_for_match_end()
 
     -- there was a single player and they have no ships anymore.
     if #G.users <= 1 and numPlayersWithShips == 0 then
-        print("Single user no ships")
+        --print("Single user no ships")
         galcon_stop(false)
     end
     -- there were multiple players and one person completely died
     if #G.users > 1 and numPlayersWithShips <= 1 then
         if GAME.modules.galcon.timeout > 3 then
-            print("Multi-user one died")
+            --print("Multi-user one died")
             galcon_stop(true)
         end
     end
     -- one person is floating around like a jackass OR a single person started a game alone.
     if numPlayersWithPlanets <= 1 and GAME.galcon.global.SOLO_MODE == false then
         if GAME.modules.galcon.timeout > 10 then
-            print("Single user")
+            --print("Single user")
             galcon_stop(#G.users > 1)
         end
     else
@@ -1663,8 +1732,13 @@ function galcon_init()
             end
         end
         if e.type == 'net:leave' then
+            --print("called from galcon_init")
             galcon_surrender(e.uid)
+<<<<<<< HEAD
             clients_leave(e)
+=======
+            clients_leave(e, false)
+>>>>>>> 9228b53a6508c771d975aed12bc427887e2b5bcb
         end
         if (e.type == 'net:message' or e.type == 'onclick') and string.lower(e.value) == '/surrender' then
             if e.uid then
@@ -1675,17 +1749,15 @@ function galcon_init()
                 galcon_surrender(g2.uid)
             end
         end
-        if e.type == 'onclick' and string.lower(e.value) == '*leave' then
-            print('Rage Quit!')
-            -- if e.uid then
-            --     net_send("","message",e.name.." /surrender")
-            --     galcon_surrender(e.uid)
-            -- else 
-            --     net_send("","message",g2.name.." /surrender")
-            --     galcon_surrender(g2.uid)
-            -- end
-            net_send("", "message", e.name.." rage quit!")
-            clients_leave(e.uid)
+        if e.type == 'onclick' and string.lower(e.value) == '/ragequit' then
+            print("called from rage quit click")
+            if e.uid then
+                galcon_surrender(e.uid)
+            else 
+                galcon_surrender(g2.uid)
+            end
+            GAME.clients[e.uid] = nil
+            clients_leave(e, true)
         end
 
         if GAME.galcon.gamemode == "Stages" then
@@ -1746,9 +1818,12 @@ function galcon_init()
         end
     end
 end
-function clients_leave(e)
+function clients_leave(e, rageQuit)
     if e.uid ~= g2.uid then
         net_send(e.uid,"state","quit")
+    end
+    if rageQuit then
+        net_send("","message",e.name .. " rage quit!")
     end
     if GAME.clients[e.uid] ~= nil then
         if GAME.clients[e.uid].status == "play" and numWithStatus("play") == 1 and g2.state ~= "lobby" then
@@ -1758,7 +1833,6 @@ function clients_leave(e)
         clients_queue()
         GAME.clients[e.uid] = nil
         keywords_removeKeyword(e.name)
-        net_send("","message",e.name .. " left")
         play_sound("sfx-leave")
         clients_queue()
     end
@@ -1812,7 +1886,7 @@ function register_init()
             end
             playersPlay = #playersWithStatus("play") + #playersWithStatus("queue")
             -- update server list title
-            g2_api_call("register",json.encode({title="Beta SaandCon V3 2024 - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
+            g2_api_call("register",json.encode({title="DEV SAANDCON - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
         end
     end
 end

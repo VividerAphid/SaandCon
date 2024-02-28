@@ -40,14 +40,36 @@ function string.fromhex(str)
     end))
 end
 
-function stringToNumber(string)
-    if string == "a" then string = 10 end
-    if string == "b" then string = 11 end 
-    if string == "c" then string = 12 end
-    if string == "d" then string = 13 end
-    if string == "e" then string = 14 end
-    if string == "f" then string = 15 end
-    return string
+function hexToDecimal(str)
+    local converted = 0
+    local r = 0
+    local length = string.len(str)
+    for r=0, length-1 do
+        local exponent = (length-1) - r
+        local multiple = 16 ^ exponent
+        local actual = multiple * stringToNumber(string.sub(str, r+1, r+1))
+        converted = converted + actual
+    end
+    return converted
+end
+
+function decimalToHex(str)
+    
+end
+
+function toNumberExtended(str)
+    local finishedVal = 0
+    for i = 1, string.len(str) do
+        local byt = str.byte(str, i)
+        finishedVal = finishedVal + byt
+    end
+    return finishedVal
+end
+
+function stringToNumber(str)
+    local hexVal = {['0'] = 0, ['1'] = 1, ['2'] = 2, ['3'] = 3, ['4'] = 4, ['5'] = 5, ['6'] = 6, ['7'] = 7, 
+    ['8'] = 8, ['9'] = 9, ['a'] = 10, ['b'] = 11, ['c'] = 12, ['d'] = 13, ['e'] = 14, ['f'] = 15}
+    return hexVal[string.lower(str)]
 end
 
 function getDistance(x1, y1, x2, y2)

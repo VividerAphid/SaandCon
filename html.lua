@@ -19,16 +19,18 @@ function resetLobbyHtml(e)
         "html", [[
                 <table>
                 <tr><td><h1>Play in the Saandbox!</h1></td></tr>
-                <tr><td><div color='0xff88ff' font='font-gui2:18'>By TyCho2, Edited by Saand and VividerAphid</div></td></td>
-                <tr><td>
-                <tr><td colspan=2><input type='button' value='Start' onclick='/start' class='button1' />
-                <tr><td>
-                <tr><td colspan=2><input type='button' value='Play' onclick='/play' class='button2' />
-                <tr><td colspan=2><input type='button' value='Away' onclick='/away' class='button2' />
+                <tr><td><div color='0xff88ff' font='font-gui2:18'>By TyCho2, Edited by Saand and VividerAphid</div></td></tr>
+                <tr><td></td></tr>
+                <tr><td colspan=2><input type='button' value='Start' onclick='/start' class='button1' /></td></tr>
+                <tr><td></td></tr>
+                <tr><td><input type='button' value='Play' onclick='/play' class='button2' /></td></tr>
+                <tr><td><input type='button' value='Away' onclick='/away' class='button2' /></td></tr>
+                <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='button2' /></td></tr>
+                <tr><td colspan=2></td></tr>
                 <tr><td><div font='font-gui:12'>Type /help for a list of commands, gamemodes,...</div></td></tr>
             ]]..
             [[
-                <tr><td>
+                <tr><td></td></tr>
                 <tr><td class='box3'><h4>GAME MODE: ]]..GAME.galcon.gamemode..[[
             ]]..
                 gamemodeDescription()..
@@ -173,6 +175,11 @@ function settingsBar()
         elseif GAME.galcon.gamemode == "Classic" then
             html = html .. [[<br/>Map Style: ]].. mapStyleText()
         end
+        if GAME.galcon.global.SEED_DATA.KEEP_SEED or GAME.galcon.global.SEED_DATA.CUSTOMISED then
+            html = html .. [[<br/>Seed: ]].. GAME.galcon.global.SEED_DATA.SEED
+        else
+            html = html .. [[<br/>Seed: Random]]
+        end
     return html
 end
 
@@ -205,12 +212,49 @@ function ingamePauseMenu()
     return [[<table>
     <tr><td colspan=2><input type='button' value='Resume' onclick='resume' class='ibutton1' icon='icon-resume'/>
     <tr><td><input type='button' value='Surrender' onclick='/surrender' class='ibutton1' icon='icon-surrender'/>
+    <tr><td><input type='button' value='Rage Quit' onclick='/ragequit' class='ibutton1' icon='icon-leave'/>
     </table>]]
 
-    --    <tr><td><input type='button' value='Rage Quit' onclick='*leave' class='ibutton1' icon='icon-leave'/>
+    --    
 
     --Buttons to be added?
     --    <tr><td><input type='button' value='Away' onclick='/away' class='ibutton1' icon='icon-away'/>
     --    <tr><td><input type='button' value='Players' onclick='/players?' class='ibutton1' icon='icon-lobby'/>
 
+end
+
+function playerInState(state)
+    local players = ""
+    local playersList = {}
+    local playercolor = 0
+    for k,e in pairs(GAME.clients) do
+        local wins = 0
+        if e.status == state then
+            if e.color == 255 then
+                playercolor = "#0000ff"         --temporary fix
+            elseif e.color == 16711680 then
+                playercolor = "#ff0000"
+            elseif e.color == 5592405 then
+                playercolor = "#555555"
+            else 
+                playercolor = string.sub(e.color,3)
+                playercolor = "#"..playercolor
+            end
+            for j, u in pairs(GAME.galcon.scorecard) do
+                if e.uid == j then
+                    wins = u
+                end
+            end
+            if isAdmin(e.name) then
+                if string.sub(e.name,1,1) ~= "#" then
+                    players = players.."<tr><td><div class='box' font='font-gui2:25' color="..playercolor..">".."#"..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
+                end
+            else 
+                players = players.."<tr><td><div class='box' font='font-gui2:25' color="..playercolor..">" ..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
+            end
+        end
+    end
+    if players ~= nil then
+    return players
+    end
 end
