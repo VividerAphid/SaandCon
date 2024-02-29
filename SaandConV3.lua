@@ -41,6 +41,7 @@ function menu_init()
         GAME.galcon.tournament = false
         GAME.galcon.setmode = false
         GAME.galcon.global = {
+            TITLE = "Beta V3 SaandCon", --Display title on main g2 lobby screen
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
@@ -678,31 +679,45 @@ function limitColor(color)
     return color
 end
 
+function limitColorNew(color)
+    color = color:gsub("^0x", "")
+    
+    if #color ~= 6 then
+      error("Invalid hex code: " .. color, 2)
+    end
+    
+    local red   = tonumber(color:sub(1, 2), 16)
+    local green = tonumber(color:sub(3, 4), 16)
+    local blue  = tonumber(color:sub(5, 6), 16)
+    
+    if (red + green + blue) * 0.33333333333 < 69 then
+      return "0000000"
+    else
+      return color
+    end
+end
+
 function darkenColor(color)
-    local r1, r2, g1, g2, b1, b2
+    local red = tonumber(string.sub(color, 3,4), 16)
+    local green = tonumber(string.sub(color, 5,6), 16)
+    local blue = tonumber(string.sub(color, 7,8), 16)
+    local darknessRatio = .85
 
-    r1 = string.sub(color,3,3)
-    r1 = stringToNumber(r1)
-    r1 = tonumber(r1)
-    r2 = string.sub(color,4,4)
-    r2 = stringToNumber(r2)
-    r2 = tonumber(r2)
+    red = string.format("%x", math.floor(red * darknessRatio))
+    green = string.format("%x", math.floor(green * darknessRatio))
+    blue = string.format("%x", math.floor(blue * darknessRatio))
 
-    g1 = string.sub(color,5,5)
-    g1 = stringToNumber(g1)
-    g1 = tonumber(g1)
-    g2 = string.sub(color,6,6)
-    g2 = stringToNumber(g2)
-    g2 = tonumber(g2)
+    if(tonumber(red, 16) < 16) then 
+        red = "0"..red
+    end
+    if(tonumber(green, 16) < 16) then 
+        green = "0"..green
+    end
+    if(tonumber(blue, 16) < 16) then 
+        blue = "0"..blue
+    end
 
-    b1 = string.sub(color,7,7)
-    b1 = stringToNumber(b1)
-    b1 = tonumber(b1)
-    b2 = string.sub(color,8,8)
-    b2 = stringToNumber(b2)
-    b2 = tonumber(b2)
-
-
+    return "0x"..red..green..blue
 end
 
 --------------------------------------------------------------------------------
@@ -1882,7 +1897,7 @@ function register_init()
             end
             playersPlay = #playersWithStatus("play") + #playersWithStatus("queue")
             -- update server list title
-            g2_api_call("register",json.encode({title="DEV SAANDCON - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
+            g2_api_call("register",json.encode({title= GAME.galcon.global.TITLE .. " - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
         end
     end
 end

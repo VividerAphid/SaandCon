@@ -40,22 +40,19 @@ function string.fromhex(str)
     end))
 end
 
-function hexToDecimal(str)
-    local converted = 0
-    local r = 0
-    local length = string.len(str)
-    for r=0, length-1 do
-        local exponent = (length-1) - r
-        local multiple = 16 ^ exponent
-        local actual = multiple * stringToNumber(string.sub(str, r+1, r+1))
-        converted = converted + actual
-    end
-    return converted
-end
-
-function decimalToHex(str)
-    
-end
+--NO NEED FOR THIS I JUST WANTED TO MAKE MY OWN
+-- function hexToDecimalAphid(str)
+--     local converted = 0
+--     local r = 0
+--     local length = string.len(str)
+--     for r=0, length-1 do
+--         local exponent = (length-1) - r
+--         local multiple = 16 ^ exponent
+--         local actual = multiple * stringToNumber(string.sub(str, r+1, r+1))
+--         converted = converted + actual
+--     end
+--     return converted
+-- end
 
 function toNumberExtended(str)
     local finishedVal = 0

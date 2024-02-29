@@ -227,17 +227,22 @@ function playerInState(state)
     local players = ""
     local playersList = {}
     local playercolor = 0
+    local darkColor = 0
     for k,e in pairs(GAME.clients) do
         local wins = 0
         if e.status == state then
             if e.color == 255 then
                 playercolor = "#0000ff"         --temporary fix
+                darkColor = "#0000aa"
             elseif e.color == 16711680 then
                 playercolor = "#ff0000"
+                darkColor = "#aa0000"
             elseif e.color == 5592405 then
                 playercolor = "#555555"
+                darkColor = "#222222"
             else 
                 playercolor = string.sub(e.color,3)
+                darkColor = darkenColor(e.color)
                 playercolor = "#"..playercolor
             end
             for j, u in pairs(GAME.galcon.scorecard) do
@@ -247,10 +252,10 @@ function playerInState(state)
             end
             if isAdmin(e.name) then
                 if string.sub(e.name,1,1) ~= "#" then
-                    players = players.."<tr><td><div class='box' font='font-gui2:25' color="..playercolor..">".."#"..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
+                    players = players.."<tr><td><div class='box' font='font-gui2:25' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
                 end
             else 
-                players = players.."<tr><td><div class='box' font='font-gui2:25' color="..playercolor..">" ..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
+                players = players.."<tr><td><div class='box' font='font-gui2:25' background='white:"..darkColor .."' color='"..playercolor.."'>" ..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
             end
         end
     end
