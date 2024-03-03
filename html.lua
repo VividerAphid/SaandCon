@@ -164,6 +164,45 @@ function settingsTab(e)
     end
 end
 
+function wardrobe(e)
+    local html = [[<table><tr><td>
+        <h2>Wardrobe</h2>
+        <tr><td><input type='button' value='back' onclick='/lobby' icon="icon-restart" class='ibutton' />
+        <tr><td><input type='button' value='Colors' onclick='/wardrobe colors' icon="icon-edit" class='ibutton' />
+        <tr><td><input type='button' value='Ships' onclick='/wardrobe ships' icon="icon-clans" class='ibutton' />
+        <tr><td><input type='button' value='Skins' onclick='/wardrobe skins' icon="icon-world" class='ibutton' />
+        </table
+    ]]
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeColors(e)
+    local html = [[<table><tr><td>
+        <h2>Wardrobe</h2>
+        <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
+        </table
+    ]]
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeSkins(e)
+    local html = [[<table><tr><td>
+        <h2>Planet Skins</h2>
+        <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
+        </table
+    ]]
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeShips(e)
+    local html = [[<table><tr><td>
+        <h2>Ships</h2>
+        <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
+        </table
+    ]]
+    net_send(e.uid, "html", html)
+end
+
 function loadModeSpecificButtons()
     local html = ""
     if(GAME.galcon.gamemode == "Grid") then
@@ -271,10 +310,10 @@ function playerInState(state)
             if isAdmin(e.name) then
                 if string.sub(e.name,1,1) ~= "#" then
                     --TODO GET WIDTH WORKING FOR BOTH BARS
-                    players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..builtName..playerBarScoreSpacing("#"..builtName, true)..wins .. "<br/>[Title]"
+                    players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..builtName..playerBarScoreSpacing("#"..builtName, true)..wins .. "<br/>["..e.title.."]"
                 end
             else 
-                players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>" ..builtName.. playerBarScoreSpacing(builtName, false)..wins .."<br/>[Title]"
+                players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>" ..builtName.. playerBarScoreSpacing(builtName, false)..wins .."<br/>["..e.title.."]"
             end
         end
     end

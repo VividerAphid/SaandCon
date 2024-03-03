@@ -169,9 +169,9 @@ function clients_init()
     function obj:event(e)
         if e.type == 'net:join' then
             if amountOfPlay() < GAME.galcon.global.MAX_PLAYERS then
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name,status="queue"}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name,status="queue", title=""}
             else
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name,status="away"}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name,status="away",title=""}
             end
             clients_queue()
             net_send("","message",e.name .. " joined")
@@ -266,6 +266,11 @@ function clients_init()
                 end
                 --print(dump(GAME.clients[e.uid]))
             end
+        end
+        if e.type == 'net:message' and string.lower(string.sub(e.value,1,7)) == "/title " then
+            net_send("","message",e.name .. " " ..e.value)
+            GAME.clients[e.uid].title = string.sub(e.value, 8, string.len(e.value))
+            resetLobbyHtml()
         end
         if e.type == 'net:message' and string.lower(e.value) == "/awayall" then
             if isAdmin(e.name) then
@@ -379,7 +384,16 @@ function clients_init()
             clients_leave(e, true)
         end
         if e.type == 'net:message' and string.lower(e.value) == '/wardrobe' then
-            net_send("", "message", "Wardrobe coming soon!")
+            wardrobe(e)
+        end
+        if e.type == 'net:message' and string.lower(e.value) == '/wardrobe skins' then
+            wardrobeSkins(e)
+        end
+        if e.type == 'net:message' and string.lower(e.value) == '/wardrobe colors' then
+            wardrobeColors(e)
+        end
+        if e.type == 'net:message' and string.lower(e.value) == '/wardrobe ships' then
+            wardrobeShips(e)
         end
         if e.type == 'net:message' and string.lower(e.value) == "/classic" then
             if g2.state == "lobby" then
@@ -862,7 +876,16 @@ function lobby_init()
 			settingsTab(g2)
 		end
         if e.type == 'onclick' and e.value == '/wardrobe' then
-            net_send("", "message", "Wardrobe coming soon!")
+            wardrobe(e)
+		end
+        if e.type == 'onclick' and e.value == '/wardrobe colors' then
+            wardrobeColors(e)
+		end
+        if e.type == 'onclick' and e.value == '/wardrobe skins' then
+            wardrobeSkins(e)
+		end
+        if e.type == 'onclick' and e.value == '/wardrobe ships' then
+            wardrobeShips(e)
 		end
         
     end
