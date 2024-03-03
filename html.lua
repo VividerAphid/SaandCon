@@ -39,18 +39,28 @@ function resetLobbyHtml(e)
                 <tr><td>
                 <tr><td class='box2'><h2>PLAYERS</h2></td></tr>
                 <tr><td>
-                <tr><td><h3>PLAY:</h3></td></tr>
             ]]..
-                playerInState("play")..playerInState("queue")..
-            [[
-                <tr><td>
-                <tr><td><h3>SPECTATORS:</h3></td></tr>
-            ]]..
+            
+                playerInState("play")..
+                playerInState("queue")..
                 playerInState("away")..
             [[
-              <tr><td><p>&nbsp;</p>
+                <tr><td><p>&nbsp;</p>
             ]]
     )
+
+        -- <tr><td>
+        --         <tr><td><h3>PLAY:</h3></td></tr>
+        --     ]]..
+        --         playerInState("play")..playerInState("queue")..
+        --     [[
+        --         <tr><td>
+        --         <tr><td><h3>SPECTATORS:</h3></td></tr>
+        --     ]]..
+        --         playerInState("away")..
+        --     [[
+        --       <tr><td><p>&nbsp;</p>
+        --     ]]
 end
 
 function lobby_tabs(e)
@@ -228,6 +238,7 @@ function playerInState(state)
     local playersList = {}
     local playercolor = 0
     local darkColor = 0
+    local queueNum = 1
     for k,e in pairs(GAME.clients) do
         local wins = 0
         if e.status == state then
@@ -238,8 +249,8 @@ function playerInState(state)
                 playercolor = "#ff0000"
                 darkColor = "#aa0000"
             elseif e.color == 5592405 then
-                playercolor = "#555555"
-                darkColor = "#222222"
+                playercolor = "#666666"
+                darkColor = "#333333"
             else 
                 playercolor = string.sub(e.color,3)
                 darkColor = darkenColor(e.color)
@@ -250,16 +261,43 @@ function playerInState(state)
                     wins = u
                 end
             end
+            local builtName = ""
+            if(e.status == "queue") then
+                builtName = e.name..stateString(e.status, queueNum)
+                queueNum = queueNum + 1
+            else
+                builtName = e.name..stateString(e.status)
+            end
             if isAdmin(e.name) then
                 if string.sub(e.name,1,1) ~= "#" then
-                    players = players.."<tr><td><div class='box' font='font-gui2:25' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
+                    --TODO GET WIDTH WORKING FOR BOTH BARS
+                    players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..builtName..playerBarScoreSpacing("#"..builtName, true)..wins .. "<br/>[Title]"
                 end
             else 
-                players = players.."<tr><td><div class='box' font='font-gui2:25' background='white:"..darkColor .."' color='"..playercolor.."'>" ..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
+                players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>" ..builtName.. playerBarScoreSpacing(builtName, false)..wins .."<br/>[Title]"
             end
         end
     end
     if players ~= nil then
     return players
+    end
+end
+
+function playerBarScoreSpacing(name)
+    local space = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    local diff = 18 - string.len(name) --18 for max string length included from stateString()
+    for i = 0, diff do 
+        space = space .. "&nbsp;"
+    end
+    return space
+end
+
+function stateString(state, num)
+    if state == "away" then
+        return " (zzz)"
+    elseif num ~= nil then
+        return " (#"..num..")"
+    else
+        return ""
     end
 end

@@ -41,7 +41,7 @@ function menu_init()
         GAME.galcon.tournament = false
         GAME.galcon.setmode = false
         GAME.galcon.global = {
-            TITLE = "Beta V3 SaandCon", --Display title on main g2 lobby screen
+            TITLE = "DEV SAANDCON", --Display title on main g2 lobby screen
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
@@ -898,7 +898,7 @@ function galcon_classic_init()
         end
     end
     GAME.galcon.global.SEED_DATA.PREV_SEED = (seed % 1616606700)
-    math.randomseed(seed)
+    math.randomseed(seed % 1616606700)
     G.time = 0
     g2.state = "play"
 

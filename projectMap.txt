@@ -18,6 +18,8 @@ mapStyleText()
 gamemodeDescription()
 ingamePauseMenu()
 playerInState()
+playerBarScoreSpacing()
+stateString()
 
 	<stages>
 stage2()
