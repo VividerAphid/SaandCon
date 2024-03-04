@@ -269,7 +269,13 @@ function clients_init()
         end
         if e.type == 'net:message' and string.lower(string.sub(e.value,1,7)) == "/title " then
             net_send("","message",e.name .. " " ..e.value)
-            GAME.clients[e.uid].title = string.sub(e.value, 8, string.len(e.value))
+            local newTitle = string.sub(e.value, 8, string.len(e.value))
+            local maxLen = 20
+            if string.len(newTitle) > maxLen then
+                net_send("","message", "Title too long, max "..maxLen.." chars")
+            else
+                GAME.clients[e.uid].title = newTitle
+            end
             resetLobbyHtml()
         end
         if e.type == 'net:message' and string.lower(e.value) == "/awayall" then
