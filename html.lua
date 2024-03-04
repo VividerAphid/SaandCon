@@ -217,11 +217,14 @@ function wardrobeColors(e)
             <td><input type='button' width=50 background='white:#ff73d5' value='  ' onclick='/hex 0xff73d5' class='button2' /></td>
         </tr>
         <tr><td><input type='button' width=50 background='white:#029e68' value='  ' onclick='/hex 0x029e68' class='button2' /></td>
-            <td><input type='button' width=50 background='white:#02c481' value='  ' onclick='/hex 0x02c481' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00d68c' value='  ' onclick='/hex 0x00d68c' class='button2' /></td>
             <td><input type='button' width=50 background='white:#00ffa6' value='  ' onclick='/hex 0x00ffa6' class='button2' /></td>
         </tr>
-
-         <tr><td><input type='button' width=50 background='white:#a14f3f' value='  ' onclick='/hex 0xa14f3f' class='button2' /></td>
+        <tr><td><input type='button' width=50 background='white:#0053ed' value='  ' onclick='/hex 0x0053ed' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#0080ff' value='  ' onclick='/hex 0x0080ff' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#59acff' value='  ' onclick='/hex 0x59acff' class='button2' /></td>
+        </tr>
+         <tr><td><input type='button' width=50 background='white:#ab5443' value='  ' onclick='/hex 0xab5443' class='button2' /></td>
              <td><input type='button' width=50 background='white:#cc6854' value='  ' onclick='/hex 0xcc6854' class='button2' /></td>
              <td><input type='button' width=50 background='white:#ff917a' value='  ' onclick='/hex 0xff917a' class='button2' /></td>
         </tr>

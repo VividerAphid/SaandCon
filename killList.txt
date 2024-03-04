@@ -17,23 +17,29 @@ X-Tab bars for:
 		X-Wonk mode with randomised starting ships and scaled prod / neut costs
 X-Change SaandCon custom classic to "cost = math.floor(math.random(prod/20, prod / 1.50)"
  -add in saandbuff map gen setting
- -"wardrobe" tab with ships, skins, colors
+ -"wardrobe" tab with: 
+ 	 -ships 
+	 -skins 
+	X-colors
  -winner stays on
  -timer
- -Make player bars not terrible matching maccoland
-    -Silly player titles underneath player name on rank flag
-	-Rank flags
+X-Make player bars not terrible matching maccoland
+   X-Silly player titles underneath player name
 	-Persistent color
+ -/Father
+ -/Rechameleon
 
 
  V4:
-
+ -Rank flags
+ -Combine play/away button into toggle
+ -Race mode to have regular cluster mode like vacuum mode
+ -Float mode increases in difficulty over time
+ -Practice bot(s)
+ -Maccoworld style elim for more than 2 players
 
 
  
  QUEUE:
 
- -Combine play/away button into toggle
- -Race mode to have regular cluster mode like vacuum mode
- -Practice bot(s)
- -Maccoworld style elim for more than 2 players
+ 

@@ -41,7 +41,7 @@ function menu_init()
         GAME.galcon.tournament = false
         GAME.galcon.setmode = false
         GAME.galcon.global = {
-            TITLE = "DEV SAANDCON", --Display title on main g2 lobby screen
+            TITLE = "Beta SaandCon V3", --Display title on main g2 lobby screen
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
