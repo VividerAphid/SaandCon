@@ -1778,11 +1778,7 @@ function galcon_init()
         if e.type == 'net:leave' then
             --print("called from galcon_init")
             galcon_surrender(e.uid)
-<<<<<<< HEAD
-            clients_leave(e)
-=======
             clients_leave(e, false)
->>>>>>> 9228b53a6508c771d975aed12bc427887e2b5bcb
         end
         if (e.type == 'net:message' or e.type == 'onclick') and string.lower(e.value) == '/surrender' then
             if e.uid then
