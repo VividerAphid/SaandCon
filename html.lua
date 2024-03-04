@@ -23,7 +23,7 @@ function resetLobbyHtml(e)
                 <tr><td></td></tr>
                 <tr><td colspan=2><input type='button' value='Start' onclick='/start' class='button1' /></td></tr>
                 <tr><td></td></tr>
-                <tr><td><input type='button' value='Play' onclick='/play' class='button2' /></td></tr>
+                <tr><td><input type='button' value='Play' onclick='/play' class='button2' /></td>
                 <tr><td><input type='button' value='Away' onclick='/away' class='button2' /></td></tr>
                 <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='button2' /></td></tr>
                 <tr><td colspan=2></td></tr>
@@ -39,18 +39,28 @@ function resetLobbyHtml(e)
                 <tr><td>
                 <tr><td class='box2'><h2>PLAYERS</h2></td></tr>
                 <tr><td>
-                <tr><td><h3>PLAY:</h3></td></tr>
             ]]..
-                playerInState("play")..playerInState("queue")..
-            [[
-                <tr><td>
-                <tr><td><h3>SPECTATORS:</h3></td></tr>
-            ]]..
+            
+                playerInState("play")..
+                playerInState("queue")..
                 playerInState("away")..
             [[
-              <tr><td><p>&nbsp;</p>
+                <tr><td><p>&nbsp;</p>
             ]]
     )
+
+        -- <tr><td>
+        --         <tr><td><h3>PLAY:</h3></td></tr>
+        --     ]]..
+        --         playerInState("play")..playerInState("queue")..
+        --     [[
+        --         <tr><td>
+        --         <tr><td><h3>SPECTATORS:</h3></td></tr>
+        --     ]]..
+        --         playerInState("away")..
+        --     [[
+        --       <tr><td><p>&nbsp;</p>
+        --     ]]
 end
 
 function lobby_tabs(e)
@@ -154,6 +164,93 @@ function settingsTab(e)
     end
 end
 
+function wardrobe(e)
+    local html = [[<table><tr><td>
+        <h2>Wardrobe</h2>
+        <tr><td><input type='button' value='back' onclick='/lobby' icon="icon-restart" class='ibutton' />
+        <tr><td><input type='button' value='Colors' onclick='/wardrobe colors' icon="icon-edit" class='ibutton' />
+        <tr><td><input type='button' value='Ships' onclick='/wardrobe ships' icon="icon-clans" class='ibutton' />
+        <tr><td><input type='button' value='Skins' onclick='/wardrobe skins' icon="icon-world" class='ibutton' />
+        </table
+    ]]
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeColors(e)
+    local html = [[<table><tr><td>
+        <td><h2>Colors</h2>
+        <tr><td><td><input type='button' width=50 value='back' onclick='/wardrobe' class='button2' />
+        <tr><td><input type='button' width=50 background='white:#8a0000' value='  ' onclick='/hex 0x8a0000' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#bb0000' value='  ' onclick='/hex 0xbb0000' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ff0000' value='  ' onclick='/hex 0xff0000' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#008a00' value='  ' onclick='/hex 0x008a00' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00bb00' value='  ' onclick='/hex 0x00bb00' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00ff00' value='  ' onclick='/hex 0x00ff00' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#00008a' value='  ' onclick='/hex 0x00008a' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#0000bb' value='  ' onclick='/hex 0x0000bb' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#0000ff' value='  ' onclick='/hex 0x0000ff' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#8a8a00' value='  ' onclick='/hex 0x8a8a00' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#bbbb00' value='  ' onclick='/hex 0xbbbb00' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ffff00' value='  ' onclick='/hex 0xffff00' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#008a8a' value='  ' onclick='/hex 0x008a8a' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00bbbb' value='  ' onclick='/hex 0x00bbbb' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00ffff' value='  ' onclick='/hex 0x00ffff' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#8a008a' value='  ' onclick='/hex 0x8a008a' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#bb00bb' value='  ' onclick='/hex 0xbb00bb' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ff00ff' value='  ' onclick='/hex 0xff00ff' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#8a8a8a' value='  ' onclick='/hex 0x8a8a8a' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#bbbbbb' value='  ' onclick='/hex 0xbbbbbb' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ffffff' value='  ' onclick='/hex 0xffffff' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#a84a02' value='  ' onclick='/hex 0xa84a02' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#cf5b02' value='  ' onclick='/hex 0xcf5b02' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ff6f00' value='  ' onclick='/hex 0xff6f00' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#9e3c81' value='  ' onclick='/hex 0x9e3c81' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#c947a2' value='  ' onclick='/hex 0xc947a2' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ff73d5' value='  ' onclick='/hex 0xff73d5' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#029e68' value='  ' onclick='/hex 0x029e68' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#02c481' value='  ' onclick='/hex 0x02c481' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00ffa6' value='  ' onclick='/hex 0x00ffa6' class='button2' /></td>
+        </tr>
+
+         <tr><td><input type='button' width=50 background='white:#a14f3f' value='  ' onclick='/hex 0xa14f3f' class='button2' /></td>
+             <td><input type='button' width=50 background='white:#cc6854' value='  ' onclick='/hex 0xcc6854' class='button2' /></td>
+             <td><input type='button' width=50 background='white:#ff917a' value='  ' onclick='/hex 0xff917a' class='button2' /></td>
+        </tr>
+        
+        </table
+    ]]
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeSkins(e)
+    local html = [[<table><tr><td>
+        <h2>Planet Skins</h2>
+        <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
+        <tr><td>No sunglasses for you yet silvershad0w :(((
+        </table
+    ]]
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeShips(e)
+    local html = [[<table><tr><td>
+        <h2>Ships</h2>
+        <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
+        <tr><td>Still working on the fastest ships in the game...
+        </table
+    ]]
+    net_send(e.uid, "html", html)
+end
+
 function loadModeSpecificButtons()
     local html = ""
     if(GAME.galcon.gamemode == "Grid") then
@@ -228,6 +325,7 @@ function playerInState(state)
     local playersList = {}
     local playercolor = 0
     local darkColor = 0
+    local queueNum = 1
     for k,e in pairs(GAME.clients) do
         local wins = 0
         if e.status == state then
@@ -238,8 +336,8 @@ function playerInState(state)
                 playercolor = "#ff0000"
                 darkColor = "#aa0000"
             elseif e.color == 5592405 then
-                playercolor = "#555555"
-                darkColor = "#222222"
+                playercolor = "#666666"
+                darkColor = "#333333"
             else 
                 playercolor = string.sub(e.color,3)
                 darkColor = darkenColor(e.color)
@@ -250,16 +348,43 @@ function playerInState(state)
                     wins = u
                 end
             end
+            local builtName = ""
+            if(e.status == "queue") then
+                builtName = e.name..stateString(e.status, queueNum)
+                queueNum = queueNum + 1
+            else
+                builtName = e.name..stateString(e.status)
+            end
             if isAdmin(e.name) then
                 if string.sub(e.name,1,1) ~= "#" then
-                    players = players.."<tr><td><div class='box' font='font-gui2:25' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
+                    --TODO GET WIDTH WORKING FOR BOTH BARS
+                    players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..builtName..playerBarScoreSpacing("#"..builtName, true)..wins .. "<br/>["..e.title.."]"
                 end
             else 
-                players = players.."<tr><td><div class='box' font='font-gui2:25' background='white:"..darkColor .."' color='"..playercolor.."'>" ..e.name.."&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"..wins
+                players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>" ..builtName.. playerBarScoreSpacing(builtName, false)..wins .."<br/>["..e.title.."]"
             end
         end
     end
     if players ~= nil then
     return players
+    end
+end
+
+function playerBarScoreSpacing(name)
+    local space = "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"
+    local diff = 18 - string.len(name) --18 for max string length included from stateString()
+    for i = 0, diff do 
+        space = space .. "&nbsp;"
+    end
+    return space
+end
+
+function stateString(state, num)
+    if state == "away" then
+        return " (zzz)"
+    elseif num ~= nil then
+        return " (#"..num..")"
+    else
+        return ""
     end
 end
