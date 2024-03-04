@@ -23,7 +23,7 @@ function resetLobbyHtml(e)
                 <tr><td></td></tr>
                 <tr><td colspan=2><input type='button' value='Start' onclick='/start' class='button1' /></td></tr>
                 <tr><td></td></tr>
-                <tr><td><input type='button' value='Play' onclick='/play' class='button2' /></td></tr>
+                <tr><td><input type='button' value='Play' onclick='/play' class='button2' /></td>
                 <tr><td><input type='button' value='Away' onclick='/away' class='button2' /></td></tr>
                 <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='button2' /></td></tr>
                 <tr><td colspan=2></td></tr>
@@ -178,8 +178,54 @@ end
 
 function wardrobeColors(e)
     local html = [[<table><tr><td>
-        <h2>Wardrobe</h2>
-        <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
+        <td><h2>Colors</h2>
+        <tr><td><td><input type='button' width=50 value='back' onclick='/wardrobe' class='button2' />
+        <tr><td><input type='button' width=50 background='white:#8a0000' value='  ' onclick='/hex 0x8a0000' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#bb0000' value='  ' onclick='/hex 0xbb0000' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ff0000' value='  ' onclick='/hex 0xff0000' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#008a00' value='  ' onclick='/hex 0x008a00' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00bb00' value='  ' onclick='/hex 0x00bb00' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00ff00' value='  ' onclick='/hex 0x00ff00' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#00008a' value='  ' onclick='/hex 0x00008a' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#0000bb' value='  ' onclick='/hex 0x0000bb' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#0000ff' value='  ' onclick='/hex 0x0000ff' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#8a8a00' value='  ' onclick='/hex 0x8a8a00' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#bbbb00' value='  ' onclick='/hex 0xbbbb00' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ffff00' value='  ' onclick='/hex 0xffff00' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#008a8a' value='  ' onclick='/hex 0x008a8a' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00bbbb' value='  ' onclick='/hex 0x00bbbb' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00ffff' value='  ' onclick='/hex 0x00ffff' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#8a008a' value='  ' onclick='/hex 0x8a008a' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#bb00bb' value='  ' onclick='/hex 0xbb00bb' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ff00ff' value='  ' onclick='/hex 0xff00ff' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#8a8a8a' value='  ' onclick='/hex 0x8a8a8a' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#bbbbbb' value='  ' onclick='/hex 0xbbbbbb' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ffffff' value='  ' onclick='/hex 0xffffff' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#a84a02' value='  ' onclick='/hex 0xa84a02' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#cf5b02' value='  ' onclick='/hex 0xcf5b02' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ff6f00' value='  ' onclick='/hex 0xff6f00' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#9e3c81' value='  ' onclick='/hex 0x9e3c81' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#c947a2' value='  ' onclick='/hex 0xc947a2' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#ff73d5' value='  ' onclick='/hex 0xff73d5' class='button2' /></td>
+        </tr>
+        <tr><td><input type='button' width=50 background='white:#029e68' value='  ' onclick='/hex 0x029e68' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#02c481' value='  ' onclick='/hex 0x02c481' class='button2' /></td>
+            <td><input type='button' width=50 background='white:#00ffa6' value='  ' onclick='/hex 0x00ffa6' class='button2' /></td>
+        </tr>
+
+         <tr><td><input type='button' width=50 background='white:#a14f3f' value='  ' onclick='/hex 0xa14f3f' class='button2' /></td>
+             <td><input type='button' width=50 background='white:#cc6854' value='  ' onclick='/hex 0xcc6854' class='button2' /></td>
+             <td><input type='button' width=50 background='white:#ff917a' value='  ' onclick='/hex 0xff917a' class='button2' /></td>
+        </tr>
+        
         </table
     ]]
     net_send(e.uid, "html", html)
@@ -189,6 +235,7 @@ function wardrobeSkins(e)
     local html = [[<table><tr><td>
         <h2>Planet Skins</h2>
         <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
+        <tr><td>No sunglasses for you yet silvershad0w :(((
         </table
     ]]
     net_send(e.uid, "html", html)
@@ -198,6 +245,7 @@ function wardrobeShips(e)
     local html = [[<table><tr><td>
         <h2>Ships</h2>
         <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
+        <tr><td>Still working on the fastest ships in the game...
         </table
     ]]
     net_send(e.uid, "html", html)
