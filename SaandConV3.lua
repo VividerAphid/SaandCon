@@ -51,6 +51,7 @@ function menu_init()
                 CUSTOMISED = false,
                 KEEP_SEED = false,
                 SEED_STRING = "",
+                PREV_SEED_STRING = "",
             },
             stupidSettings = {
                 silverMode = false,
@@ -487,6 +488,7 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == "/replayseed" then
             net_send("", "message", e.name .. " /replayseed")
             GAME.galcon.global.SEED_DATA.SEED = GAME.galcon.global.SEED_DATA.PREV_SEED
+            GAME.galcon.global.SEED_DATA.SEED_STRING = GAME.galcon.global.SEED_DATA.PREV_SEED_STRING
             GAME.galcon.global.SEED_DATA.CUSTOMISED = true
             resetLobbyHtml()
         end
@@ -501,6 +503,7 @@ function clients_init()
                 if GAME.galcon.global.SEED_DATA.CUSTOMISED == false then
                     GAME.galcon.global.SEED_DATA.CUSTOMISED = true
                     GAME.galcon.global.SEED_DATA.SEED = GAME.galcon.global.SEED_DATA.PREV_SEED
+                    GAME.galcon.global.SEED_DATA.SEED_STRING = GAME.galcon.global.SEED_DATA.PREV_SEED_STRING
                 end
             end
         end
@@ -969,11 +972,16 @@ function galcon_classic_init()
     g2.game_reset();
     
     local seed = os.time() -- + 1616606700
+    local seedstring = GAME.galcon.global.SEED_DATA.SEED_STRING
+    GAME.galcon.global.SEED_DATA.PREV_SEED_STRING = GAME.galcon.global.SEED_DATA.SEED_STRING
     if GAME.galcon.global.SEED_DATA.CUSTOMISED then
         seed = GAME.galcon.global.SEED_DATA.SEED
         if GAME.galcon.global.SEED_DATA.KEEP_SEED == false then
             GAME.galcon.global.SEED_DATA.CUSTOMISED = false
+            GAME.galcon.global.SEED_DATA.SEED_STRING = nil
         end
+    else
+        GAME.galcon.global.SEED_DATA.SEED_STRING = nil
     end
     GAME.galcon.global.SEED_DATA.PREV_SEED = (seed % 1616606700)
     math.randomseed(seed % 1616606700)
@@ -1577,8 +1585,8 @@ function galcon_classic_init()
         g2.planets_settle(0,0,sw,sh);
         g2.planets_settle();
     end
-    if GAME.galcon.global.SEED_DATA.SEED_STRING ~= nil then
-        net_send('',"message","Map seed: "..GAME.galcon.global.SEED_DATA.SEED_STRING)
+    if seedstring ~= nil then
+        net_send('',"message","Map seed: "..seedstring)
     else
         net_send('',"message","Map seed: "..(seed % 1616606700) )
     end 
