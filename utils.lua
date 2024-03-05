@@ -58,6 +58,7 @@ function toNumberExtended(str)
     local finishedVal = 0
     for i = 1, string.len(str) do
         local byt = str.byte(str, i)
+        finishedVal = finishedVal * 7
         finishedVal = finishedVal + byt
     end
     return finishedVal

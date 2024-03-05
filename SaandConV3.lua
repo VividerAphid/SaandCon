@@ -50,10 +50,14 @@ function menu_init()
                 PREV_SEED = 1,
                 CUSTOMISED = false,
                 KEEP_SEED = false,
+                SEED_STRING = "",
             },
             stupidSettings = {
                 silverMode = false,
                 yodaFilter = false,
+                breadmode = false,
+                saandmode = false,
+                rechameleon = false,
             },
         }
     end
@@ -72,9 +76,9 @@ function menu_init()
     end
 end
 --------------------------------------------------------------------------------
-function clients_queue()
+function clients_queue(e)
     _clients_queue()
-    resetLobbyHtml()
+    resetLobbyHtml(e)
 end
 function _clients_queue()
     local colors = {
@@ -173,7 +177,7 @@ function clients_init()
             else
                 GAME.clients[e.uid] = {uid=e.uid,name=e.name,status="away",title=""}
             end
-            clients_queue()
+            clients_queue(e)
             net_send("","message",e.name .. " joined")
             g2.net_send("","sound","sfx-join");
 
@@ -269,14 +273,18 @@ function clients_init()
         end
         if e.type == 'net:message' and string.lower(string.sub(e.value,1,7)) == "/title " then
             net_send("","message",e.name .. " " ..e.value)
-            local newTitle = string.sub(e.value, 8, string.len(e.value))
-            local maxLen = 20
-            if string.len(newTitle) > maxLen then
-                net_send("","message", "Title too long, max "..maxLen.." chars")
+            if GAME.galcon.global.stupidSettings.saandmode and GAME.clients[e.uid].title == "Saand Minion" and string.lower(e.name) ~= "binah." then
+                net_send("","message", "You cannot change this title without being freed of the FATHER.")
             else
-                GAME.clients[e.uid].title = newTitle
-            end
-            resetLobbyHtml()
+                local newTitle = string.sub(e.value, 8, string.len(e.value))
+                local maxLen = 20
+                if string.len(newTitle) > maxLen then
+                    net_send("","message", "Title too long, max "..maxLen.." chars")
+                else
+                    GAME.clients[e.uid].title = newTitle
+                end
+                resetLobbyHtml()
+            end           
         end
         if e.type == 'net:message' and string.lower(e.value) == "/awayall" then
             if isAdmin(e.name) then
@@ -361,6 +369,43 @@ function clients_init()
                 net_send("", "message", "You are not fragile enough to be spared yodas berating.")
             end
         end
+        if e.type == 'net:message' and string.lower(e.value) == "/father" then
+            net_send("", "message", e.name .. " /father")
+            if string.lower(e.name) == "binah." or e.name == "HostAphid" then
+                if GAME.galcon.global.stupidSettings.saandmode then
+                    net_send("", "message", "Father Elim shall have mercy for now...")
+                    GAME.galcon.global.stupidSettings.saandmode = false
+                else
+                    net_send("", "message", "Hail Father Elim Saand!")
+                    GAME.galcon.global.stupidSettings.saandmode = true
+                end
+            else
+                net_send("", "message", "SACRILEGE! YOU ARE NOT FATHER SAAND!")
+                GAME.clients[e.uid].title = "SHAME"
+                resetLobbyHtml()
+            end
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/breadmode" then
+            net_send("", "message", e.name.." /breadmode")
+            if string.lower(e.name) == "bread" or e.name == "HostAphid" then
+                if GAME.galcon.global.stupidSettings.breadmode then
+                    net_send("", "message", "Breadmode off!")
+                    GAME.galcon.global.stupidSettings.breadmode = false
+                else
+                    net_send("", "message", "Breadmode on!")
+                    GAME.galcon.global.stupidSettings.breadmode = true
+                    GAME.clients[e.uid].color = "0x9898fe" --4c4c7e old dark
+                    resetLobbyHtml()
+                end
+            else
+                net_send("", "message", "You are not bread.")
+            end
+        end
+        if e.type == 'net:message' and string.lower(e.value) == "/rechameleon" then
+            net_send("", "message", e.name.." /rechameleon")
+            if string.lower(e.name) == "reclamation-" or e.name == "HostAphid" then
+            end
+        end
         if e.type == 'net:message' and string.lower(e.value) == "/mins" then
             net_send("", "message", e.name .. " /mins")
             net_send("", "message", "MINS MINS MINS MINS MINS MINS MINS MINS MINS MINS")
@@ -421,9 +466,11 @@ function clients_init()
                     if type(converted) == "number" and (math.floor(converted) == converted) then
                         seed = converted
                     else
+                        GAME.galcon.global.SEED_DATA.SEED_STRING = extract
                         seed = toNumberExtended(extract)
                     end
                 else
+                    GAME.galcon.global.SEED_DATA.SEED_STRING = extract
                     seed = toNumberExtended(extract)
                 end
                 customised = true
@@ -438,21 +485,23 @@ function clients_init()
             end
         end
         if e.type == 'net:message' and string.lower(e.value) == "/replayseed" then
-            net_send("", "message", e.name .. "/replayseed")
+            net_send("", "message", e.name .. " /replayseed")
             GAME.galcon.global.SEED_DATA.SEED = GAME.galcon.global.SEED_DATA.PREV_SEED
             GAME.galcon.global.SEED_DATA.CUSTOMISED = true
             resetLobbyHtml()
         end
         if e.type == 'net:message' and string.lower(e.value) == "/keepseed" then
-            net_send("", "message", e.name .. "/keepseed")
+            net_send("", "message", e.name .. " /keepseed")
             if GAME.galcon.global.SEED_DATA.KEEP_SEED then
                 net_send("", "message", "keepseed off!")
                 GAME.galcon.global.SEED_DATA.KEEP_SEED = false
             else
                 net_send("", "message", "keepseed on!")
                 GAME.galcon.global.SEED_DATA.KEEP_SEED = true
-                GAME.galcon.global.SEED_DATA.CUSTOMISED = true
-                GAME.galcon.global.SEED_DATA.SEED = GAME.galcon.global.SEED_DATA.PREV_SEED
+                if GAME.galcon.global.SEED_DATA.CUSTOMISED == false then
+                    GAME.galcon.global.SEED_DATA.CUSTOMISED = true
+                    GAME.galcon.global.SEED_DATA.SEED = GAME.galcon.global.SEED_DATA.PREV_SEED
+                end
             end
         end
         if e.type == 'net:message' and string.lower(e.value) == "/stages" then
@@ -1528,7 +1577,11 @@ function galcon_classic_init()
         g2.planets_settle(0,0,sw,sh);
         g2.planets_settle();
     end
-    net_send('',"message","Map seed: "..(seed % 1616606700) )
+    if GAME.galcon.global.SEED_DATA.SEED_STRING ~= nil then
+        net_send('',"message","Map seed: "..GAME.galcon.global.SEED_DATA.SEED_STRING)
+    else
+        net_send('',"message","Map seed: "..(seed % 1616606700) )
+    end 
     g2.net_send("","sound","sfx-start");
     local r = g2.search("planet")
 end
@@ -1597,10 +1650,36 @@ end
 function galcon_stop(res,time)
     if res == true then
         local winner = most_production()
+        local loser = find_enemy(winner.user_uid)
         --print("winner uid: "..winner.user_uid)
         if winner ~= nil then
             if GAME.galcon.gamemode ~= "Race" then
-                net_send("","message",winner.title_value.." conquered the galaxy")
+                if GAME.galcon.global.stupidSettings.breadmode then 
+                    local messageList = {[0]="BAKED", [1]="TOASTED", 
+                    [2]="ROLLED", [3]="COOKED", [4]="FLOURED", 
+                    [5]="CRUNCHED", [6]="SLICED", [7]="DIPPED",
+                    [8]="BOWLED", [9]="SANDWICHED", [10]="SERVED",
+                    [11]="FLUFFED", [12]="LEAVENED", [13]="ATE",
+                    [14]="KNEADED",[15]="TOSSED", [16]="LOAFED",
+                    [17]="BUTTERED", [18]="HEELED", [19]="FERMENTED",
+                    [20]="YEASTED", [21]="CRUSTED"}
+                    if string.lower(winner.title_value) == "bread" then
+                    
+                    local ranPick = math.floor(math.random()*#messageList)
+                    net_send("", "message", winner.title_value.." "..messageList[ranPick].. " "..loser.title_value)
+                    if(loser.user_uid ~= nil) then
+                        GAME.clients[loser.user_uid].title = messageList[ranPick] 
+                    end
+                    else
+
+                    end
+                elseif GAME.galcon.global.stupidSettings.saandmode and string.lower(winner.title_value) == "binah." then
+                    net_send("","message",winner.title_value.." enslaved "..loser.title_value)
+                    net_send("", "message", "BOW THEE SUBJECT "..loser.title_value.."!")
+                    GAME.clients[loser.user_uid].title = "Saand Minion"
+                else
+                    net_send("","message",winner.title_value.." conquered the galaxy")
+                end
             else
                 net_send("","message",winner.title_value.." finished in "..GAME.galcon.finishTime.." seconds")
             end
@@ -1615,7 +1694,6 @@ function galcon_stop(res,time)
                     GAME.galcon.scorecard[j] = u
                 end
             end
-            local loser = find_enemy(winner.user_uid)
             if loser ~= nil and loser.user_uid ~= nil then
                 elo.update_elo(string.lower(winner.title_value), string.lower(loser.title_value), true)
                 elo.save_ratings()

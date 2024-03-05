@@ -276,7 +276,11 @@ function settingsBar()
             html = html .. [[<br/>Map Style: ]].. mapStyleText()
         end
         if GAME.galcon.global.SEED_DATA.KEEP_SEED or GAME.galcon.global.SEED_DATA.CUSTOMISED then
-            html = html .. [[<br/>Seed: ]].. GAME.galcon.global.SEED_DATA.SEED
+            if(GAME.galcon.global.SEED_DATA.SEED_STRING ~= nil) then
+                html = html .. [[<br/>Seed: ]].. GAME.galcon.global.SEED_DATA.SEED_STRING
+            else
+                html = html .. [[<br/>Seed: ]].. GAME.galcon.global.SEED_DATA.SEED
+            end    
         else
             html = html .. [[<br/>Seed: Random]]
         end

@@ -16,6 +16,7 @@ X-Tab bars for:
 		X-SaandCon map gens
 		X-Wonk mode with randomised starting ships and scaled prod / neut costs
 X-Change SaandCon custom classic to "cost = math.floor(math.random(prod/20, prod / 1.50)"
+ -Buttons for seed options
  -add in saandbuff map gen setting
  -"wardrobe" tab with: 
  	 -ships 
@@ -26,8 +27,10 @@ X-Change SaandCon custom classic to "cost = math.floor(math.random(prod/20, prod
 X-Make player bars not terrible matching maccoland
    X-Silly player titles underneath player name
 	-Persistent color
- -/Father
+ -GG button
+X-/Father
  -/Rechameleon
+X-/bread
 
 
  V4:
