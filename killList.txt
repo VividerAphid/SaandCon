@@ -40,6 +40,9 @@ X-/bread
  -Float mode increases in difficulty over time
  -Practice bot(s)
  -Maccoworld style elim for more than 2 players
+ -Saandcoins
+	-GG button to give coin if available?
+ -/set x to enter 2 active players into a set until x score is reached
 
 
  

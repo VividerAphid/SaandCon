@@ -3,6 +3,8 @@ function startupMenu()
         <table>
         <tr><td colspan=2><h1>Galcon 2 Server</h1>
         <tr><td><p>&nbsp;</p>
+        <tr><td><input type='text' name='title' value='$TITLE' />
+        <tr><td><p>&nbsp;</p>
         <tr><td><input type='text' name='port' value='$PORT' />
         <tr><td><p>&nbsp;</p>
         <tr><td><input type='button' value='Start Server' onclick='host' />"

@@ -34,6 +34,7 @@ function menu_init()
         GAME.data = json.decode(g2.data)
         if type(GAME.data) ~= "table" then GAME.data = {} end
         g2.form.port = GAME.data.port or "23099"
+        g2.form.title = GAME.data.title or "SaandCon"
         g2.state = "menu"
         GAME.galcon.wins = 0
         GAME.galcon.scorecard = {}
@@ -41,7 +42,6 @@ function menu_init()
         GAME.galcon.tournament = false
         GAME.galcon.setmode = false
         GAME.galcon.global = {
-            TITLE = "Beta SaandCon V3", --Display title on main g2 lobby screen
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
@@ -67,6 +67,7 @@ function menu_init()
     function obj:event(e)
         if e.type == 'onclick' and e.value == 'host' then
             GAME.data.port = g2.form.port
+            GAME.data.title = g2.form.title
             g2.data = json.encode(GAME.data)
             g2.net_host(GAME.data.port)
             GAME.engine:next(GAME.modules.lobby)
@@ -174,9 +175,9 @@ function clients_init()
     function obj:event(e)
         if e.type == 'net:join' then
             if amountOfPlay() < GAME.galcon.global.MAX_PLAYERS then
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name,status="queue", title=""}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship-1",skin="normal",status="queue", title="", colorData="", coins=0}
             else
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name,status="away",title=""}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name,ship="ship-1",skin="normal",status="away",title="", colorData="", coins=0}
             end
             clients_queue(e)
             net_send("","message",e.name .. " joined")
@@ -1013,11 +1014,22 @@ function galcon_classic_init()
     local users = {}
     G.users = users
 
+    local planets={'normal','honeycomb','ice','terrestrial','gasgiant','craters','gaseous','lava',
+	normal={normal=true,lighting=true,texture="tex0"},
+	honeycomb={lighting=true,texture="tex13",normal=true},
+	ice={ambient=true,texture="tex3",drawback=true,alpha=.65,addition=true,lighting=true},
+	terrestrial={overdraw={addition=true,alpha=.5,reflection=true,texture="tex7w"},normal=true,lighting=true,texture="tex7"},
+	gasgiant={overdraw={texture="tex1",yaxis=true,alpha=.25,addition=true,lighting=true},normal=true,lighting=true,texture="tex9"},
+	craters={texture="tex12",normal=true,lighting=true,overdraw={texture="tex12b",yaxis=true,lighting=true,alpha=1,addition=true}},
+	lava={overdraw={ambient=true,addition=true,texture="tex5"},normal=true,lighting=true,texture="tex0"}
+    }
     for uid,client in pairs(GAME.clients) do
         if client.status == "play" then
             local p = g2.new_user(client.name,client.color)
             users[#users+1] = p
             p.user_uid = client.uid
+            p.fleet_image = client.ship
+            p.planet_style = json.encode(planets[client.skin])
             if GAME.galcon.gamemode == "Race" then
                 p.planet_crash = 2
             end
@@ -2012,7 +2024,7 @@ function register_init()
             end
             playersPlay = #playersWithStatus("play") + #playersWithStatus("queue")
             -- update server list title
-            g2_api_call("register",json.encode({title= GAME.galcon.global.TITLE .. " - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
+            g2_api_call("register",json.encode({title=GAME.data.title .. " - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
         end
     end
 end
