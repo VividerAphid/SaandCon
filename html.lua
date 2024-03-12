@@ -20,8 +20,11 @@ function resetLobbyHtml(e)
     params_set(
         "html", [[
                 <table>
-                <tr><td><h1>Play in the Saandbox!</h1></td></tr>
-                <tr><td><div color='0xff88ff' font='font-gui2:18'>By TyCho2, Edited by Saand and VividerAphid</div></td></tr>
+                <tr><td></td></tr>
+                <tr><td class='box3'><h4>GAME MODE: ]]..GAME.galcon.gamemode..
+                gamemodeDescription()..
+                settingsBar()..
+                [[
                 <tr><td></td></tr>
                 <tr><td colspan=2><input type='button' value='Start' onclick='/start' class='button1' /></td></tr>
                 <tr><td></td></tr>
@@ -29,16 +32,8 @@ function resetLobbyHtml(e)
                 <tr><td><input type='button' value='Away' onclick='/away' class='button2' /></td></tr>
                 <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='button2' /></td></tr>
                 <tr><td colspan=2></td></tr>
-                <tr><td><div font='font-gui:12'>Type /help for a list of commands, gamemodes,...</div></td></tr>
             ]]..
             [[
-                <tr><td></td></tr>
-                <tr><td class='box3'><h4>GAME MODE: ]]..GAME.galcon.gamemode..[[
-            ]]..
-                gamemodeDescription()..
-                settingsBar()..
-            [[
-                <tr><td>
                 <tr><td class='box2'><h2>PLAYERS</h2></td></tr>
                 <tr><td>
             ]]..
@@ -51,6 +46,9 @@ function resetLobbyHtml(e)
             ]]
     )
 
+        -- <tr><td><div font='font-gui:12'>Type /help for a list of commands, gamemodes,...</div></td></tr>
+        -- <tr><td><h1>Play in the Saandbox!</h1></td></tr>
+        -- <tr><td><div color='0xff88ff' font='font-gui2:18'>By TyCho2, Edited by Saand and VividerAphid</div></td></tr>
         -- <tr><td>
         --         <tr><td><h3>PLAY:</h3></td></tr>
         --     ]]..
@@ -150,9 +148,13 @@ end
 
 function settingsTab(e)
     local html = [[
-        <table><tr><td>
+        <table><tr><td colspan=3>
         <h2>Settings</h2>
-        <tr><td colspan=2><input type='button' value='Solo Mode' onclick='/solo' class='button2' />
+        <tr><td colspan=3><input type='button' value='Solo Mode' onclick='/solo' />
+        <tr><td><input type='button' value="Change seed" onclick='/seed {$seedbox}' />
+            <td><input type="text" name='seedbox' value=""/>
+        <tr><td><input type='button' value='Replay seed' onclick='/replayseed' />
+            <td><input type='button' value='Keep Seed' onclick='/keepseed' />
         ]]
         .. 
         loadModeSpecificButtons() ..[[
@@ -167,6 +169,7 @@ function settingsTab(e)
 end
 
 function wardrobe(e)
+    --        <tr><td></br><h2>Your SaandCoins: ]]..GAME.clients[e.uid].coins..[[</h2></br></td></tr>
     local html = [[<table><tr><td>
         <h2>Wardrobe</h2>
         <tr><td><input type='button' value='back' onclick='/lobby' icon="icon-restart" class='ibutton' />
@@ -237,31 +240,132 @@ function wardrobeColors(e)
 end
 
 function wardrobeSkins(e)
-    local html = [[<table><tr><td>
+    local html = [[<table><tr><td colspan=3>
         <h2>Planet Skins</h2>
-        <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
-        <tr><td>No sunglasses for you yet silvershad0w :(((
+        <tr><td colspan=3><input width=135 type='button' value='back' onclick='/wardrobe' />
+        <tr><td><input type='button' width=135 value='Normal' onclick='/setskin normal' class='toggle0'/>
+            <td><input type='button' width=135 value='Honeycomb' onclick='/setskin honeycomb' class='toggle0'/>
+            <td><input type='button' width=135 value='Ice' onclick='/setskin normal' class='toggle0'/>
+        <tr><td><input type='button' width=135 value='Terrestrial' onclick='/setskin terrestrial' class='toggle0'/>
+            <td><input type='button' width=135 value='Gas Giant' onclick='/setskin gasgiant' class='toggle0'/>
+            <td><input type='button' width=135 value='Craters' onclick='/setskin craters' class='toggle0'/>
+        <tr><td><input type='button' width=135 value='Gaseous' onclick='/setskin gaseous' class='toggle0'/>
+            <td><input type='button' width=135 value='Lava' onclick='/setskin lava' class='toggle0'/>
         </table
     ]]
     net_send(e.uid, "html", html)
 end
 
 function wardrobeShips(e)
-    local html = [[<table><tr><td>
+    local shiplist = buildShipList()
+    local html = [[<table><tr><td colspan=3>
         <h2>Ships</h2>
-        <tr><td><input type='button' value='back' onclick='/wardrobe' class='button2' />
-        <tr><td>Still working on the fastest ships in the game...
-        </table
+        <tr><td colspan=3><input type='button' width=100 value='back' onclick='/wardrobe' />
+        <tr>]]
+    for r=0, #shiplist do
+        if(math.fmod(r, 3) == 0) then
+            html = html .. [[<tr>]]
+        end
+        html = html .. [[<td><input type="button" width=20 height=20 onclick='/setship ]]..shiplist[r]..[[' class='toggle0'><img src=']]..shiplist[r]..[['></input></td>]]
+    end
+    html = html..[[
+        </table>
     ]]
     net_send(e.uid, "html", html)
+end
+
+function buildShipList()
+    local shiplist = {"ship"}
+    for r=0, 22 do
+        shiplist[r] = "ship-"..r
+    end
+    shiplist[23] = "ship-22b"
+    shiplist[24] = "ship-22c"
+    for r=25, 52 do
+        shiplist[r] = "ship-"..r-2
+    end
+    shiplist[53] = "ship-58"
+    shiplist[54] = "ship-59"
+    shiplist[55] = "ship-60"
+    shiplist[56] = "ship-66"
+    shiplist[57] = "ship-67"
+    shiplist[58] = "ship-68"
+    shiplist[59] = "ship-69"
+    shiplist[60] = "ship-70"
+    shiplist[61] = "ship-76"
+    shiplist[62] = "ship-77"
+    shiplist[63] = "ship-78"
+    shiplist[64] = "ship-79"
+    shiplist[65] = "ship-80"
+    for r=66, 75 do
+        shiplist[r] = "ship-"..r+35
+    end
+    local t = 1
+    for r=76, 81 do
+        shiplist[r] = "ship-dec"..t
+        t = t+1
+    end
+    shiplist[82] = "ship-dis1"
+    t = 4
+    for r=83, 100 do
+        shiplist[r] = "ship-f"..t
+        t = t+1
+    end
+    t = 86
+    for r=101, 113 do
+        shiplist[r] = "ship-f"..t
+        t = t+1
+    end
+    shiplist[114] = "ship-jan1"
+    shiplist[115] = "ship-jan2"
+    shiplist[116] = "ship-nov1"
+    t = 101
+    for r=117, 146 do
+        shiplist[r] = "ship-p"..t
+        t = t+1
+    end
+    t = 201
+    for r=147, 176 do
+        shiplist[r] = "ship-p"..t
+        t = t+1
+    end
+    t = 301
+    for r=177, 206 do
+        shiplist[r] = "ship-p"..t
+        t = t+1
+    end
+    t = 401
+    for r=207, 236 do
+        shiplist[r] = "ship-p"..t
+        t = t+1
+    end
+    shiplist[237] = "ship-pi"
+    shiplist[238] = "ship-pl1"
+    shiplist[239] = "ship-pl2"
+    shiplist[240] = "ship-pl3"
+    t = 1
+    for r=241, 606 do
+        if t < 10 then
+            shiplist[r] = "ship-t00"..t
+        elseif t < 100 and t > 9 then
+            shiplist[r] = "ship-t0"..t
+        else
+            shiplist[r] = "ship-t"..t
+        end
+        t = t+1
+    end
+    -- for r=0, #shiplist do
+    --     print(shiplist[r])
+    -- end
+    return shiplist
 end
 
 function loadModeSpecificButtons()
     local html = ""
     if(GAME.galcon.gamemode == "Grid") then
-        html = "<tr><td><h3>Map Type<tr><td colspan=2><input type='button' value='Standard' onclick='/standard' class='button2' /><tr><td colspan=2><input type='button' value='Donut' onclick='/donut' class='button2' /><tr><td colspan=2><input type='button' value='Hexagon' onclick='/hexagon' class='button2' />"
+        html = "<tr><td colspan=3><h3>Map Type<tr><td colspan=2><input type='button' value='Standard' onclick='/standard' class='button2' /><tr><td colspan=2><input type='button' value='Donut' onclick='/donut' class='button2' /><tr><td colspan=2><input type='button' value='Hexagon' onclick='/hexagon' class='button2' />"
     elseif (GAME.galcon.gamemode == "Classic") then
-        html = "<tr><td><h3>Map Style <tr><td colspan=2><input type='button' value='Mix' onclick='/mapstyle mix' class='button2' /><tr><td colspan=2><input type='button' value='Classic' onclick='/mapstyle classic' class='button2' /><tr><td colspan=2><input type='button' value='PhilBuff' onclick='/mapstyle philbuff' class='button2' /><tr><td colspan=2><input type='button' value='12 Planet' onclick='/mapstyle 12p' class='button2' /><tr><td colspan=2><input type='button' value='SaandBuff' onclick='/mapstyle saandbuff' class='button2' /><tr><td colspan=2><input type='button' value='Wonk' onclick='/mapstyle wonk' class='button2' />"
+        html = "<tr><td colspan=3><h3>Map Style <tr><td colspan=2><input type='button' value='Mix' onclick='/mapstyle mix' class='button2' /><tr><td colspan=2><input type='button' value='Classic' onclick='/mapstyle classic' class='button2' /><tr><td colspan=2><input type='button' value='PhilBuff' onclick='/mapstyle philbuff' class='button2' /><tr><td colspan=2><input type='button' value='12 Planet' onclick='/mapstyle 12p' class='button2' /><tr><td colspan=2><input type='button' value='SaandBuff' onclick='/mapstyle saandbuff' class='button2' /><tr><td colspan=2><input type='button' value='Wonk' onclick='/mapstyle wonk' class='button2' />"
     end
     return html
 end

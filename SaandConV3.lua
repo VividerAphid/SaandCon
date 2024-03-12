@@ -60,6 +60,15 @@ function menu_init()
                 saandmode = false,
                 rechameleon = false,
             },
+            planets= {'normal','honeycomb','ice','terrestrial','gasgiant','craters','gaseous','lava',
+                normal={normal=true,lighting=true,texture="tex0"},
+                honeycomb={lighting=true,texture="tex13",normal=true},
+                ice={ambient=true,texture="tex3",drawback=true,alpha=.65,addition=true,lighting=true},
+                terrestrial={overdraw={addition=true,alpha=.5,reflection=true,texture="tex7w"},normal=true,lighting=true,texture="tex7"},
+                gasgiant={overdraw={texture="tex1",yaxis=true,alpha=.25,addition=true,lighting=true},normal=true,lighting=true,texture="tex9"},
+                craters={texture="tex12",normal=true,lighting=true,overdraw={texture="tex12b",yaxis=true,lighting=true,alpha=1,addition=true}},
+                lava={overdraw={ambient=true,addition=true,texture="tex5"},normal=true,lighting=true,texture="tex0"},
+            },
         }
     end
     function obj:loop(t)
@@ -175,9 +184,9 @@ function clients_init()
     function obj:event(e)
         if e.type == 'net:join' then
             if amountOfPlay() < GAME.galcon.global.MAX_PLAYERS then
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship-1",skin="normal",status="queue", title="", colorData="", coins=0}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="queue", title="", colorData="", coins=0}
             else
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name,ship="ship-1",skin="normal",status="away",title="", colorData="", coins=0}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="away", title="", colorData="", coins=0}
             end
             clients_queue(e)
             net_send("","message",e.name .. " joined")
@@ -287,6 +296,16 @@ function clients_init()
                 end
                 resetLobbyHtml()
             end           
+        end
+        if e.type == 'net:message' and string.lower(string.sub(e.value,1,9)) == "/setship " then
+            local ship = string.lower(string.sub(e.value,10,string.len(e.value)))
+            net_send(e.uid, "message", "Your ship is now " .. ship)
+            GAME.clients[e.uid].ship = ship
+        end
+        if e.type == 'net:message' and string.lower(string.sub(e.value,1,9)) == "/setskin " then
+            local skin = string.lower(string.sub(e.value,10,string.len(e.value)))
+            net_send(e.uid, "message", "Your skin is now " .. skin)
+            GAME.clients[e.uid].skin = skin
         end
         if e.type == 'net:message' and string.lower(e.value) == "/awayall" then
             if isAdmin(e.name) then
@@ -1013,28 +1032,25 @@ function galcon_classic_init()
     
     local users = {}
     G.users = users
+    local playcount = 0
 
-    local planets={'normal','honeycomb','ice','terrestrial','gasgiant','craters','gaseous','lava',
-	normal={normal=true,lighting=true,texture="tex0"},
-	honeycomb={lighting=true,texture="tex13",normal=true},
-	ice={ambient=true,texture="tex3",drawback=true,alpha=.65,addition=true,lighting=true},
-	terrestrial={overdraw={addition=true,alpha=.5,reflection=true,texture="tex7w"},normal=true,lighting=true,texture="tex7"},
-	gasgiant={overdraw={texture="tex1",yaxis=true,alpha=.25,addition=true,lighting=true},normal=true,lighting=true,texture="tex9"},
-	craters={texture="tex12",normal=true,lighting=true,overdraw={texture="tex12b",yaxis=true,lighting=true,alpha=1,addition=true}},
-	lava={overdraw={ambient=true,addition=true,texture="tex5"},normal=true,lighting=true,texture="tex0"}
-    }
     for uid,client in pairs(GAME.clients) do
         if client.status == "play" then
+            playcount = playcount+1
             local p = g2.new_user(client.name,client.color)
             users[#users+1] = p
             p.user_uid = client.uid
             p.fleet_image = client.ship
-            p.planet_style = json.encode(planets[client.skin])
+            p.planet_style = json.encode(GAME.galcon.global.planets[client.skin])
             if GAME.galcon.gamemode == "Race" then
                 p.planet_crash = 2
             end
             client.live = 0
         end
+    end
+    if playcount > 1 and GAME.galcon.global.SOLO_MODE then
+        net_send('',"message","Solo mode disabled due to multiple players!")
+        GAME.galcon.global.SOLO_MODE = false
     end
 
     local sw = OPTS.sw -- ELIM RATIO 560x360 -- Saand ratio 520x360
@@ -1712,6 +1728,8 @@ function galcon_stop(res,time)
                         u = u + 1
                     end
                     GAME.galcon.scorecard[j] = u
+                    GAME.clients[j].coins = GAME.clients[j].coins + 1
+                    --net_send(j,"message","You earned 1 SaandCoin!")
                 end
             end
             if loser ~= nil and loser.user_uid ~= nil then
