@@ -243,14 +243,31 @@ function wardrobeSkins(e)
     local html = [[<table><tr><td colspan=3>
         <h2>Planet Skins</h2>
         <tr><td colspan=3><input width=135 type='button' value='back' onclick='/wardrobe' />
-        <tr><td><input type='button' width=135 value='Normal' onclick='/setskin normal' class='toggle0'/>
-            <td><input type='button' width=135 value='Honeycomb' onclick='/setskin honeycomb' class='toggle0'/>
-            <td><input type='button' width=135 value='Ice' onclick='/setskin normal' class='toggle0'/>
-        <tr><td><input type='button' width=135 value='Terrestrial' onclick='/setskin terrestrial' class='toggle0'/>
-            <td><input type='button' width=135 value='Gas Giant' onclick='/setskin gasgiant' class='toggle0'/>
-            <td><input type='button' width=135 value='Craters' onclick='/setskin craters' class='toggle0'/>
-        <tr><td><input type='button' width=135 value='Gaseous' onclick='/setskin gaseous' class='toggle0'/>
-            <td><input type='button' width=135 value='Lava' onclick='/setskin lava' class='toggle0'/>
+        <tr><td><input type='button' width=135 value='Normal' onclick='/setskin normal' class='button2'/>
+            <td><input type='button' width=135 value='Honeycomb' onclick='/setskin honeycomb' class='button2'/>
+            <td><input type='button' width=135 value='Ice' onclick='/setskin ice' class='button2'/>
+        <tr><td><input type='button' width=135 value='Terrestrial' onclick='/setskin terrestrial' class='button2'/>
+            <td><input type='button' width=135 value='Gas Giant' onclick='/setskin gasgiant' class='button2'/>
+            <td><input type='button' width=135 value='Craters' onclick='/setskin craters' class='button2'/>
+        <tr><td><input type='button' width=135 value='Gaseous' onclick='/setskin gaseous' class='button2'/>
+            <td><input type='button' width=135 value='Lava' onclick='/setskin lava' class='button2'/>
+            <td><input type='button' width=135 value='Void' onclick='/setskin void' class='button2'/>
+        <tr><td><input type='button' width=135 value='Disco' onclick='/setskin disco' class='button2'/>
+            <td><input type='button' width=135 value='Floral' onclick='/setskin floralpattern' class='button2'/>
+            <td><input type='button' width=135 value='Hearts' onclick='/setskin hearts' class='button2'/>
+        <tr><td><input type='button' width=135 value='Clover' onclick='/setskin clover' class='button2'/>
+            <td><input type='button' width=135 value='Zerba' onclick='/setskin zerba' class='button2'/>
+            <td><input type='button' width=135 value='Giraffe' onclick='/setskin giraffe' class='button2'/>
+        <tr><td><input type='button' width=135 value='Eyes' onclick='/setskin eyes' class='button2'/>
+            <td><input type='button' width=135 value='Cow' onclick='/setskin cow' class='button2'/>
+            <td><input type='button' width=135 value='Fossil' onclick='/setskin fossil' class='button2'/>
+        <tr><td><input type='button' width=135 value='Snowcaps' onclick='/setskin snowcaps' class='button2'/>
+            <td><input type='button' width=135 value='Smooth' onclick='/setskin smooth' class='button2'/>
+            <td><input type='button' width=135 value='Whisp' onclick='/setskin whisp' class='button2'/>
+        <tr><td><input type='button' width=135 value='Charlie' onclick='/setskin charlie' class='button2'/>
+            <td><input type='button' width=135 value='Snowflake' onclick='/setskin snowflake' class='button2'/>
+            <td><input type='button' width=135 value='Candycane' onclick='/setskin candycane' class='button2'/>
+        <tr><td><input type='button' width=135 value='Snowglobe' onclick='/setskin snowglobe' class='button2'/>
         </table
     ]]
     net_send(e.uid, "html", html)
@@ -266,7 +283,7 @@ function wardrobeShips(e)
         if(math.fmod(r, 3) == 0) then
             html = html .. [[<tr>]]
         end
-        html = html .. [[<td><input type="button" width=20 height=20 onclick='/setship ]]..shiplist[r]..[[' class='toggle0'><img src=']]..shiplist[r]..[['></input></td>]]
+        html = html .. [[<td><input type="button" width=20 height=20 onclick='/setship ]]..shiplist[r]..[[' class='button2'><img src=']]..shiplist[r]..[['></input></td>]]
     end
     html = html..[[
         </table>

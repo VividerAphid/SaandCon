@@ -60,14 +60,34 @@ function menu_init()
                 saandmode = false,
                 rechameleon = false,
             },
-            planets= {'normal','honeycomb','ice','terrestrial','gasgiant','craters','gaseous','lava',
+            planets= {'normal','honeycomb','ice','terrestrial','gasgiant','craters','gaseous','lava', 'void', 'disco','swirls','floralpattern',
+                'hearts', 'clovers', 'zerba', 'giraffe', 'eyes', 'cow', 'fossil', 'snowcaps', 'smooth', 
+                'whisp', 'charlie', 'snowflake', 'candycane', 'snowglobe',
                 normal={normal=true,lighting=true,texture="tex0"},
                 honeycomb={lighting=true,texture="tex13",normal=true},
                 ice={ambient=true,texture="tex3",drawback=true,alpha=.65,addition=true,lighting=true},
                 terrestrial={overdraw={addition=true,alpha=.5,reflection=true,texture="tex7w"},normal=true,lighting=true,texture="tex7"},
                 gasgiant={overdraw={texture="tex1",yaxis=true,alpha=.25,addition=true,lighting=true},normal=true,lighting=true,texture="tex9"},
                 craters={texture="tex12",normal=true,lighting=true,overdraw={texture="tex12b",yaxis=true,lighting=true,alpha=1,addition=true}},
+                gaseous={overdraw={texture="tex2",yaxis=true,addition=true,lighting=true},normal=true,lighting=true,texture="tex2"},
                 lava={overdraw={ambient=true,addition=true,texture="tex5"},normal=true,lighting=true,texture="tex0"},
+                disco={overdraw={ambient=true,addition=true,yaxis=true,texture="dis2"},normal=true,lighting=true,texture="dis1"},
+                floralpattern={normal=false,lighting=false,texture="tex19"},
+                swirls={normal=true,lighting=true,texture="tex16"},
+                snowcaps={normal=true,lighting=true,texture="tex15"},
+                clovers={normal=true,lighting=true, texture="tex18"},
+                hearts={normal=true,lighting=true,texture="tex17"},
+                zerba={normal=true,lighting=true,texture="texs1"},
+                giraffe={normal=true,lighting=true,texture="texs2"},
+                eyes={normal=true,lighting=true,texture="texs3"},
+                cow={normal=true,lighting=true,texture="texw1"},
+                fossil={normal=true,lighting=true,texture="texw2"},
+                smooth={normal=false,lighting=false,texture="tex6"},
+                whisp={overdraw={texture="tex12b",yaxis=true,addition=true,lighting=true},normal=true,lighting=true,texture="tex12b"},
+                charlie={normal=true,lighting=true,texture="dec1"},
+                snowflake={normal=true,lighting=true,texture="dec2"},
+                candycane={normal=true,lighting=true,texture="dec3"},
+                snowglobe={overdraw={texture="dec4",alpha=1.5,drawback=true,yaxis=true,addition=false,lighting=false},normal=true,lighting=true,texture="dec4"},
             },
         }
     end
@@ -1052,6 +1072,7 @@ function galcon_classic_init()
         net_send('',"message","Solo mode disabled due to multiple players!")
         GAME.galcon.global.SOLO_MODE = false
     end
+    --g2.bkgr_src = "black"
 
     local sw = OPTS.sw -- ELIM RATIO 560x360 -- Saand ratio 520x360
     local sh = OPTS.sh 
