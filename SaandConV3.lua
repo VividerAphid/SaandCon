@@ -1053,8 +1053,12 @@ function galcon_classic_init()
     local users = {}
     G.users = users
     local playcount = 0
+    local saandID = -1
 
     for uid,client in pairs(GAME.clients) do
+        if string.lower(client.name) == "binah." or string.lower(client.name) == "hostaphid" then
+            saandID = client.uid
+        end
         if client.status == "play" then
             playcount = playcount+1
             local p = g2.new_user(client.name,client.color)
@@ -1234,6 +1238,9 @@ function galcon_classic_init()
             table.insert(planets, planetHome)
             table.insert(planets, planetHomeSym)
         end
+        
+        local stylePick = math.random() --Temporary for SaandBuff
+        local picked = "V" --SaandBuff
 
         for i=1, OPTS.neutrals/2 do
             local prod = math.random(30,100)
@@ -1248,15 +1255,31 @@ function galcon_classic_init()
             elseif mapStyle == 2 then
                 cost = math.floor(math.random(0,20))
             elseif mapStyle == 3 then
-           	if prod >= 30 and prod < 51 then
-			cost = math.floor(math.random(5, 10))
-		elseif prod >= 51 and prod < 76 then
-			cost = math.floor(math.random(11, 30))
-		elseif prod >= 76 and prod < 90 then
-			cost = math.floor(math.random(30, 45))
-		elseif prod >= 90 then
-			cost = math.floor(math.random(45, 60))
-		end
+                if stylePick > .5 then
+                    picked = "V1"
+                    if prod >= 30 and prod < 51 then
+                        cost = math.floor(math.random(5, 10))
+                    elseif prod >= 51 and prod < 76 then
+                        cost = math.floor(math.random(11, 30))
+                    elseif prod >= 76 and prod < 90 then
+                        cost = math.floor(math.random(30, 45))
+                    elseif prod >= 90 then
+                        cost = math.floor(math.random(45, 60))
+                    end
+                else
+                    picked = "V2"
+                    if prod >= 30 and prod < 46 then
+                        cost = math.floor(math.random(1, 5))
+                    elseif prod >= 46 and prod < 60 then
+                        cost = math.floor(math.random(5, 10))
+                    elseif prod >= 61 and prod < 75 then
+                        cost = math.floor(math.random(15, 30))
+                    elseif prod >= 75 and prod < 90 then
+                        cost = math.floor(math.random(30, 45))
+                    elseif prod >= 90 then
+                        cost = math.floor(math.random(45, 60))
+                    end
+                end
             elseif mapStyle == 4 then
             	local costRatio = math.floor(home_ships * .5)
             	cost = math.floor(math.random(0, costRatio))
@@ -1309,6 +1332,11 @@ function galcon_classic_init()
 
             table.insert(planets, planet)
             table.insert(planets, planetSym)
+        end
+        if mapStyle == 3 then
+            if saandID ~= -1 then
+                net_send(saandID, "message", picked)
+            end
         end
     end
 

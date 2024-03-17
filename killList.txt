@@ -16,7 +16,7 @@ X-Tab bars for:
 		X-SaandCon map gens
 		X-Wonk mode with randomised starting ships and scaled prod / neut costs
 X-Change SaandCon custom classic to "cost = math.floor(math.random(prod/20, prod / 1.50)"
- -Buttons for seed options
+X-Buttons for seed options
  -add in saandbuff map gen setting
  -"wardrobe" tab with: 
  	 -ships 
@@ -24,6 +24,10 @@ X-Change SaandCon custom classic to "cost = math.floor(math.random(prod/20, prod
 	X-colors
  -winner stays on
  -timer
+ -Coin shop
+	-betting
+	-name Change
+	-ships 15 coin, skins 35, names 50, colors 1 per
 X-Make player bars not terrible matching maccoland
    X-Silly player titles underneath player name
 	-Persistent color
@@ -34,13 +38,16 @@ X-/bread
 
 
  V4:
- -Rank flags
- -Combine play/away button into toggle
+ -Rank flags/profiles
+ -Combine play/away button into toggle?
  -Race mode to have regular cluster mode like vacuum mode
  -Float mode increases in difficulty over time
  -Practice bot(s)
+ -2v2+
+ -Saandpires
  -Maccoworld style elim for more than 2 players
  -Saandcoins
+	-tourneys with prize pots
 	-GG button to give coin if available?
  -/set x to enter 2 active players into a set until x score is reached
 
