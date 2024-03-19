@@ -34,6 +34,13 @@ function isNetMessageOrButton(e)
     return e.type == "net:message" or e.type == "onclick"
 end
 
+function sendMessageGroup(group, message)
+    --group is a list of uids
+    for r=0, #group do
+        net_send(group[r], "message", message)
+    end
+end
+
 function string.fromhex(str)
     return (str:gsub('..', function (cc)
         return string.char(tonumber(cc, 16))
