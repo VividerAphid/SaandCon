@@ -1270,10 +1270,10 @@ function galcon_classic_init()
                     picked = "V2"
                     if prod >= 30 and prod < 46 then
                         cost = math.floor(math.random(1, 5))
-                    elseif prod >= 46 and prod < 60 then
+                    elseif prod >= 46 and prod < 61 then
                         cost = math.floor(math.random(5, 10))
                     elseif prod >= 61 and prod < 75 then
-                        cost = math.floor(math.random(15, 30))
+                        cost = math.floor(math.random(11, 29))
                     elseif prod >= 75 and prod < 90 then
                         cost = math.floor(math.random(30, 45))
                     elseif prod >= 90 then
