@@ -1248,7 +1248,17 @@ function galcon_classic_init()
         local prodMax = 100
 
         for i=1, OPTS.neutrals/2 do
-            local prod = math.random(prodMin, prodMax)
+            local prod = 0
+            if stylePick == 4 and mapStyle == 3 then
+                prod = math.random(20, 120)
+            elseif stylePick == 5 and mapStyle == 3 then
+                prod = math.random(20, 110)
+            elseif mapStyle == 4 then
+                prod = math.floor(math.random(1, 100))
+            else 
+                prod = math.random(prodMin, prodMax)
+            end
+            math.random(prodMin, prodMax)
             local radius = prodToRadius(prod)
             local x = math.random(radius, sw - radius)
             local y = math.random(radius, sh - radius)
@@ -1260,16 +1270,10 @@ function galcon_classic_init()
             elseif mapStyle == 2 then
                 cost = math.floor(math.random(0,20))
             elseif mapStyle == 3 then
-                if stylePick == 4 then
-                    prod = math.random(20, 120)
-                elseif stylePick == 5 then
-                    prod = math.random(20, 110)
-                end
                 cost = getSaandbuffVals(stylePick, prod)
             elseif mapStyle == 4 then
             	local costRatio = math.floor(home_ships * .5)
             	cost = math.floor(math.random(0, costRatio))
-            	prod = math.floor(math.random(1, 100))
             elseif mapStyle > numMapStyles then
                 print("Error: mapStyle out of range ("..mapStyle..')')
             end
