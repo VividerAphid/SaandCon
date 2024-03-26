@@ -221,12 +221,12 @@ function clients_init()
             GAME.clients[e.uid] = nil
             net_send("","message",e.name .. " left")
             g2.net_send("","sound","sfx-leave");
-            clients_queue()
+            clients_queue(e)
         end
         if (e.type == 'net:message' and string.lower(e.value) == '/play') or (e.type == "net:message" and string.lower(e.value) == "/queue") then
             if GAME.clients[e.uid].status == "away" then
                 GAME.clients[e.uid].status = "queue"
-                clients_queue()
+                clients_queue(e)
                 net_send("","message",e.name .. " is /queue")
             end
         end
@@ -249,7 +249,7 @@ function clients_init()
         if e.type == 'net:message' and string.lower(e.value) == '/away' then
             if GAME.clients[e.uid].status == "play" or GAME.clients[e.uid].status == "queue" then
                 GAME.clients[e.uid].status = "away"
-                clients_queue()
+                clients_queue(e)
                 net_send("","message",e.name .. " is /away")
             end
         end
@@ -257,7 +257,7 @@ function clients_init()
         if e.type == "net:message" and string.sub(e.value,1,11) == "/maxplayers" then
             local maxPlayers = tonumber(string.sub(e.value,13))
             GAME.galcon.global.MAX_PLAYERS = maxPlayers
-            clients_queue()
+            clients_queue(e)
             net_send('', "message", "Max players set to "..GAME.galcon.global.MAX_PLAYERS)
         end
         if e.type == 'net:message' and string.lower(e.value) == '/who' then
@@ -1241,11 +1241,14 @@ function galcon_classic_init()
             table.insert(planets, planetHomeSym)
         end
         
-        local stylePick = math.random() --Temporary for SaandBuff
-        local picked = "V" --SaandBuff
+        local SBVersionCount = 5
+        local stylePick = math.random(1,4) --Temporary for SaandBuff
+        local picked = "V" .. stylePick --SaandBuff
+        local prodMin = 30
+        local prodMax = 100
 
         for i=1, OPTS.neutrals/2 do
-            local prod = math.random(30,100)
+            local prod = math.random(prodMin, prodMax)
             local radius = prodToRadius(prod)
             local x = math.random(radius, sw - radius)
             local y = math.random(radius, sh - radius)
@@ -1257,44 +1260,12 @@ function galcon_classic_init()
             elseif mapStyle == 2 then
                 cost = math.floor(math.random(0,20))
             elseif mapStyle == 3 then
-                if stylePick < .3 then
-                    picked = "V1"
-                    if prod >= 30 and prod < 51 then
-                        cost = math.floor(math.random(5, 10))
-                    elseif prod >= 51 and prod < 76 then
-                        cost = math.floor(math.random(11, 30))
-                    elseif prod >= 76 and prod < 90 then
-                        cost = math.floor(math.random(30, 45))
-                    elseif prod >= 90 then
-                        cost = math.floor(math.random(45, 60))
-                    end
-                elseif stylePick >= .3 and stylePick < .6 then
-                    picked = "V2"
-                    if prod >= 30 and prod < 46 then
-                        cost = math.floor(math.random(1, 5))
-                    elseif prod >= 46 and prod < 61 then
-                        cost = math.floor(math.random(5, 10))
-                    elseif prod >= 61 and prod < 75 then
-                        cost = math.floor(math.random(15, 30))
-                    elseif prod >= 75 and prod < 90 then
-                        cost = math.floor(math.random(30, 45))
-                    elseif prod >= 90 then
-                        cost = math.floor(math.random(45, 60))
-                    end
-                else 
-                    picked = "V3"
-                    if prod >= 30 and prod < 46 then
-                        cost = math.floor(math.random(1, 5))
-                    elseif prod >= 46 and prod < 61 then
-                        cost = math.floor(math.random(5, 10))
-                    elseif prod >= 61 and prod < 75 then
-                        cost = math.floor(math.random(11, 29))
-                    elseif prod >= 75 and prod < 90 then
-                        cost = math.floor(math.random(30, 45))
-                    elseif prod >= 90 then
-                        cost = math.floor(math.random(45, 60))
-                    end
+                if stylePick == 4 then
+                    prod = math.random(20, 120)
+                elseif stylePick == 5 then
+                    prod = math.random(20, 110)
                 end
+                cost = getSaandbuffVals(stylePick, prod)
             elseif mapStyle == 4 then
             	local costRatio = math.floor(home_ships * .5)
             	cost = math.floor(math.random(0, costRatio))
