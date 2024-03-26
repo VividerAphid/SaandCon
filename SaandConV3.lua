@@ -1242,7 +1242,7 @@ function galcon_classic_init()
         end
         
         local SBVersionCount = 5
-        local stylePick = math.random(1,4) --Temporary for SaandBuff
+        local stylePick = math.random(1,SBVersionCount) --Temporary for SaandBuff
         local picked = "V" .. stylePick --SaandBuff
         local prodMin = 30
         local prodMax = 100
