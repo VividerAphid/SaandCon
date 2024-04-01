@@ -70,6 +70,7 @@ function handleNetMessage(e)
             --print(color)
             if string.len(color) == 8 and color ~= "000000" then
                 GAME.clients[e.uid].color = color
+                GAME.clients[e.uid].colorData = color
                 net_send(e.uid,'message','(Server -> '..e.name..') HEX-color changed to: '..color)
                 resetLobbyHtml()
             elseif color == "000000" then

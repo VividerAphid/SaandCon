@@ -25,6 +25,9 @@ ingamePauseMenu()
 playerInState()
 playerBarScoreSpacing()
 stateString()
+update_score()
+displayFloatTimer()
+print_scoreTime()
 
 	<stages>
 stage2()

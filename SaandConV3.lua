@@ -11,7 +11,7 @@ LICENSE = [[
 mod_server.lua
 
 Copyright (c) 2013 Phil Hassey
-Modifed by: Tycho2
+Modifed by: Tycho2 and VividerAphid
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
@@ -47,6 +47,7 @@ function menu_init()
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
+            TIMER_LENGTH = nil,
             SEED_DATA = {
                 SEED = 1,
                 PREV_SEED = 1,
@@ -153,7 +154,11 @@ function _clients_queue()
     -- assign a color to players in "queue" and set their status to "play"
     for i,v in pairs(colors) do
         if v ~= nil then
-            q.color = v
+            if(q.colorData ~= nil) then
+                q.color = q.colorData
+            else
+                q.color = v
+            end
             q.status = "play"
             net_send("","message",q.name .. " is /play")
             return
@@ -168,9 +173,9 @@ function clients_init()
     function obj:event(e)
         if e.type == 'net:join' then
             if amountOfPlay() < GAME.galcon.global.MAX_PLAYERS then
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="queue", title="", colorData="", coins=0}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="queue", title="", colorData=nil, coins=0}
             else
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="away", title="", colorData="", coins=0}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="away", title="", colorData=nil, coins=0}
             end
             clients_queue(e)
             net_send("","message",e.name .. " joined")
@@ -484,6 +489,8 @@ function galcon_classic_init()
     end
     
     
+    g2.bkgr_src = "black"
+
     local users = {}
     G.users = users
     local playcount = 0
@@ -512,8 +519,6 @@ function galcon_classic_init()
         net_send('',"message","Solo mode disabled due to multiple players!")
         GAME.galcon.global.SOLO_MODE = false
     end
-    --g2.bkgr_src = "black"
-
     local sw = OPTS.sw -- ELIM RATIO 560x360 -- Saand ratio 520x360
     local sh = OPTS.sh 
 
@@ -1335,10 +1340,11 @@ function galcon_init()
         self.time = self.time + t
         self.timeout = self.timeout + t
         if GAME.galcon.gamemode == "Float" then
-            update_score(self.time)
-            displayTimer(self.time)
+            
         end
-        if GAME.galcon.gamemode == "Float" then 
+        if GAME.galcon.gamemode == "Float" then
+            update_score(self.time)
+            displayFloatTimer(self.time)
             if self.floatSpawn == false then
                 if #GAME.galcon.users >= 1 then 
                     GAME.galcon.float.float_fleet = g2.new_fleet(GAME.galcon.users[1], 25, GAME.galcon.float.v[math.random(1, #GAME.galcon.float.v)],GAME.galcon.float.r[math.random(1, #GAME.galcon.float.r)])
@@ -1471,34 +1477,6 @@ function clients_leave(e, rageQuit)
         play_sound("sfx-leave")
         clients_queue()
     end
-end
-function update_score(time)
-    GAME.galcon.float.score = math.floor(GAME.galcon.float.score1 * GAME.galcon.float.score2 +0.5)
-    
-    if GAME.galcon.float.reinforceplanet.ships_value > GAME.galcon.float.reinforceplanet_cost then 
-        GAME.galcon.float.reinforceplanet_cost = GAME.galcon.float.reinforceplanet_cost + 1
-        GAME.galcon.float.score1 = GAME.galcon.float.reinforceplanet_cost
-    end
-
-    for i=1, #GAME.galcon.float.r do
-        if GAME.galcon.float.r[i].ships_value < 1 then --cheated with shift spam
-            GAME.galcon.float.score2 = GAME.galcon.float.score2 + 0.001
-        end
-    end
-    if GAME.galcon.float.score ~= 0 then 
-        g2.status = "Time: ".. math.floor(time).."              ".."Score: "..GAME.galcon.float.score
-        g2.net_send("","status",g2.status)
-    end
-end
-function displayTimer(time)
-    if time ~= 0 then
-        g2.status = "Time: ".. math.floor(time).."              ".."Score: "..GAME.galcon.float.score
-        g2.net_send("","status",g2.status)
-    end
-end
-function print_scoreTime(time)
-    net_send("","message","Time survived: "..math.floor(math.floor(time+0.5)).." seconds")
-    net_send("","message","Score: "..GAME.galcon.float.score.." points")
 end
 --------------------------------------------------------------------------------
 function register_init()

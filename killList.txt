@@ -42,6 +42,7 @@ X-/bread
  -Rank flags/profiles
  -Combine play/away button into toggle?
  -Race mode to have regular cluster mode like vacuum mode
+ -% trainer mode
  -Float mode increases in difficulty over time
  -Practice bot(s)
  -2v2+

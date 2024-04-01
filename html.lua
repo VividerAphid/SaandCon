@@ -21,7 +21,7 @@ function resetLobbyHtml(e)
         "html", [[
                 <table>
                 <tr><td></td></tr>
-                <tr><td class='box3'><h4>GAME MODE: ]]..GAME.galcon.gamemode..
+                <tr><td class='box'><h4>]]..GAME.data.title..
                 gamemodeDescription()..
                 settingsBar()..
                 [[
@@ -390,7 +390,8 @@ end
 function settingsBar()
     local html = [[
         <tr><td class='box3'><h4>SETTINGS:
-        <br/>Solo Mode: ]]..soloModeText() .. [[
+        <br/>Game Mode: ]] .. GAME.galcon.gamemode ..
+        [[<br/>Solo Mode: ]]..soloModeText() .. [[
 
         ]]
         if GAME.galcon.gamemode == "Grid" then
@@ -406,6 +407,9 @@ function settingsBar()
             end    
         else
             html = html .. [[<br/>Seed: Random]]
+        end
+        if GAME.galcon.global.TIMER_LENGTH ~= nil then
+            html = html .. [[<br/>Timer: ]] .. GAME.galcon.global.TIMER_LENGTH / 60 .. " minutes"
         end
     return html
 end
@@ -517,4 +521,33 @@ function stateString(state, num)
     else
         return ""
     end
+end
+
+function update_score(time)
+    GAME.galcon.float.score = math.floor(GAME.galcon.float.score1 * GAME.galcon.float.score2 +0.5)
+    
+    if GAME.galcon.float.reinforceplanet.ships_value > GAME.galcon.float.reinforceplanet_cost then 
+        GAME.galcon.float.reinforceplanet_cost = GAME.galcon.float.reinforceplanet_cost + 1
+        GAME.galcon.float.score1 = GAME.galcon.float.reinforceplanet_cost
+    end
+
+    for i=1, #GAME.galcon.float.r do
+        if GAME.galcon.float.r[i].ships_value < 1 then --cheated with shift spam
+            GAME.galcon.float.score2 = GAME.galcon.float.score2 + 0.001
+        end
+    end
+    if GAME.galcon.float.score ~= 0 then 
+        g2.status = "Time: ".. math.floor(time).."              ".."Score: "..GAME.galcon.float.score
+        g2.net_send("","status",g2.status)
+    end
+end
+function displayFloatTimer(time)
+    if time ~= 0 then
+        g2.status = "Time: ".. math.floor(time).."              ".."Score: "..GAME.galcon.float.score
+        g2.net_send("","status",g2.status)
+    end
+end
+function print_scoreTime(time)
+    net_send("","message","Time survived: "..math.floor(math.floor(time+0.5)).." seconds")
+    net_send("","message","Score: "..GAME.galcon.float.score.." points")
 end
