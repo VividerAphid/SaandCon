@@ -51,3 +51,15 @@ count_ships()
 getMapStyle()
 classicMapGen()
 getSaandbuffVals()
+
+	<admins>
+admins_init()
+initAdmins()
+makeAdmin()
+unadmin()
+isAdmin()
+cleansePlayerName()
+
+	<lobbyCommands>
+handleNetMessage()
+handleOnclick()

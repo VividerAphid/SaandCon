@@ -15,12 +15,13 @@ X-Tab bars for:
 		-Advanced settings for fine tweaks?
 		X-SaandCon map gens
 		X-Wonk mode with randomised starting ships and scaled prod / neut costs
+	 -Grid random mapstyle setting
 X-Change SaandCon custom classic to "cost = math.floor(math.random(prod/20, prod / 1.50)"
 X-Buttons for seed options
  -add in saandbuff map gen setting
  -"wardrobe" tab with: 
- 	 -ships 
-	 -skins 
+ 	X-ships 
+	X-skins 
 	X-colors
  -winner stays on
  -timer
