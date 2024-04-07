@@ -381,7 +381,7 @@ end
 function loadModeSpecificButtons()
     local html = ""
     if(GAME.galcon.gamemode == "Grid") then
-        html = "<tr><td colspan=3><h3>Map Type<tr><td colspan=2><input type='button' value='Standard' onclick='/standard' class='button2' /><tr><td colspan=2><input type='button' value='Donut' onclick='/donut' class='button2' /><tr><td colspan=2><input type='button' value='Hexagon' onclick='/hexagon' class='button2' />"
+        html = "<tr><td colspan=3><h3>Map Type<tr><td colspan=2><input type='button' value='Mix' onclick='/gridstyle mix' class='button2' /><tr><td colspan=2><input type='button' value='Standard' onclick='/gridstyle standard' class='button2' /><tr><td colspan=2><input type='button' value='Donut' onclick='/gridstyle donut' class='button2' /><tr><td colspan=2><input type='button' value='Hexagon' onclick='/gridstyle hexagon' class='button2' />"
     elseif (GAME.galcon.gamemode == "Classic") then
         html = "<tr><td colspan=3><h3>Map Style <tr><td colspan=2><input type='button' value='Mix' onclick='/mapstyle mix' class='button2' /><tr><td colspan=2><input type='button' value='Classic' onclick='/mapstyle classic' class='button2' /><tr><td colspan=2><input type='button' value='PhilBuff' onclick='/mapstyle philbuff' class='button2' /><tr><td colspan=2><input type='button' value='12 Planet' onclick='/mapstyle 12p' class='button2' /><tr><td colspan=2><input type='button' value='SaandBuff' onclick='/mapstyle saandbuff' class='button2' /><tr><td colspan=2><input type='button' value='Wonk' onclick='/mapstyle wonk' class='button2' />"
     end

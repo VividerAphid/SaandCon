@@ -24,7 +24,8 @@ X-Buttons for seed options
 	X-skins 
 	X-colors
  -winner stays on
- -timer
+X-timer
+ -Mix grid mapstyle
  -Coin shop
 	-betting
 	-name Change

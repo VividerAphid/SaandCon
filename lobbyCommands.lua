@@ -350,30 +350,37 @@ function handleNetMessage(e)
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Grid"
             GAME.galcon.global.SOLO_MODE = false
-            GAME.galcon.gametype = "Standard" or "Donut" or "Hexagon"
+            GAME.galcon.gametype = "Standard" or "Donut" or "Hexagon" or "Mix"
             net_send("","message",e.name .. " /grid")
             net_send("","message","Game mode changed to: Grid.")
             clients_queue()
         end
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/standard" then
+    if e.type == 'net:message' and string.lower(e.value) == "/gridstyle mix" then
+        if g2.state == "lobby" then
+            GAME.galcon.gametype = "Mix"
+            net_send("","message",e.name .. " /gridstyle mix")
+            clients_queue()
+        end
+    end
+    if e.type == 'net:message' and string.lower(e.value) == "/gridstyle standard" then
         if g2.state == "lobby" then
             GAME.galcon.gametype = "Standard"
-            net_send("","message",e.name .. " /standard")
+            net_send("","message",e.name .. " /gridstyle standard")
             clients_queue()
         end
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/donut" then
+    if e.type == 'net:message' and string.lower(e.value) == "/gridstyle donut" then
         if g2.state == "lobby" then
             GAME.galcon.gametype = "Donut"
-            net_send("","message",e.name .. " /donut")
+            net_send("","message",e.name .. " /gridstyle donut")
             clients_queue()
         end
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/hexagon" then
+    if e.type == 'net:message' and string.lower(e.value) == "/gridstyle hexagon" then
         if g2.state == "lobby" then
             GAME.galcon.gametype = "Hexagon"
-            net_send("","message",e.name .. " /hexagon")
+            net_send("","message",e.name .. " /gridstyle hexagon")
             clients_queue()
         end
     end

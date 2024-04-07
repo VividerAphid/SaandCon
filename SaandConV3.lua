@@ -780,6 +780,15 @@ function galcon_classic_init()
         sh = sh/1.25
 
         local planets = {}
+        local mixed = false --For when we want random map style
+        if GAME.galcon.gametype == "Mix" then
+            mixed = true
+            local options = {"Standard", "Hexagon", "Donut"}
+            local pick = math.random(#options)
+            print(#options)
+            print(pick)
+            GAME.galcon.gametype = options[pick]
+        end
         for i=0, math.sqrt(OPTS.neutrals)-1 do
             for j=0, math.sqrt(OPTS.neutrals)-1 do
             local x, y
@@ -860,6 +869,9 @@ function galcon_classic_init()
                 
             end
             
+        end
+        if mixed then
+            GAME.galcon.gametype = "Mix"
         end
     end
 
