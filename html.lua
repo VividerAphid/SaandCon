@@ -21,7 +21,7 @@ function resetLobbyHtml(e)
         "html", [[
                 <table>
                 <tr><td></td></tr>
-                <tr><td class='box'><h4>]]..GAME.data.title..
+                <tr><td class='box'><h3>]]..GAME.data.title..
                 gamemodeDescription()..
                 settingsBar()..
                 [[
@@ -151,6 +151,7 @@ function settingsTab(e)
         <table><tr><td colspan=3>
         <h2>Settings</h2>
         <tr><td colspan=3><input type='button' value='Solo Mode' onclick='/solo' />
+        <tr><td colspan=1><h3>Timer:</h3><td><input type='slider' onchange="/timer {$timer}" value='0' name='timer' low=0 high=30/>
         <tr><td><input type='button' value="Change seed" onclick='/seed {$seedbox}' />
             <td><input type="text" name='seedbox' value=""/>
         <tr><td><input type='button' value='Replay seed' onclick='/replayseed' />
@@ -408,7 +409,7 @@ function settingsBar()
         else
             html = html .. [[<br/>Seed: Random]]
         end
-        if GAME.galcon.global.TIMER_LENGTH ~= nil then
+        if GAME.galcon.global.TIMER_LENGTH ~= 0 then
             html = html .. [[<br/>Timer: ]] .. GAME.galcon.global.TIMER_LENGTH / 60 .. " minutes"
         end
     return html
@@ -541,13 +542,25 @@ function update_score(time)
         g2.net_send("","status",g2.status)
     end
 end
+
 function displayFloatTimer(time)
     if time ~= 0 then
         g2.status = "Time: ".. math.floor(time).."              ".."Score: "..GAME.galcon.float.score
         g2.net_send("","status",g2.status)
     end
 end
+
 function print_scoreTime(time)
     net_send("","message","Time survived: "..math.floor(math.floor(time+0.5)).." seconds")
     net_send("","message","Score: "..GAME.galcon.float.score.." points")
+end
+
+function displayTimer(time)
+    local minute = math.floor(time / 60)
+    local second = math.floor(time % 60)
+    if second < 10 then
+        second = "0"..second
+    end
+    g2.status = minute..":"..second
+    g2.net_send("","status",g2.status)
 end

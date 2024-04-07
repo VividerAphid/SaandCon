@@ -47,7 +47,7 @@ function menu_init()
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
-            TIMER_LENGTH = nil,
+            TIMER_LENGTH = 0,
             SEED_DATA = {
                 SEED = 1,
                 PREV_SEED = 1,
@@ -1103,40 +1103,6 @@ function galcon_classic_init()
     local r = g2.search("planet")
 end
 
-function count_production()
-    local r = {}
-    local items = g2.search("planet -neutral")
-    for _i,o in ipairs(items) do
-        if g2.item(o:owner().n).title_value ~= "neutral" then 
-            local team = o:owner():team()
-            r[team] = (r[team] or 0) + o.ships_production
-        end
-    end
-    return r
-end
-
-function most_production()
-    local r = count_production()
-    local best_o = nil
-    local best_v = 0
-    for o,v in pairs(r) do
-        if v > best_v then
-            best_v = v
-            best_o = o
-        end
-    end
-    return best_o
-end
-
-function find_enemy(uid)
-    for n, e in pairs(g2.search("user")) do
-        -- user_neutral is not strictly necessary
-        if e.user_uid ~= uid and not e.user_neutral and e.title_value ~= "neutral" then
-            return e
-        end
-    end
-end
-
 function playersWithStatus(status)
     local players = {}
 
@@ -1164,15 +1130,14 @@ function requeueLoser(uid)
     end
 end
 
-function galcon_stop(res,time)
+function galcon_stop(res, timerWinner, time)
     if res == true then
-        local winner = most_production()
+        local winner = timerWinner or most_production()
         local loser
-        --print("winner uid: "..winner.user_uid)
-        if winner ~= nil then
+        if winner ~= nil and winner ~= "galaxy227" then
             loser = find_enemy(winner.user_uid)
             if GAME.galcon.gamemode ~= "Race" then
-                if GAME.galcon.global.stupidSettings.breadmode then 
+                if GAME.galcon.global.stupidSettings.breadmode and (winner.title_value == "bread" or loser.title_value == "bread") then 
                     local messageList = {[0]="BAKED", [1]="TOASTED", 
                     [2]="ROLLED", [3]="COOKED", [4]="FLOURED", 
                     [5]="CRUNCHED", [6]="SLICED", [7]="DIPPED",
@@ -1181,21 +1146,27 @@ function galcon_stop(res,time)
                     [14]="KNEADED",[15]="TOSSED", [16]="LOAFED",
                     [17]="BUTTERED", [18]="HEELED", [19]="FERMENTED",
                     [20]="YEASTED", [21]="CRUSTED"}
-                    if string.lower(winner.title_value) == "bread" then
-                    
                     local ranPick = math.floor(math.random()*#messageList)
                     net_send("", "message", winner.title_value.." "..messageList[ranPick].. " "..loser.title_value)
                     if(GAME.clients[loser.user_uid] ~= nil) then
                         GAME.clients[loser.user_uid].title = messageList[ranPick] 
                     end
+                elseif GAME.galcon.global.stupidSettings.saandmode then
+                    if string.lower(winner.title_value) == "binah." then
+                        net_send("","message",winner.title_value.." enslaved "..loser.title_value)
+                        net_send("", "message", "BOW THEE SUBJECT "..loser.title_value.."!")
+                        if(GAME.clients[loser.user_uid] ~= nil) then
+                            GAME.clients[loser.user_uid].title = "Saand Minion"
+                        end
                     else
-
-                    end
-                elseif GAME.galcon.global.stupidSettings.saandmode and string.lower(winner.title_value) == "binah." then
-                    net_send("","message",winner.title_value.." enslaved "..loser.title_value)
-                    net_send("", "message", "BOW THEE SUBJECT "..loser.title_value.."!")
-                    if(GAME.clients[loser.user_uid] ~= nil) then
-                        GAME.clients[loser.user_uid].title = "Saand Minion"
+                        if GAME.clients[winner.user_uid] ~= nil then
+                            if (GAME.clients[winner.user_uid].title) == "Saand Minion" then
+                                GAME.clients[winner.user_uid].title = "Freed Minion"
+                                net_send("", "message", winner.title_value.." escaped the dominion!")
+                            else
+                                net_send("", "message", winner.title_value.." dodged enslavement!")
+                            end
+                        end 
                     end
                 else
                     net_send("","message",winner.title_value.." conquered the galaxy")
@@ -1224,6 +1195,11 @@ function galcon_stop(res,time)
             --print("loser uid: ".. loser.user_uid)
             if GAME.galcon.tournament == true and loser ~= nil then
                 requeueLoser(loser.user_uid)
+            end
+        else
+            if winner == "galaxy227" then
+                print("galaxy win")
+                net_send("", "message", "galaxy227 wins by timers default!")
             end
         end
     end
@@ -1307,6 +1283,29 @@ function check_for_match_end()
     end
 end
 
+function calc_Timer_Win()
+    local ships = count_ships()
+    local prod = count_production()
+    local prodWinner = most_production_tie_check()
+    local shipWinner = most_ships_tie_check()
+    local winner = "galaxy227"
+    --CHANGE TO SUPPORT MORE THAN 2 PLAYERS SOON
+    for o,v in pairs(prod) do
+        net_send("","message", o.title_value .. ": Production:"..v .. " Ships: "..ships[o])
+    end
+
+    if shipWinner == "tie" then
+        if prodWinner ~= "tie" then
+            winner = prodWinner
+        end
+    else
+        winner = shipWinner
+    end
+    
+    return winner
+
+end
+
 function galcon_surrender(uid)
     local G = GAME.galcon
 
@@ -1340,9 +1339,6 @@ function galcon_init()
         self.time = self.time + t
         self.timeout = self.timeout + t
         if GAME.galcon.gamemode == "Float" then
-            
-        end
-        if GAME.galcon.gamemode == "Float" then
             update_score(self.time)
             displayFloatTimer(self.time)
             if self.floatSpawn == false then
@@ -1350,6 +1346,13 @@ function galcon_init()
                     GAME.galcon.float.float_fleet = g2.new_fleet(GAME.galcon.users[1], 25, GAME.galcon.float.v[math.random(1, #GAME.galcon.float.v)],GAME.galcon.float.r[math.random(1, #GAME.galcon.float.r)])
                 end
                 self.floatSpawn = true
+            end
+        end
+        if GAME.galcon.global.TIMER_LENGTH ~= 0 then
+            local timeLeft = GAME.galcon.global.TIMER_LENGTH - math.floor(self.time)
+            displayTimer(timeLeft)
+            if timeLeft < 1 then
+                galcon_stop(true, calc_Timer_Win())
             end
         end
         if GAME.galcon.gamemode == "Race" then

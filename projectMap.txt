@@ -49,6 +49,12 @@ stringToNumber()
 getDistance()
 dump()
 count_ships()
+count_production()
+most_ships()
+most_ships_tie_check()
+most_production()
+most_production_tie_check()
+find_enemy()
 
 	<mapkit>
 getMapStyle()

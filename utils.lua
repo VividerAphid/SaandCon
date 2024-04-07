@@ -117,3 +117,96 @@ function count_ships()
     end
     return r
 end
+
+function count_production()
+    local r = {}
+    local items = g2.search("planet -neutral")
+    for _i,o in ipairs(items) do
+        if g2.item(o:owner().n).title_value ~= "neutral" then 
+            local team = o:owner():team()
+            r[team] = (r[team] or 0) + o.ships_production
+        end
+    end
+    return r
+end
+
+function most_ships()
+    local r = count_ships()
+    local best_o = nil
+    local best_v = 0
+    for o,v in pairs(r) do
+        if v > best_v then
+            best_v = v
+            best_o = o
+        end
+    end
+    return best_o
+end
+
+function most_ships_tie_check()
+    local r = count_ships()
+    local best_o = nil
+    local best_v = 0
+    local tie = false
+    for o,v in pairs(r) do
+        if v > best_v then
+            best_v = v
+            best_o = o
+            tie = false
+        elseif v == best_v then
+            tie = true
+        elseif v < best_v then
+            tie = false
+        end
+    end
+    if tie then
+        return "tie"
+    else
+        return best_o
+    end
+end
+
+function most_production()
+    local r = count_production()
+    local best_o = nil
+    local best_v = 0
+    for o,v in pairs(r) do
+        if v > best_v then
+            best_v = v
+            best_o = o
+        end
+    end
+    return best_o
+end
+
+function most_production_tie_check()
+    local r = count_production()
+    local best_o = nil
+    local best_v = 0
+    local tie = false
+    for o,v in pairs(r) do
+        if v > best_v then
+            best_v = v
+            best_o = o
+            tie = false
+        elseif v == best_v then
+            tie = true
+        elseif v < best_v then
+            tie = false
+        end
+    end
+    if tie then
+        return "tie"
+    else
+        return best_o
+    end
+end
+
+function find_enemy(uid)
+    for n, e in pairs(g2.search("user")) do
+        -- user_neutral is not strictly necessary
+        if e.user_uid ~= uid and not e.user_neutral and e.title_value ~= "neutral" then
+            return e
+        end
+    end
+end

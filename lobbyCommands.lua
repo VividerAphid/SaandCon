@@ -43,6 +43,10 @@ function handleNetMessage(e)
         end
         net_send(e.uid,"message","/who: "..msg)
     end
+    if e.type =='net:message' and string.lower(string.sub(e.value,1,6)) == "/timer" then
+        GAME.galcon.global.TIMER_LENGTH = string.sub(e.value, 8, string.len(e.value)) * 60
+        resetLobbyHtml()
+    end
     if e.type == 'net:message' and string.lower(e.value) == '/color' or e.type == 'net:message' and string.lower(e.value) ==  '/colors' then
         net_send(e.uid,"message",'(Server -> '..e.name..') Type "/hex [0x######] to change your color."')
     end
