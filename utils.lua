@@ -47,6 +47,31 @@ function string.fromhex(str)
     end))
 end
 
+function checkNoSpecialChars(str)
+    --Allow - . _ ~ but not other non-alphanumeric chars
+    local safe = true
+    local safeChars = {"-", "~", ".","_"}
+    local nonNumeric = string.find(str, "%W")
+    if nonNumeric ~= nil then
+        for r=1, #str do
+            local piece = string.sub(str, r,r)
+            if string.find(piece, "%W") ~= nil and has_value(safeChars, piece) == false or string.find(piece, " ") ~= nil then
+                safe = false
+            end
+        end
+    end
+    return safe
+end
+
+function has_value (tab, val)
+    for index, value in ipairs(tab) do
+        if value == val then
+            return true
+        end
+    end
+    return false
+end
+
 --NO NEED FOR THIS I JUST WANTED TO MAKE MY OWN
 -- function hexToDecimalAphid(str)
 --     local converted = 0

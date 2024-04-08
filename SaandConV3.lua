@@ -1,5 +1,6 @@
 require("mod_common_utils")
 require("mod_elo")
+require("configs")
 require("utils")
 require("admins")
 require("lobbyCommands")
@@ -44,6 +45,7 @@ function menu_init()
         GAME.galcon.tournament = false
         GAME.galcon.setmode = false
         GAME.galcon.global = {
+            CONFIGS = loadConfigs(),
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
@@ -63,6 +65,7 @@ function menu_init()
                 saandmode = false,
                 rechameleon = false,
             },
+            ships=buildShipList(),
             planets= {'normal','honeycomb','ice','terrestrial','gasgiant','craters','gaseous','lava', 'void', 'disco','swirls','floralpattern',
                 'hearts', 'clovers', 'zerba', 'giraffe', 'eyes', 'cow', 'fossil', 'snowcaps', 'smooth', 
                 'whisp', 'charlie', 'snowflake', 'candycane', 'snowglobe',
@@ -172,10 +175,11 @@ function clients_init()
     local obj = GAME.modules.clients
     function obj:event(e)
         if e.type == 'net:join' then
+            local newCoins = GAME.galcon.global.CONFIGS.saandCoins.newPlayerSaandCoins
             if amountOfPlay() < GAME.galcon.global.MAX_PLAYERS then
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="queue", title="", colorData=nil, coins=0}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="queue", title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}}
             else
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="away", title="", colorData=nil, coins=0}
+                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="away", title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}}
             end
             clients_queue(e)
             net_send("","message",e.name .. " joined")
@@ -1146,6 +1150,7 @@ function galcon_stop(res, timerWinner, time)
     if res == true then
         local winner = timerWinner or most_production()
         local loser
+        printEndProdAndShip()
         if winner ~= nil and winner ~= "galaxy227" then
             loser = find_enemy(winner.user_uid)
             if GAME.galcon.gamemode ~= "Race" then
@@ -1196,7 +1201,9 @@ function galcon_stop(res, timerWinner, time)
                     end
                     GAME.galcon.scorecard[j] = u
                     GAME.clients[j].coins = GAME.clients[j].coins + 1
-                    --net_send(j,"message","You earned 1 SaandCoin!")
+                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                        net_send(j,"message","You earned 1 SaandCoin!")
+                    end                
                 end
             end
             if loser ~= nil and loser.user_uid ~= nil then
@@ -1295,17 +1302,10 @@ function check_for_match_end()
     end
 end
 
-function calc_Timer_Win()
-    local ships = count_ships()
-    local prod = count_production()
+function calc_Timer_Win() 
     local prodWinner = most_production_tie_check()
     local shipWinner = most_ships_tie_check()
     local winner = "galaxy227"
-    --CHANGE TO SUPPORT MORE THAN 2 PLAYERS SOON
-    for o,v in pairs(prod) do
-        net_send("","message", o.title_value .. ": Production:"..v .. " Ships: "..ships[o])
-    end
-
     if shipWinner == "tie" then
         if prodWinner ~= "tie" then
             winner = prodWinner
@@ -1315,6 +1315,19 @@ function calc_Timer_Win()
     end
     
     return winner
+
+end
+
+function printEndProdAndShip()
+    local ships = count_ships()
+    local prod = count_production()
+    for o,v in pairs(prod) do
+        local ship = math.floor(ships[o])
+        local rem = math.floor(math.fmod(ships[o], 1) * 1000)
+        ship = ship + (rem/1000)
+        net_send("","chat", json.encode({color=GAME.clients[o.user_uid].color,value= o.title_value .. "- Production: "..v .. "   Ships: "..ship}))
+
+    end
 
 end
 

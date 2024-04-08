@@ -151,7 +151,7 @@ function settingsTab(e)
         <table><tr><td colspan=3>
         <h2>Settings</h2>
         <tr><td colspan=3><input type='button' value='Solo Mode' onclick='/solo' />
-        <tr><td colspan=1><h3>Timer:</h3><td><input type='slider' onchange="/timer {$timer}" value='0' name='timer' low=0 high=30/>
+        <tr><td colspan=1><h3>Timer:</h3><td><input type='slider' onchange="/timer {$timer}" value=']]..GAME.galcon.global.TIMER_LENGTH..[[' name='timer' low=0 high=30/>
         <tr><td><input type='button' value="Change seed" onclick='/seed {$seedbox}' />
             <td><input type="text" name='seedbox' value=""/>
         <tr><td><input type='button' value='Replay seed' onclick='/replayseed' />
@@ -170,21 +170,34 @@ function settingsTab(e)
 end
 
 function wardrobe(e)
-    --        <tr><td></br><h2>Your SaandCoins: ]]..GAME.clients[e.uid].coins..[[</h2></br></td></tr>
+    local saandCoinHeader = [[]]
+    local buyCoinBtn = [[]]
+    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+        saandCoinHeader = [[<tr><td><h2>Your SaandCoins: ]]..GAME.clients[e.uid].coins..[[</h2></td><td><img src="coin" width=50 height=50></tr>]]
+        buyCoinBtn = [[<tr><td><input type='button' value='Buy Coins' onclick='/wardrobe coins' icon="icon-store" class='ibutton' />]]
+    end
     local html = [[<table><tr><td>
         <h2>Wardrobe</h2>
-        <tr><td><input type='button' value='back' onclick='/lobby' icon="icon-restart" class='ibutton' />
-        <tr><td><input type='button' value='Colors' onclick='/wardrobe colors' icon="icon-edit" class='ibutton' />
+        <tr><td><input type='button' value='back' onclick='/lobby' icon="icon-restart" class='ibutton' />]]
+        ..saandCoinHeader..
+        [[<tr><td><input type='button' value='Colors' onclick='/wardrobe colors' icon="icon-edit" class='ibutton' />
         <tr><td><input type='button' value='Ships' onclick='/wardrobe ships' icon="icon-clans" class='ibutton' />
         <tr><td><input type='button' value='Skins' onclick='/wardrobe skins' icon="icon-world" class='ibutton' />
+        <tr><td><input type='button' value='Name Change' onclick='/wardrobe name' icon="icon-membership" class='ibutton' />
+        <tr><td><input type='button' value='Title Change' onclick='/wardrobe title' icon="icon-admin" class='ibutton' />
+        ]]..buyCoinBtn..[[
         </table
     ]]
     net_send(e.uid, "html", html)
 end
 
 function wardrobeColors(e)
+    local headerText = "Colors"
+    if(GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins) then
+        headerText = headerText .. " (1 per)"
+    end
     local html = [[<table><tr><td>
-        <td><h2>Colors</h2>
+        <td><h2>]]..headerText..[[</h2>
         <tr><td><td><input type='button' width=50 value='back' onclick='/wardrobe' class='button2' />
         <tr><td><input type='button' width=50 background='white:#8a0000' value='  ' onclick='/hex 0x8a0000' class='button2' /></td>
             <td><input type='button' width=50 background='white:#bb0000' value='  ' onclick='/hex 0xbb0000' class='button2' /></td>
@@ -241,8 +254,12 @@ function wardrobeColors(e)
 end
 
 function wardrobeSkins(e)
+    local headerText = "Planet Skins"
+    if(GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins) then
+        headerText = headerText .. " (30 each)"
+    end
     local html = [[<table><tr><td colspan=3>
-        <h2>Planet Skins</h2>
+        <h2>]]..headerText..[[</h2>
         <tr><td colspan=3><input width=135 type='button' value='back' onclick='/wardrobe' />
         <tr><td><input type='button' width=135 value='Normal' onclick='/setskin normal' class='button2'/>
             <td><input type='button' width=135 value='Honeycomb' onclick='/setskin honeycomb' class='button2'/>
@@ -275,19 +292,105 @@ function wardrobeSkins(e)
 end
 
 function wardrobeShips(e)
-    local shiplist = buildShipList()
+    local headerText = "Ships"
+    if(GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins) then
+        headerText = headerText .. " (15 each)"
+    end
+    local ownedShips = GAME.clients[e.uid].ownedShips
+    local shiplist = GAME.galcon.global.ships
     local html = [[<table><tr><td colspan=3>
-        <h2>Ships</h2>
+        <h2>]]..headerText..[[</h2>
         <tr><td colspan=3><input type='button' width=100 value='back' onclick='/wardrobe' />
+        <tr><td>
         <tr>]]
+    for r=1, #ownedShips do
+        if(math.fmod(r-1, 3) == 0) then
+            html = html .. [[<tr>]]
+        end
+        html = html .. [[<td><input type="button" width=20 height=20 onclick='/setship ]]..ownedShips[r]..[[' class='button2'><img src=']]..ownedShips[r]..[['></input></td>]]
+    end
+    html = html .. [[<tr><td><tr><td>]]
     for r=0, #shiplist do
         if(math.fmod(r, 3) == 0) then
             html = html .. [[<tr>]]
         end
-        html = html .. [[<td><input type="button" width=20 height=20 onclick='/setship ]]..shiplist[r]..[[' class='button2'><img src=']]..shiplist[r]..[['></input></td>]]
+        html = html .. [[<td><input type="button" width=20 height=20 onclick='/setship ]]..shiplist[r]..[[' class='button'><img src=']]..shiplist[r]..[['></input></td>]]
     end
     html = html..[[
         </table>
+    ]]
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeName(e)
+    local headerText = "Name Change"
+    if(GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins) then
+        headerText = headerText .. " (50 per)"
+    end
+    local html = [[<table><tr><td colspan=3>
+    <h2>]]..headerText..[[</h2>
+    <tr><td colspan=3><input type='button' width=100 value='back' onclick='/wardrobe' />
+    <tr>
+    <tr><td>New Name:<td> <input type='text' name="newname" value=]]..e.name..[[/>
+    <tr><td colspan=3><input type='button' class='ibutton' icon="coin" value="Confirm" onclick='/setname {$newname}'/>
+    ]]
+
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeTitle(e)
+    local headerText = "Title Change"
+    if(GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins) then
+        headerText = headerText .. " (5 per)"
+    end
+    local html = [[<table><tr><td colspan=3>
+    <h2>]]..headerText..[[</h2>
+    <tr><td colspan=3><input type='button' width=100 value='back' onclick='/wardrobe' />
+    <tr>
+    <tr><td>New Name:<td> <input type='text' name="newtitle" value=]]..GAME.clients[e.uid].title..[[/>
+    <tr><td colspan=3><input type='button' class='ibutton' icon="coin" value="Confirm" onclick='/title {$newtitle}'/>
+    ]]
+
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeCoins(e)
+    local proceedsMessages = {"All proceeds go towards training <br/> for Yoda to deal with stupidity",
+    "&nbsp;&nbsp;All proceeds go towards saving <br/>Saltkuna from his crippling addiction <br/>&nbsp;&nbsp;to obnoxious gaming hardware",
+    "All proceeds go to buying <br/>nando a proper mouse and <br/>keyboard so he can't make <br/>&nbsp;&nbsp;excuses anymore",
+    "All proceeds go towards therapy <br/>&nbsp;&nbsp;&nbsp;&nbsp;to help Saand figure out <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;his optimal settings",
+    "All proceeds go towards writing <br/>more fake fundraiser messages",
+    "All proceeds go towards Recs <br/>extensive color changing",
+    "All proceeds go towards making <br/>&nbsp;&nbsp;&nbsp;&nbsp;timers more resistant to <br/>&nbsp;&nbsp;&nbsp;&nbsp;galaxy always winning",
+    "All proceeds go towards making <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Saands ping lower",
+    "All proceeds go towards helping <br/>&nbsp;&nbsp;&nbsp;&nbsp;gamaray show up on time"
+    }
+    local pick = proceedsMessages[math.random(#proceedsMessages)]
+    print(pick)
+    local html = [[<table><tr><td>
+    <h2>Buy Coins</h2>
+    <tr><td><input type='button' value='back' onclick='/wardrobe' icon="icon-restart" class='ibutton' />
+    <tr><td>
+    <tr><td><div class=box2>]]..pick..[[</div>
+    <tr><td>
+    <tr><td><input type='button' value='$0.99 (99)' onclick='/buycoins' icon="coin" class='ibutton' />
+    <tr><td><input type='button' value='$1.99 (199)' onclick='/buycoins' icon="coin" class='ibutton' />
+    <tr><td><input type='button' value='$9.99 (999)' onclick='/buycoins' icon="coin" class='ibutton' />
+    <tr><td><input type='button' value='$49.99 (4999)' onclick='/buycoins' icon="coin" class='ibutton' />
+    <tr><td><input type='button' value='$69.69 (6969)(Nice)' onclick='/buycoins' icon="coin" class='ibutton' />
+    <tr><td><input type='button' value='$420.69 (42069)(Lit)' onclick='/buycoins' icon="coin" class='ibutton' />
+    <tr><td><input type='button' value='$1000.00 (100000)' onclick='/buycoins' icon="coin" class='ibutton' />
+    ]]
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeCoinsSuccess(e)
+    local html = [[<table>
+        <tr><td><h2>Swindled</h2>
+        <tr><td><input type='button' value='back' onclick='/wardrobe' icon="icon-restart" class='ibutton' />
+        <tr><td>
+        <tr><td><h2>You were really going to spend money?</h2>
+        <tr><td><h2>Get gud noob.</h2>
     ]]
     net_send(e.uid, "html", html)
 end

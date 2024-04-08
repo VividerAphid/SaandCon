@@ -73,10 +73,15 @@ function handleNetMessage(e)
             end
             --print(color)
             if string.len(color) == 8 and color ~= "000000" then
-                GAME.clients[e.uid].color = color
-                GAME.clients[e.uid].colorData = color
-                net_send(e.uid,'message','(Server -> '..e.name..') HEX-color changed to: '..color)
-                resetLobbyHtml()
+                if GAME.clients[e.uid].coins >= 1 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
+                    GAME.clients[e.uid].color = color
+                    GAME.clients[e.uid].colorData = color
+                    GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 1
+                    net_send(e.uid,'message','(Server -> '..e.name..') HEX-color changed to: '..color)
+                    resetLobbyHtml()
+                else
+                    net_send(e.uid, "message", "Not enough SaandCoins!")
+                end
             elseif color == "000000" then
                 net_send(e.uid,'message','(Server -> '..e.name..') Error, color too dark.')
             end
@@ -93,20 +98,70 @@ function handleNetMessage(e)
             if string.len(newTitle) > maxLen then
                 net_send("","message", "Title too long, max "..maxLen.." chars")
             else
-                GAME.clients[e.uid].title = newTitle
+                if GAME.clients[e.uid].coins >= 5 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
+                    GAME.clients[e.uid].title = newTitle
+                    GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 5
+                else
+                    net_send(e.uid, "message", "Not enough SaandCoins!")
+                end
             end
             resetLobbyHtml()
         end           
     end
     if e.type == 'net:message' and string.lower(string.sub(e.value,1,9)) == "/setship " then
         local ship = string.lower(string.sub(e.value,10,string.len(e.value)))
-        net_send(e.uid, "message", "Your ship is now " .. ship)
-        GAME.clients[e.uid].ship = ship
+        local hasShip = has_value(GAME.clients[e.uid].ownedShips, ship) 
+        if GAME.clients[e.uid].coins >= 15 or hasShip or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
+            net_send(e.uid, "message", "Your ship is now " .. ship)
+            GAME.clients[e.uid].ship = ship
+            if hasShip == false then
+                GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 15
+                GAME.clients[e.uid].ownedShips[#GAME.clients[e.uid].ownedShips+1] = ship
+            end
+        else
+            net_send(e.uid, "message", "Not enough SaandCoins!")
+        end
     end
     if e.type == 'net:message' and string.lower(string.sub(e.value,1,9)) == "/setskin " then
         local skin = string.lower(string.sub(e.value,10,string.len(e.value)))
-        net_send(e.uid, "message", "Your skin is now " .. skin)
-        GAME.clients[e.uid].skin = skin
+        local hasSkin = has_value(GAME.clients[e.uid].ownedSkins, skin)
+        if GAME.clients[e.uid].coins >= 30 or hasSkin or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
+            net_send(e.uid, "message", "Your skin is now " .. skin)
+            GAME.clients[e.uid].skin = skin
+            if hasShip == false then
+                GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 30
+                GAME.clients[e.uid].ownedSkins[#GAME.clients[e.uid].ownedSkins+1] = ship
+            end
+        else
+            net_send(e.uid, "message", "Not enough SaandCoins!") 
+        end
+    end
+    if e.type == 'net:message' and string.lower(string.sub(e.value,1,9)) == "/setname " then
+        local name = string.sub(e.value,10,string.len(e.value))
+        if GAME.clients[e.uid].coins >= 50 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
+            if string.len(name) > 12 then
+                net_send(e.uid, "message", "Name cannot be more than 12 characters.")
+            elseif string.len(name) == 0 then
+                net_send(e.uid, "message", "Name be at least 1 character.")
+            else
+                local valid = false
+                valid = checkNoSpecialChars(name)
+                if valid then
+                    net_send(e.uid, "message", "Your name is now " .. name)
+                    GAME.clients[e.uid].name = name
+                    resetLobbyHtml()
+                    GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 50
+                else
+                    net_send(e.uid, "message", "Names cannot contain spaces or special characters.")
+                end
+            end
+        else
+            net_send(e.uid, "message", "Not enough SaandCoins!") 
+        end
+    end
+    if e.type == 'net:message' and string.lower(e.value) == "/buycoins" then
+        net_send("", "message", e.name.. " tried to buy their way to glory!")
+        wardrobeCoinsSuccess(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/awayall" then
         if isAdmin(e.name) then
@@ -152,7 +207,7 @@ function handleNetMessage(e)
             clients_queue()
         end
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/silver" then
+    if e.type == 'net:message' and string.lower(e.value) == "/silver" and GAME.galcon.global.CONFIGS.enableTrollModes then
         if e.name == "silvershad0w" or e.name == "HostAphid" then
             net_send("", "message", "Bro is he!")
             if GAME.galcon.global.stupidSettings.silverMode then
@@ -167,7 +222,7 @@ function handleNetMessage(e)
         end
         
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/ggwp" then
+    if e.type == 'net:message' and string.lower(e.value) == "/ggwp" and GAME.galcon.global.CONFIGS.enableTrollModes then
         net_send("", "message", e.name .. " /ggwp")
         if e.name == "hurrinado334" or e.name == "HostAphid" then
             net_send("", "message", "You are fragile enough...")
@@ -191,7 +246,7 @@ function handleNetMessage(e)
             net_send("", "message", "You are not fragile enough to be spared yodas berating.")
         end
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/father" then
+    if e.type == 'net:message' and string.lower(e.value) == "/father" and GAME.galcon.global.CONFIGS.enableTrollModes then
         net_send("", "message", e.name .. " /father")
         if string.lower(e.name) == "binah." or e.name == "HostAphid" then
             if GAME.galcon.global.stupidSettings.saandmode then
@@ -207,7 +262,7 @@ function handleNetMessage(e)
             resetLobbyHtml()
         end
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/breadmode" then
+    if e.type == 'net:message' and string.lower(e.value) == "/breadmode" and GAME.galcon.global.CONFIGS.enableTrollModes then
         net_send("", "message", e.name.." /breadmode")
         if string.lower(e.name) == "bread" or e.name == "HostAphid" then
             if GAME.galcon.global.stupidSettings.breadmode then
@@ -223,7 +278,7 @@ function handleNetMessage(e)
             net_send("", "message", "You are not bread.")
         end
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/rechameleon" then
+    if e.type == 'net:message' and string.lower(e.value) == "/rechameleon" and GAME.galcon.global.CONFIGS.enableTrollModes then
         net_send("", "message", e.name.." /rechameleon")
         if string.lower(e.name) == "reclamation-" or e.name == "HostAphid" then
         end
@@ -267,6 +322,15 @@ function handleNetMessage(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == '/wardrobe ships' then
         wardrobeShips(e)
+    end
+    if e.type == 'net:message' and string.lower(e.value) == '/wardrobe name' then
+        wardrobeName(e)
+    end
+    if e.type == 'net:message' and string.lower(e.value) == '/wardrobe title' then
+        wardrobeTitle(e)
+    end
+    if e.type == 'net:message' and string.lower(e.value) == '/wardrobe coins' then
+        wardrobeCoins(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/classic" then
         if g2.state == "lobby" then
