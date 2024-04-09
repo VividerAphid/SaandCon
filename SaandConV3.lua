@@ -1,5 +1,6 @@
 require("mod_common_utils")
 require("mod_elo")
+require("mod_playerData")
 require("configs")
 require("utils")
 require("admins")
@@ -46,6 +47,8 @@ function menu_init()
         GAME.galcon.setmode = false
         GAME.galcon.global = {
             CONFIGS = loadConfigs(),
+            WINNER_STAYS = false,
+            PLAYER_QUEUE = {},
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
@@ -159,6 +162,8 @@ function _clients_queue()
         if v ~= nil then
             if(q.colorData ~= nil) then
                 q.color = q.colorData
+                playerData.setPlayerColor(q.uid, q.color)
+                playerData.saveData()
             else
                 q.color = v
             end
@@ -176,11 +181,32 @@ function clients_init()
     function obj:event(e)
         if e.type == 'net:join' then
             local newCoins = GAME.galcon.global.CONFIGS.saandCoins.newPlayerSaandCoins
-            if amountOfPlay() < GAME.galcon.global.MAX_PLAYERS then
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="queue", title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}}
+            local incomingPlayerData = {uid=e.uid,officialName=e.name, name=e.name, ship="ship",skin="normal",status="away", 
+                    title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}}
+            if playerData.getUserData(e.uid) == nil then
+                playerData.InitNewPlayer(e.uid)
+                playerData.setPlayerCoins(e.uid, newCoins)
+                playerData.setPlayerName(e.uid, e.name)
+                playerData.saveData()
             else
-                GAME.clients[e.uid] = {uid=e.uid,name=e.name, ship="ship",skin="normal",status="away", title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}}
+                -- playerData.clearPlayerEntry(e.uid)
+                -- playerData.saveData()
+                local datPack = playerData.getUserData(e.uid)
+                incomingPlayerData.name = datPack.name
+                incomingPlayerData.ship = datPack.ship
+                incomingPlayerData.skin = datPack.skin
+                incomingPlayerData.title = datPack.title
+                incomingPlayerData.colorData = datPack.color
+                incomingPlayerData.coins = datPack.coins
+                incomingPlayerData.ownedShips = datPack.ownedShips
+                incomingPlayerData.ownedSkins = datPack.ownedSkins
             end
+            if amountOfPlay() < GAME.galcon.global.MAX_PLAYERS then
+                incomingPlayerData.status = "queue"
+            else
+                incomingPlayerData.status = "away"
+            end
+            GAME.clients[e.uid] = incomingPlayerData
             clients_queue(e)
             net_send("","message",e.name .. " joined")
             g2.net_send("","sound","sfx-join");
@@ -808,10 +834,12 @@ function galcon_classic_init()
             end
         end
 
-        local home = math.random(1, #planets)
-        while home == (#planets+1)/2 do
-            home = math.random(1, #planets)
-        end
+        local spawns = {1, 2, 3, 4, 5, 6, 10, 11}
+        local home = spawns[math.random(#spawns)]
+
+        -- while home == (#planets+1)/2 do
+        --     home = math.random(1, #planets)
+        -- end
         if GAME.galcon.gametype == "Hexagon" and amountOfPlay() == 1 then
             home = 13
         end
@@ -1154,7 +1182,7 @@ function galcon_stop(res, timerWinner, time)
         if winner ~= nil and winner ~= "galaxy227" then
             loser = find_enemy(winner.user_uid)
             if GAME.galcon.gamemode ~= "Race" then
-                if GAME.galcon.global.stupidSettings.breadmode and (winner.title_value == "bread" or loser.title_value == "bread") then 
+                if GAME.galcon.global.stupidSettings.breadmode and (GAME.clients[winner.user_uid].officialName == "bread" or GAME.clients[loser.user_uid].officialName == "bread") then 
                     local messageList = {[0]="BAKED", [1]="TOASTED", 
                     [2]="ROLLED", [3]="COOKED", [4]="FLOURED", 
                     [5]="CRUNCHED", [6]="SLICED", [7]="DIPPED",
@@ -1169,7 +1197,7 @@ function galcon_stop(res, timerWinner, time)
                         GAME.clients[loser.user_uid].title = messageList[ranPick] 
                     end
                 elseif GAME.galcon.global.stupidSettings.saandmode then
-                    if string.lower(winner.title_value) == "binah." then
+                    if string.lower(GAME.clients[winner.user_uid].officialName) == "binah." then
                         net_send("","message",winner.title_value.." enslaved "..loser.title_value)
                         net_send("", "message", "BOW THEE SUBJECT "..loser.title_value.."!")
                         if(GAME.clients[loser.user_uid] ~= nil) then
@@ -1194,15 +1222,17 @@ function galcon_stop(res, timerWinner, time)
 
             for j, u in pairs(GAME.galcon.scorecard) do
                 if winner.user_uid == j then
-                    if GAME.galcon.global.stupidSettings.silverMode and (winner.title_value == "silvershad0w") then
+                    if GAME.galcon.global.stupidSettings.silverMode and (GAME.clients[winner.user_uid].officialName == "silvershad0w") then
                         u = u + 15
                     else
                         u = u + 1
                     end
                     GAME.galcon.scorecard[j] = u
-                    GAME.clients[j].coins = GAME.clients[j].coins + 1
                     if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
                         net_send(j,"message","You earned 1 SaandCoin!")
+                        GAME.clients[j].coins = GAME.clients[j].coins + 1
+                        playerData.updateCoins(winner.user_uid, 1)
+                        playerData.saveData()
                     end                
                 end
             end
@@ -1212,12 +1242,11 @@ function galcon_stop(res, timerWinner, time)
             end
            
             --print("loser uid: ".. loser.user_uid)
-            if GAME.galcon.tournament == true and loser ~= nil then
+            if GAME.galcon.global.WINNER_STAYS == true and loser ~= nil then
                 requeueLoser(loser.user_uid)
             end
         else
             if winner == "galaxy227" then
-                print("galaxy win")
                 net_send("", "message", "galaxy227 wins by timers default!")
             end
         end
@@ -1573,6 +1602,9 @@ function elo_init()
     elo.load_ratings()
     elo.set_k(15)
 end
+function playerData_init()
+    playerData.loadData()
+end
 function mod_init()
     global("GAME")
     GAME = GAME or {}
@@ -1586,6 +1618,7 @@ function mod_init()
     galcon_init()
     register_init()
     elo_init()
+    playerData_init()
     if g2.headless == nil then
         client_init()
     end

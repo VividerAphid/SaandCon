@@ -29,8 +29,8 @@ function resetLobbyHtml(e)
                 <tr><td colspan=2><input type='button' value='Start' onclick='/start' class='button1' /></td></tr>
                 <tr><td></td></tr>
                 <tr><td><input type='button' value='Play' onclick='/play' class='button2' /></td>
-                <tr><td><input type='button' value='Away' onclick='/away' class='button2' /></td></tr>
-                <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='button2' /></td></tr>
+                <tr><td><input type='button' value='Away' onclick='/away' class='button2' /></td>
+                <tr><td><input type='button' value='GG' onclick='/gg' class='button2' /></td>
                 <tr><td colspan=2></td></tr>
             ]]..
             [[
@@ -69,7 +69,7 @@ function lobby_tabs(e)
             <td><input type='button' class='tab' width='15%' pseudo='first'      disabled='true'                                           />
 			<td><input type='button' class='tab' width='22%' value='Lobby'       icon='icon-new_game'  onclick='/lobby'                    />
             <td><input type='button' class='tab' width='22%' value='Modes'       icon='icon-new_map'  onclick='/mode'                      />
-            <td><input type='button' class='tab' width='22%' value='Ranks' icon='icon-queue'    onclick='/leaderboard'               />
+            <td><input type='button' class='tab' width='22%' value='Ranks/Style' icon='icon-queue'    onclick='/leaderboard'               />
             <td><input type='button' class='tab' width='22%' value='Settings'    icon='icon-options'  onclick='/settings'    pseudo='last' />
         </table>
     ]]
@@ -112,8 +112,9 @@ end
 function loadScoreboard(e)
     local html = [[
               <table>
+              <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='ibutton' icon='icon-store' /></td></tr>
               <tr><td><p>&nbsp;</p>
-              <tr><td><h2>Leaderboard
+              <tr><td><h2>ELO Leaderboard</h2>
             ]] ..
                 getLadderTable() .. [[
                 </table>
@@ -254,6 +255,9 @@ function wardrobeColors(e)
 end
 
 function wardrobeSkins(e)
+    local skinTexts = {'Normal','Honeycomb','Ice','Terrestrial','Gas Giant','Craters','Gaseous','Lava', 'Void', 'Disco','Swirls','Floral',
+    'Hearts', 'Clovers', 'Zerba', 'Giraffe', 'Eyes', 'Cow', 'Fossil', 'Snowcaps', 'Smooth', 
+    'Whisp', 'Charlie', 'Snowflake', 'Candycane', 'Snowglobe'}
     local headerText = "Planet Skins"
     if(GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins) then
         headerText = headerText .. " (30 each)"
@@ -261,33 +265,18 @@ function wardrobeSkins(e)
     local html = [[<table><tr><td colspan=3>
         <h2>]]..headerText..[[</h2>
         <tr><td colspan=3><input width=135 type='button' value='back' onclick='/wardrobe' />
-        <tr><td><input type='button' width=135 value='Normal' onclick='/setskin normal' class='button2'/>
-            <td><input type='button' width=135 value='Honeycomb' onclick='/setskin honeycomb' class='button2'/>
-            <td><input type='button' width=135 value='Ice' onclick='/setskin ice' class='button2'/>
-        <tr><td><input type='button' width=135 value='Terrestrial' onclick='/setskin terrestrial' class='button2'/>
-            <td><input type='button' width=135 value='Gas Giant' onclick='/setskin gasgiant' class='button2'/>
-            <td><input type='button' width=135 value='Craters' onclick='/setskin craters' class='button2'/>
-        <tr><td><input type='button' width=135 value='Gaseous' onclick='/setskin gaseous' class='button2'/>
-            <td><input type='button' width=135 value='Lava' onclick='/setskin lava' class='button2'/>
-            <td><input type='button' width=135 value='Void' onclick='/setskin void' class='button2'/>
-        <tr><td><input type='button' width=135 value='Disco' onclick='/setskin disco' class='button2'/>
-            <td><input type='button' width=135 value='Floral' onclick='/setskin floralpattern' class='button2'/>
-            <td><input type='button' width=135 value='Hearts' onclick='/setskin hearts' class='button2'/>
-        <tr><td><input type='button' width=135 value='Clover' onclick='/setskin clover' class='button2'/>
-            <td><input type='button' width=135 value='Zerba' onclick='/setskin zerba' class='button2'/>
-            <td><input type='button' width=135 value='Giraffe' onclick='/setskin giraffe' class='button2'/>
-        <tr><td><input type='button' width=135 value='Eyes' onclick='/setskin eyes' class='button2'/>
-            <td><input type='button' width=135 value='Cow' onclick='/setskin cow' class='button2'/>
-            <td><input type='button' width=135 value='Fossil' onclick='/setskin fossil' class='button2'/>
-        <tr><td><input type='button' width=135 value='Snowcaps' onclick='/setskin snowcaps' class='button2'/>
-            <td><input type='button' width=135 value='Smooth' onclick='/setskin smooth' class='button2'/>
-            <td><input type='button' width=135 value='Whisp' onclick='/setskin whisp' class='button2'/>
-        <tr><td><input type='button' width=135 value='Charlie' onclick='/setskin charlie' class='button2'/>
-            <td><input type='button' width=135 value='Snowflake' onclick='/setskin snowflake' class='button2'/>
-            <td><input type='button' width=135 value='Candycane' onclick='/setskin candycane' class='button2'/>
-        <tr><td><input type='button' width=135 value='Snowglobe' onclick='/setskin snowglobe' class='button2'/>
-        </table
-    ]]
+        <tr><td>]]
+    local planets = GAME.galcon.global.planets
+    for r=1, #planets do
+        if(math.fmod(r-1, 3) == 0) then
+            html = html .. [[<tr>]]
+        end
+        local class = "button"
+        if has_value(GAME.clients[e.uid].ownedSkins, planets[r]) then
+            class = "button2"            
+        end
+        html = html .. [[<td><input type='button' width=135 value=']]..skinTexts[r]..[[' onclick='/setskin ]]..planets[r]..[[' class=']]..class..[['/>]]
+    end
     net_send(e.uid, "html", html)
 end
 
@@ -311,10 +300,12 @@ function wardrobeShips(e)
     end
     html = html .. [[<tr><td><tr><td>]]
     for r=0, #shiplist do
-        if(math.fmod(r, 3) == 0) then
-            html = html .. [[<tr>]]
+        if has_value(ownedShips, shiplist[r]) == false then
+            if(math.fmod(r, 3) == 0) then
+                html = html .. [[<tr>]]
+            end
+            html = html .. [[<td><input type="button" width=20 height=20 onclick='/setship ]]..shiplist[r]..[[' class='button'><img src=']]..shiplist[r]..[['></input></td>]]
         end
-        html = html .. [[<td><input type="button" width=20 height=20 onclick='/setship ]]..shiplist[r]..[[' class='button'><img src=']]..shiplist[r]..[['></input></td>]]
     end
     html = html..[[
         </table>
@@ -396,7 +387,7 @@ function wardrobeCoinsSuccess(e)
 end
 
 function buildShipList()
-    local shiplist = {"ship"}
+    local shiplist = {}
     for r=0, 22 do
         shiplist[r] = "ship-"..r
     end
@@ -576,7 +567,7 @@ function playerInState(state)
             elseif e.color == 5592405 then
                 playercolor = "#666666"
                 darkColor = "#333333"
-            else 
+            else
                 playercolor = string.sub(e.color,3)
                 darkColor = darkenColor(e.color)
                 playercolor = "#"..playercolor

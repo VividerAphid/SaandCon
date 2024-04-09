@@ -6,6 +6,10 @@ function handleNetMessage(e)
             net_send("","message",e.name .. " is /queue")
         end
     end
+    if e.type == 'net:message' and string.lower(e.value) == "/gg" then
+        net_send("","message",e.name .. " GG's!")
+        g2.net_send("","sound","sfx-gg");
+    end
     if (e.type == 'net:message' and string.lower(e.value) == '/lobby') then
         --net_send("", "message", "<debug> net:message for lobby")
         resetLobbyHtml(e)
@@ -76,7 +80,13 @@ function handleNetMessage(e)
                 if GAME.clients[e.uid].coins >= 1 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
                     GAME.clients[e.uid].color = color
                     GAME.clients[e.uid].colorData = color
-                    GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 1
+                    playerData.setPlayerColor(e.uid, color)
+                    playerData.saveData()
+                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                        GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 1
+                        playerData.updateCoins(e.uid, -1)
+                        playerData.saveData()
+                    end
                     net_send(e.uid,'message','(Server -> '..e.name..') HEX-color changed to: '..color)
                     resetLobbyHtml()
                 else
@@ -100,7 +110,13 @@ function handleNetMessage(e)
             else
                 if GAME.clients[e.uid].coins >= 5 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
                     GAME.clients[e.uid].title = newTitle
-                    GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 5
+                    playerData.setPlayerTitle(e.uid, newTitle)
+                    playerData.saveData()
+                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                        GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 5
+                        playerData.updateCoins(e.uid, -1)
+                        playerData.saveData()
+                    end
                 else
                     net_send(e.uid, "message", "Not enough SaandCoins!")
                 end
@@ -115,8 +131,14 @@ function handleNetMessage(e)
             net_send(e.uid, "message", "Your ship is now " .. ship)
             GAME.clients[e.uid].ship = ship
             if hasShip == false then
-                GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 15
                 GAME.clients[e.uid].ownedShips[#GAME.clients[e.uid].ownedShips+1] = ship
+                playerData.updateShipList(e.uid, ship)
+                playerData.saveData()
+                if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                    GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 15
+                    playerData.updateCoins(e.uid, -15)
+                    playerData.saveData()
+                end
             end
         else
             net_send(e.uid, "message", "Not enough SaandCoins!")
@@ -128,9 +150,15 @@ function handleNetMessage(e)
         if GAME.clients[e.uid].coins >= 30 or hasSkin or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
             net_send(e.uid, "message", "Your skin is now " .. skin)
             GAME.clients[e.uid].skin = skin
-            if hasShip == false then
-                GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 30
-                GAME.clients[e.uid].ownedSkins[#GAME.clients[e.uid].ownedSkins+1] = ship
+            if hasSkin == false then
+                GAME.clients[e.uid].ownedSkins[#GAME.clients[e.uid].ownedSkins+1] = skin
+                playerData.updateSkinList(e.uid, skin)
+                playerData.saveData()
+                if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                    GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 30
+                    playerData.updateCoins(e.uid, -30)
+                    playerData.saveData() 
+                end
             end
         else
             net_send(e.uid, "message", "Not enough SaandCoins!") 
@@ -149,8 +177,14 @@ function handleNetMessage(e)
                 if valid then
                     net_send(e.uid, "message", "Your name is now " .. name)
                     GAME.clients[e.uid].name = name
+                    playerData.setPlayerName(e.uid, name)
+                    playerData.saveData()
                     resetLobbyHtml()
-                    GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 50
+                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                        GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 50
+                        playerData.updateCoins(e.uid, - 50)
+                        playerData.saveData()
+                    end
                 else
                     net_send(e.uid, "message", "Names cannot contain spaces or special characters.")
                 end
@@ -208,7 +242,7 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/silver" and GAME.galcon.global.CONFIGS.enableTrollModes then
-        if e.name == "silvershad0w" or e.name == "HostAphid" then
+        if GAME.clients[e.uid].officialName == "silvershad0w" or GAME.clients[e.uid].officialName == "HostAphid" then
             net_send("", "message", "Bro is he!")
             if GAME.galcon.global.stupidSettings.silverMode then
                 GAME.galcon.global.stupidSettings.silverMode = false
@@ -224,7 +258,7 @@ function handleNetMessage(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/ggwp" and GAME.galcon.global.CONFIGS.enableTrollModes then
         net_send("", "message", e.name .. " /ggwp")
-        if e.name == "hurrinado334" or e.name == "HostAphid" then
+        if GAME.clients[e.uid].officialName == "hurrinado334" or GAME.clients[e.uid].officialName == "HostAphid" then
             net_send("", "message", "You are fragile enough...")
             if GAME.galcon.global.stupidSettings.yodaFilter then
                 GAME.galcon.global.stupidSettings.yodaFilter = false
@@ -234,7 +268,7 @@ function handleNetMessage(e)
                 net_send("", "message", "Yoda filter active!")
             end
         else
-            if string.lower(e.name) == "master_yoda_" then
+            if string.lower(e.officialName) == "master_yoda_" then
                 if GAME.galcon.global.stupidSettings.yodaFilter then
                     net_send("", "message", "Nope you did this to yourself ".. e.name)
                 else
@@ -248,7 +282,7 @@ function handleNetMessage(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/father" and GAME.galcon.global.CONFIGS.enableTrollModes then
         net_send("", "message", e.name .. " /father")
-        if string.lower(e.name) == "binah." or e.name == "HostAphid" then
+        if string.lower(GAME.clients[e.uid].officialName) == "binah." or GAME.clients[e.uid].officialName == "HostAphid" then
             if GAME.galcon.global.stupidSettings.saandmode then
                 net_send("", "message", "Father Elim shall have mercy for now...")
                 GAME.galcon.global.stupidSettings.saandmode = false
@@ -264,7 +298,7 @@ function handleNetMessage(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/breadmode" and GAME.galcon.global.CONFIGS.enableTrollModes then
         net_send("", "message", e.name.." /breadmode")
-        if string.lower(e.name) == "bread" or e.name == "HostAphid" then
+        if string.lower(GAME.clients[e.uid].officialName) == "bread" or GAME.clients[e.uid].officialName == "HostAphid" then
             if GAME.galcon.global.stupidSettings.breadmode then
                 net_send("", "message", "Breadmode off!")
                 GAME.galcon.global.stupidSettings.breadmode = false
@@ -272,6 +306,8 @@ function handleNetMessage(e)
                 net_send("", "message", "Breadmode on!")
                 GAME.galcon.global.stupidSettings.breadmode = true
                 GAME.clients[e.uid].color = "0x9898fe" --4c4c7e old dark
+                playerData.setPlayerColor(e.uid,GAME.clients[e.uid].color)
+                playerData.saveData()
                 resetLobbyHtml()
             end
         else
@@ -280,7 +316,7 @@ function handleNetMessage(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/rechameleon" and GAME.galcon.global.CONFIGS.enableTrollModes then
         net_send("", "message", e.name.." /rechameleon")
-        if string.lower(e.name) == "reclamation-" or e.name == "HostAphid" then
+        if string.lower(GAME.clients[e.uid].officialName) == "reclamation-" or GAME.clients[e.uid].officialName == "HostAphid" then
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/mins" then
@@ -537,13 +573,13 @@ function handleNetMessage(e)
         local message = string.sub(e.value,5)
         net_send("","message",e.name.." "..message)
     end
-    if e.type == 'net:message' and string.lower(string.sub(e.value,1,11)) == "/tournament" then
-        if not GAME.galcon.tournament then
-            GAME.galcon.tournament = true
-            net_send('', "message", "Tournament mode is active!")
+    if e.type == 'net:message' and string.lower(e.value) == "/winnerstays" then
+        if not GAME.galcon.global.WINNER_STAYS then
+            GAME.galcon.global.WINNER_STAYS = true
+            net_send('', "message", "Winner stays mode is active!")
         else
-            GAME.galcon.tournament = false
-            net_send('', "message", "Tournament mode is deactivated.")
+            GAME.galcon.global.WINNER_STAYS = false
+            net_send('', "message", "Winner stays mode is deactivated.")
         end
     end
 end
@@ -567,6 +603,10 @@ function handleOnclick(e)
                 end
             end
         end
+    end
+    if e.type == 'onclick' and string.lower(e.value) == "/gg" then
+        net_send("","message",(e.name or GAME.clients[g2.uid].name) .. " GG's!")
+        g2.net_send("","sound","sfx-gg");
     end
     if e.type == 'onclick' and e.value == '/away' then
         if e.status == "play" or e.status == "queue" then
@@ -603,16 +643,16 @@ function handleOnclick(e)
         settingsTab(g2)
     end
     if e.type == 'onclick' and e.value == '/wardrobe' then
-        wardrobe(e)
+        wardrobe(g2)
     end
     if e.type == 'onclick' and e.value == '/wardrobe colors' then
-        wardrobeColors(e)
+        wardrobeColors(g2)
     end
     if e.type == 'onclick' and e.value == '/wardrobe skins' then
-        wardrobeSkins(e)
+        wardrobeSkins(g2)
     end
     if e.type == 'onclick' and e.value == '/wardrobe ships' then
-        wardrobeShips(e)
+        wardrobeShips(g2)
     end
     
 end
