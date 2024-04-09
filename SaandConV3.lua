@@ -67,6 +67,7 @@ function menu_init()
                 breadmode = false,
                 saandmode = false,
                 rechameleon = false,
+                recID = 0, 
             },
             ships=buildShipList(),
             planets= {'normal','honeycomb','ice','terrestrial','gasgiant','craters','gaseous','lava', 'void', 'disco','swirls','floralpattern',
@@ -526,13 +527,14 @@ function galcon_classic_init()
     local users = {}
     G.users = users
     local playcount = 0
-    local modIds = {saandId=-1, aphidId=-1}
+    local modIds = {saandId=-1, aphidId=-1}--temporary for saandbuff
 
     for uid,client in pairs(GAME.clients) do
         if string.lower(client.name) == "binah." then
             modIds.saandId = client.uid
         elseif string.lower(client.name) == "hostaphid" then
             modIds.aphidId = client.uid
+            print(modIds.aphidId)
         end
         if client.status == "play" then
             playcount = playcount+1
@@ -1408,7 +1410,7 @@ function galcon_init()
             local timeLeft = GAME.galcon.global.TIMER_LENGTH - math.floor(self.time)
             displayTimer(timeLeft)
             if timeLeft < 1 then
-                galcon_stop(true, calc_Timer_Win())
+                galcon_stop(#GAME.galcon.users>1, calc_Timer_Win())
             end
         end
         if GAME.galcon.gamemode == "Race" then

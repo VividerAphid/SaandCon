@@ -1,8 +1,8 @@
 function loadConfigs()
     local configs = {
         saandCoins = {
-            enableSaandCoins = false,
-            newPlayerSaandCoins = 100,
+            enableSaandCoins = true,
+            newPlayerSaandCoins = 15,
         },
         enableTrollModes = true,
     }

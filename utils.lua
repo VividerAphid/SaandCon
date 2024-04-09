@@ -235,3 +235,19 @@ function find_enemy(uid)
         end
     end
 end
+
+function getUserItems(uid)
+    print("Uid in: " .. uid)
+    local planets = {}
+    local items = g2.search("planet -neutral")
+    for _i,o in ipairs(items) do
+        print(g2.item(o:owner().n).user_uid)
+        local id = g2.item(o:owner().n).user_uid
+        if id == uid then
+            print("Found")
+            table.insert(planets, o)
+        end
+    end
+    print(#planets)
+    return planets
+end
