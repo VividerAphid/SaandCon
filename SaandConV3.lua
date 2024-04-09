@@ -166,6 +166,8 @@ function _clients_queue()
                 playerData.saveData()
             else
                 q.color = v
+                playerData.setPlayerColor(q.uid, q.color)
+                playerData.saveData()
             end
             q.status = "play"
             net_send("","message",q.name .. " is /play")
