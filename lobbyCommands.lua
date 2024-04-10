@@ -80,12 +80,10 @@ function handleNetMessage(e)
                 if GAME.clients[e.uid].coins >= 1 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
                     GAME.clients[e.uid].color = color
                     GAME.clients[e.uid].colorData = color
-                    playerData.setPlayerColor(e.uid, color)
-                    playerData.saveData()
+                    editPlayerData("color", e.uid, color)
                     if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
                         GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 1
-                        playerData.updateCoins(e.uid, -1)
-                        playerData.saveData()
+                        editPlayerData("coin-u", e.uid, -1)
                     end
                     net_send(e.uid,'message','(Server -> '..e.name..') HEX-color changed to: '..color)
                     resetLobbyHtml()
@@ -110,12 +108,10 @@ function handleNetMessage(e)
             else
                 if GAME.clients[e.uid].coins >= 5 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
                     GAME.clients[e.uid].title = newTitle
-                    playerData.setPlayerTitle(e.uid, newTitle)
-                    playerData.saveData()
+                    editPlayerData("title", e.uid, newTitle)
                     if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
                         GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 5
-                        playerData.updateCoins(e.uid, -1)
-                        playerData.saveData()
+                        editPlayerData("coin-u", e.uid, -5)
                     end
                 else
                     net_send(e.uid, "message", "Not enough SaandCoins!")
@@ -130,14 +126,13 @@ function handleNetMessage(e)
         if GAME.clients[e.uid].coins >= 15 or hasShip or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
             net_send(e.uid, "message", "Your ship is now " .. ship)
             GAME.clients[e.uid].ship = ship
+            editPlayerData("ship", e.uid, ship)
             if hasShip == false then
                 GAME.clients[e.uid].ownedShips[#GAME.clients[e.uid].ownedShips+1] = ship
-                playerData.updateShipList(e.uid, ship)
-                playerData.saveData()
+                editPlayerData("ownedShips", e.uid, ship)
                 if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
                     GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 15
-                    playerData.updateCoins(e.uid, -15)
-                    playerData.saveData()
+                    editPlayerData("coin-u", e.uid, -15)
                 end
             end
         else
@@ -150,14 +145,13 @@ function handleNetMessage(e)
         if GAME.clients[e.uid].coins >= 30 or hasSkin or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
             net_send(e.uid, "message", "Your skin is now " .. skin)
             GAME.clients[e.uid].skin = skin
+            editPlayerData("skin", e.uid, skin)
             if hasSkin == false then
                 GAME.clients[e.uid].ownedSkins[#GAME.clients[e.uid].ownedSkins+1] = skin
-                playerData.updateSkinList(e.uid, skin)
-                playerData.saveData()
+                editPlayerData("ownedSkins", e.uid, skin)
                 if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
                     GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 30
-                    playerData.updateCoins(e.uid, -30)
-                    playerData.saveData() 
+                    editPlayerData("coin-u", e.uid, -30) 
                 end
             end
         else
@@ -177,13 +171,11 @@ function handleNetMessage(e)
                 if valid then
                     net_send(e.uid, "message", "Your name is now " .. name)
                     GAME.clients[e.uid].name = name
-                    playerData.setPlayerName(e.uid, name)
-                    playerData.saveData()
+                    editPlayerData("name", e.uid, name)
                     resetLobbyHtml()
                     if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
                         GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 50
-                        playerData.updateCoins(e.uid, - 50)
-                        playerData.saveData()
+                        editPlayerData("coin", e.uid, name)
                     end
                 else
                     net_send(e.uid, "message", "Names cannot contain spaces or special characters.")

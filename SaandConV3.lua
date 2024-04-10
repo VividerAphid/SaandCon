@@ -163,12 +163,10 @@ function _clients_queue()
         if v ~= nil then
             if(q.colorData ~= nil) then
                 q.color = q.colorData
-                playerData.setPlayerColor(q.uid, q.color)
-                playerData.saveData()
+                editPlayerData("color", q.uid, q.color)
             else
                 q.color = v
-                playerData.setPlayerColor(q.uid, q.color)
-                playerData.saveData()
+                editPlayerData("color", q.uid, q.color)
             end
             q.status = "play"
             net_send("","message",q.name .. " is /play")
@@ -183,6 +181,7 @@ function clients_init()
     local obj = GAME.modules.clients
     function obj:event(e)
         if e.type == 'net:join' then
+            playerData_init()
             local newCoins = GAME.galcon.global.CONFIGS.saandCoins.newPlayerSaandCoins
             local incomingPlayerData = {uid=e.uid,officialName=e.name, name=e.name, ship="ship",skin="normal",status="away", 
                     title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}}
@@ -534,7 +533,7 @@ function galcon_classic_init()
             modIds.saandId = client.uid
         elseif string.lower(client.name) == "hostaphid" then
             modIds.aphidId = client.uid
-            print(modIds.aphidId)
+            --print(modIds.aphidId)
         end
         if client.status == "play" then
             playcount = playcount+1
@@ -1237,6 +1236,7 @@ function galcon_stop(res, timerWinner, time)
                         GAME.clients[j].coins = GAME.clients[j].coins + 1
                         playerData.updateCoins(winner.user_uid, 1)
                         playerData.saveData()
+                        editPlayerData("coin-u", winner.user_uid, 1)
                     end                
                 end
             end
@@ -1372,6 +1372,31 @@ function galcon_surrender(uid)
     for n,e in pairs(g2.search("planet owner:"..user)) do
         e:planet_chown(G.neutral)
     end
+end
+
+function editPlayerData(mode, uid, data)
+    --name, color, coin-u, coin-s, title, ship, skin, ownedships, ownedskins
+    playerData_init()
+    if mode == "name" then
+        playerData.setPlayerName(uid, data)
+    elseif mode == "color" then
+        playerData.setPlayerColor(uid, data)
+    elseif mode == "coin-u" then
+        playerData.updateCoins(uid, data)
+    elseif mode == "coin-s" then
+        playerData.setPlayerCoins(uid, data)
+    elseif mode == "title" then
+        playerData.setPlayerTitle(uid, data)
+    elseif mode == "ship" then
+        playerData.setPlayerShip(uid, data)
+    elseif mode == "skin" then
+        playerData.setPlayerSkin(uid, data)
+    elseif mode == "ownedships" then
+        playerData.updateShipList(uid, data)
+    elseif mode == "ownedskins" then
+        playerData.updateSkinList(uid, data)
+    end
+    playerData.saveData()
 end
 
 function galcon_init()
@@ -1606,8 +1631,8 @@ function elo_init()
     elo.load_ratings()
     elo.set_k(15)
 end
-function playerData_init()
-    playerData.loadData()
+function playerData_init(initial)
+    playerData.loadData(initial)
 end
 function mod_init()
     global("GAME")
@@ -1622,7 +1647,7 @@ function mod_init()
     galcon_init()
     register_init()
     elo_init()
-    playerData_init()
+    playerData_init(true)
     if g2.headless == nil then
         client_init()
     end

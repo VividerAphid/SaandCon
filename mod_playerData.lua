@@ -69,10 +69,12 @@ function _playerDataInit()
     --shiplist
     --skinlist
     
-    function playerData.loadData()
+    function playerData.loadData(initialLoad)
         local data = json.decode(g2.data)
         local pData = data.playerData
-        print("playerData: Loaded data from g2.data.pData")
+        if initialLoad then
+            print("playerData: Loaded data from g2.data.pData")
+        end
         if(pData == nil) then
             print("No player data loaded!")
         else
