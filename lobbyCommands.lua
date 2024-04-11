@@ -105,16 +105,24 @@ function handleNetMessage(e)
             local maxLen = 20
             if string.len(newTitle) > maxLen then
                 net_send("","message", "Title too long, max "..maxLen.." chars")
-            else
-                if GAME.clients[e.uid].coins >= 5 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
-                    GAME.clients[e.uid].title = newTitle
-                    editPlayerData("title", e.uid, newTitle)
+            else 
+                if censorCheck(newTitle, e.uid) == false then
+                    if GAME.clients[e.uid].coins >= 5 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
+                        GAME.clients[e.uid].title = newTitle
+                        editPlayerData("title", e.uid, newTitle)
+                        if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                            GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 5
+                            editPlayerData("coin-u", e.uid, -5)
+                        end
+                    else
+                        net_send(e.uid, "message", "Not enough SaandCoins!")
+                    end
+                else
                     if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
                         GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 5
                         editPlayerData("coin-u", e.uid, -5)
+                        net_send(e.uid, "message", "Keeping your coin anyways ;)")
                     end
-                else
-                    net_send(e.uid, "message", "Not enough SaandCoins!")
                 end
             end
             resetLobbyHtml()
@@ -169,13 +177,21 @@ function handleNetMessage(e)
                 local valid = false
                 valid = checkNoSpecialChars(name)
                 if valid then
-                    net_send(e.uid, "message", "Your name is now " .. name)
-                    GAME.clients[e.uid].name = name
-                    editPlayerData("name", e.uid, name)
-                    resetLobbyHtml()
-                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
-                        GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 50
-                        editPlayerData("coin", e.uid, name)
+                    if censorCheck(name, e.uid) then
+                        if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                            GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 50
+                            editPlayerData("coin-u", e.uid, -50)
+                            net_send(e.uid, "message", "Keeping your coin anyways ;)")
+                        end
+                    else
+                        net_send(e.uid, "message", "Your name is now " .. name)
+                        GAME.clients[e.uid].name = name
+                        editPlayerData("name", e.uid, name)
+                        resetLobbyHtml()
+                        if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                            GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 50
+                            editPlayerData("coin", e.uid, name)
+                        end
                     end
                 else
                     net_send(e.uid, "message", "Names cannot contain spaces or special characters.")

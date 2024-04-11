@@ -3,6 +3,7 @@ require("mod_elo")
 require("mod_playerData")
 require("configs")
 require("utils")
+require("censorList")
 require("admins")
 require("lobbyCommands")
 require("html")
@@ -818,8 +819,6 @@ function galcon_classic_init()
             mixed = true
             local options = {"Standard", "Hexagon", "Donut"}
             local pick = math.random(#options)
-            print(#options)
-            print(pick)
             GAME.galcon.gametype = options[pick]
         end
         for i=0, math.sqrt(OPTS.neutrals)-1 do
@@ -1377,6 +1376,9 @@ end
 function editPlayerData(mode, uid, data)
     --name, color, coin-u, coin-s, title, ship, skin, ownedships, ownedskins
     playerData_init()
+    print("Mode: " .. mode)
+    print("uid:" .. uid)
+    print("data: ".. data)
     if mode == "name" then
         playerData.setPlayerName(uid, data)
     elseif mode == "color" then

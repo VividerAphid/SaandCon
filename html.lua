@@ -357,7 +357,6 @@ function wardrobeCoins(e)
     "All proceeds go towards helping <br/>&nbsp;&nbsp;&nbsp;&nbsp;gamaray show up on time"
     }
     local pick = proceedsMessages[math.random(#proceedsMessages)]
-    print(pick)
     local html = [[<table><tr><td>
     <h2>Buy Coins</h2>
     <tr><td><input type='button' value='back' onclick='/wardrobe' icon="icon-restart" class='ibutton' />
