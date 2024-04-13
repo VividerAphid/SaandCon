@@ -7,8 +7,12 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/gg" then
-        net_send("","message",e.name .. " GG's!")
-        g2.net_send("","sound","sfx-gg");
+        if GAME.clients[e.uid].status == "play" then
+            net_send("","message",e.name .. " GG's!")
+            g2.net_send("","sound","sfx-gg")
+        else
+            net_send(e.uid, "message", "Only active players can gg")
+        end
     end
     if (e.type == 'net:message' and string.lower(e.value) == '/lobby') then
         --net_send("", "message", "<debug> net:message for lobby")
@@ -613,8 +617,12 @@ function handleOnclick(e)
         end
     end
     if e.type == 'onclick' and string.lower(e.value) == "/gg" then
-        net_send("","message",(e.name or GAME.clients[g2.uid].name) .. " GG's!")
-        g2.net_send("","sound","sfx-gg");
+       if GAME.clients[e.uid or g2.uid].status == "play" then
+            net_send("","message",(e.name or g2.name) .. " GG's!")
+            g2.net_send("","sound","sfx-gg")
+        else
+            net_send((e.uid or g2.uid), "message", "Only active players can gg")
+        end
     end
     if e.type == 'onclick' and e.value == '/away' then
         if e.status == "play" or e.status == "queue" then
