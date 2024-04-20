@@ -797,12 +797,13 @@ function galcon_classic_init()
             table.insert(planets, planetSym)
         end
         if mapStyle == 3 then
-            if modIds.saandId ~= -1 then
-                net_send(modIds.saandId, "message", picked)
-            end
-            if modIds.aphidId ~= -1 then
-                net_send(modIds.aphidId, "message", picked)
-            end
+            -- if modIds.saandId ~= -1 then
+            --     net_send(modIds.saandId, "message", picked)
+            -- end
+            -- if modIds.aphidId ~= -1 then
+            --     net_send(modIds.aphidId, "message", picked)
+            -- end
+            net_send("", "message", picked)
         end
     end
 
