@@ -67,6 +67,30 @@ function getSaandbuffVals(version, prod)
         elseif prod >= 100 then
             cost = math.floor(math.random(56, 65))
         end
+    elseif version == 6 then
+        if prod >= 20 and prod < 41 then
+            cost = math.floor(math.random(0, 5))
+        elseif prod >= 41 and prod < 66 then
+            cost = math.floor(math.random(5, 15))
+        elseif prod >= 66 and prod < 81 then
+            cost = math.floor(math.random(12, 30))
+        elseif prod >= 81 and prod < 100 then
+            cost = math.floor(math.random(25, 60))
+        elseif prod >= 100 then
+            cost = math.floor(math.random(30, 70))
+        end
+    elseif version == 7 then
+        if prod >= 30 and prod < 51 then
+            cost = math.floor(math.random(5, 10))
+        elseif prod >= 51 and prod < 71 then
+            cost = math.floor(math.random(10, 20))
+        elseif prod >= 71 and prod < 81 then
+            cost = math.floor(math.random(20, 30))
+        elseif prod >= 81 and prod < 100 then
+            cost = math.floor(math.random(30, 60))
+        elseif prod >= 100 then
+            cost = math.floor(math.random(40, 70))
+        end
     end
     return cost
 end

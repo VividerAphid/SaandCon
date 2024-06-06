@@ -28,11 +28,11 @@ X-timer
 X-Mix grid mapstyle
  -Coin shop
 	-betting
-	-name Change
-	-ships 15 coin, skins 30, names 50 per, colors 1 per, titles 5 per
+	X-name Change
+	X-ships 15 coin, skins 30, names 50 per, colors 1 per, titles 5 per
 X-Make player bars not terrible matching maccoland
    X-Silly player titles underneath player name
-	-Persistent color
+	X-Persistent color
  -GG button
 X-/Father
  -/Rechameleon

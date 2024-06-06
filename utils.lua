@@ -251,3 +251,11 @@ function getUserItems(uid)
     print(#planets)
     return planets
 end
+
+function hostUidFix(e)
+    if e.uid == nil then 
+       return g2.uid
+    else
+       return e.uid
+    end
+ end

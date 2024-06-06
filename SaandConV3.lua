@@ -522,7 +522,7 @@ function galcon_classic_init()
     end
     
     
-    g2.bkgr_src = "black"
+    g2.bkgr_src = "black" --"gui-xicon2o"
 
     local users = {}
     G.users = users
@@ -714,7 +714,7 @@ function galcon_classic_init()
             table.insert(planets, planetHomeSym)
         end
         
-        local SBVersionCount = 5
+        local SBVersionCount = 7
         local stylePick = math.random(1,SBVersionCount) --Temporary for SaandBuff
         local picked = "V" .. stylePick --SaandBuff
         local prodMin = 30
@@ -726,6 +726,10 @@ function galcon_classic_init()
                 prod = math.random(20, 120)
             elseif stylePick == 5 and mapStyle == 3 then
                 prod = math.random(20, 110)
+            elseif stylePick == 6 and mapStyle == 3 then
+                prod = math.random(20, 120)
+            elseif stylePick == 7 and mapStyle == 3 then
+                prod = math.random(30, 120)
             elseif mapStyle == 4 then
                 prod = math.floor(math.random(1, 100))
             else 
