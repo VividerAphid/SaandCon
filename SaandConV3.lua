@@ -727,7 +727,12 @@ function galcon_classic_init()
             end
         end
         local SBEnabledCount = #enabled
-        local stylePick = enabled[math.random(1,SBEnabledCount)]
+        local stylePick = -1
+        if SBEnabledCount == 0 then
+            stylePick = math.random(1, #sb_versions)
+        else
+            stylePick = enabled[math.random(1,SBEnabledCount)]
+        end
         local picked = "V" .. stylePick --SaandBuff
         local prodMin = 30
         local prodMax = 100
