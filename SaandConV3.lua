@@ -714,7 +714,7 @@ function galcon_classic_init()
             table.insert(planets, planetHomeSym)
         end
         
-        local SBVersionCount = 7
+        local SBVersionCount = 10
         local stylePick = math.random(1,SBVersionCount) --Temporary for SaandBuff
         local picked = "V" .. stylePick --SaandBuff
         local prodMin = 30
@@ -730,6 +730,12 @@ function galcon_classic_init()
                 prod = math.random(20, 120)
             elseif stylePick == 7 and mapStyle == 3 then
                 prod = math.random(30, 120)
+            elseif stylePick == 8 and mapStyle == 3 then
+                prod = math.random(20, 120)
+            elseif stylePick == 9 and mapStyle == 3 then
+                prod = math.random(15, 80)
+            elseif stylePick == 10 and mapStyle == 3 then
+                prod = math.random(15, 90)
             elseif mapStyle == 4 then
                 prod = math.floor(math.random(1, 100))
             else 
