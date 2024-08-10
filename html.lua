@@ -487,9 +487,9 @@ function loadModeSpecificButtons()
                 end
                 c_count = c_count + 1
                 if v_enableds[i] == true then
-                    html = html .. [[<td><input type='button' width=100 value='V]]..i..[[' onclick='/togglesaandbuff' class='button2' />]]
+                    html = html .. [[<td><input type='button' width=100 value='V]]..i..[[' onclick='/togglesaandbuff ]]..i..[[' class='button2' />]]
                 else
-                    html = html .. [[<td><input type='button' width=100 value='V]]..i..[[' onclick='/togglesaandbuff' class='button3' />]]
+                    html = html .. [[<td><input type='button' width=100 value='V]]..i..[[' onclick='/togglesaandbuff ]]..i..[[' class='button3' />]]
                 end
                 if c_count == 2 then
                     c_count = 0
