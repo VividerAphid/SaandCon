@@ -476,7 +476,26 @@ function loadModeSpecificButtons()
     if(GAME.galcon.gamemode == "Grid") then
         html = "<tr><td colspan=3><h3>Map Type<tr><td colspan=2><input type='button' value='Mix' onclick='/gridstyle mix' class='button2' /><tr><td colspan=2><input type='button' value='Standard' onclick='/gridstyle standard' class='button2' /><tr><td colspan=2><input type='button' value='Donut' onclick='/gridstyle donut' class='button2' /><tr><td colspan=2><input type='button' value='Hexagon' onclick='/gridstyle hexagon' class='button2' />"
     elseif (GAME.galcon.gamemode == "Classic") then
-        html = "<tr><td colspan=3><h3>Map Style <tr><td colspan=2><input type='button' value='Mix' onclick='/mapstyle mix' class='button2' /><tr><td colspan=2><input type='button' value='Classic' onclick='/mapstyle classic' class='button2' /><tr><td colspan=2><input type='button' value='PhilBuff' onclick='/mapstyle philbuff' class='button2' /><tr><td colspan=2><input type='button' value='12 Planet' onclick='/mapstyle 12p' class='button2' /><tr><td colspan=2><input type='button' value='SaandBuff' onclick='/mapstyle saandbuff' class='button2' /><tr><td colspan=2><input type='button' value='Wonk' onclick='/mapstyle wonk' class='button2' />"
+        html = "<tr><td colspan=3><h3>Map Style <tr><td colspan=1><input type='button' value='Mix' onclick='/mapstyle mix' class='button2' /><td colspan=1><input type='button' value='Classic' onclick='/mapstyle classic' class='button2' /><tr><td colspan=1><input type='button' value='PhilBuff' onclick='/mapstyle philbuff' class='button2' /><td colspan=1><input type='button' value='12 Planet' onclick='/mapstyle 12p' class='button2' /><tr><td colspan=1><input type='button' value='SaandBuff' onclick='/mapstyle saandbuff' class='button2' /><td colspan=1><input type='button' value='Wonk' onclick='/mapstyle wonk' class='button2' />"
+        if(GAME.galcon.global.MAP_STYLE == 3) then
+            html = html .. [[<tr><td colspan=3><h3>SaandBuff Versions</h3>]]
+            local v_enableds = GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED
+            local c_count = 0
+            for i=1, #v_enableds do
+                if c_count == 0 then
+                    html = html .. [[<tr>]]
+                end
+                c_count = c_count + 1
+                if v_enableds[i] == true then
+                    html = html .. [[<td><input type='button' width=100 value='V]]..i..[[' onclick='/togglesaandbuff' class='button2' />]]
+                else
+                    html = html .. [[<td><input type='button' width=100 value='V]]..i..[[' onclick='/togglesaandbuff' class='button3' />]]
+                end
+                if c_count == 2 then
+                    c_count = 0
+                end
+            end
+        end
     end
     return html
 end

@@ -53,6 +53,10 @@ function menu_init()
             MAX_PLAYERS = 2,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = 3,
+            SAANDBUFF_DATA = {
+                VERSIONS_ENABLED = {true, true, true, true, true, true, true, true, true, true}, --V1-V10
+                DISTANCE_ENABLED = true
+            },
             TIMER_LENGTH = 0,
             SEED_DATA = {
                 SEED = 1,
@@ -714,8 +718,16 @@ function galcon_classic_init()
             table.insert(planets, planetHomeSym)
         end
         
-        local SBVersionCount = 10
-        local stylePick = math.random(1,SBVersionCount) --Temporary for SaandBuff
+        local sb_versions = GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED
+        local enabled = {}
+        --select all enabled versions of saandbuff
+        for i=1, #sb_versions do
+            if sb_versions[i] == true then
+                enabled[#enabled+1] = i
+            end
+        end
+        local SBEnabledCount = #enabled
+        local stylePick = enabled[math.random(1,SBEnabledCount)]
         local picked = "V" .. stylePick --SaandBuff
         local prodMin = 30
         local prodMax = 100

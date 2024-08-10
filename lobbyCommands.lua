@@ -575,6 +575,14 @@ function handleNetMessage(e)
         GAME.galcon.global.MAP_STYLE = 4
         resetLobbyHtml()
     end
+    if e.type == 'net:message' and string.lower(string.sub(e.value, 1, 16)) == "/togglesaandbuff" then
+        local version = string.lower(string.sub(e.value, 18))
+        version = tonumber(version)
+        if(version ~= nil) then
+            GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED[version] = not GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED[version]
+        end
+        settingsTab(e)
+    end
     if e.type == 'net:message' and string.lower(e.value) == "/set" then
         GAME.galcon.setmode = true
         local to = string.sub(e.value,6)
