@@ -524,6 +524,16 @@ function handleNetMessage(e)
             clients_queue()
         end
     end
+    if e.type == 'net:message' and string.lower(e.value) == "/expand 1" then
+        if g2.state == "lobby" then
+            GAME.galcon.gamemode = "Classic"
+            GAME.galcon.global.SOLO_MODE = false
+            GAME.galcon.global.MAP_STYLE = 5
+            net_send("","message",e.name .. " /expand 1")
+            net_send("","message","Game mode changed to: Expand.")
+            clients_queue()
+        end
+    end
     if e.type == 'net:message' and string.lower(e.value) == "/help" then
         net_send(e.uid,"message","(Server -> "..e.name..") List of commands: /start, /play, /queue, /away, /surrender, /who, /me, /hex, /color, /tournament, /matchup, /elo")
         net_send(e.uid,"message","(Server -> "..e.name..") Game modes: /classic, /stages, /frenzy, /grid, /float, /line, /race")

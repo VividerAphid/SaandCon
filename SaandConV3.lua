@@ -662,13 +662,14 @@ function galcon_classic_init()
 
     if GAME.galcon.gamemode == "Classic" then
         
-        local numMapStyles = 5
-        --local mapStyle = 3 -- MIX: getMapStyle(numMapStyles) // Classic: 0 // PhilBuff: 1 // 12p: 2 // Saandbuff: 3 // wonk: 4
+        local numMapStyles = 6
+        --local mapStyle = 3 -- MIX: getMapStyle(numMapStyles) // Classic: 0 // PhilBuff: 1 // 12p: 2 // Saandbuff: 3 // wonk: 4 // expand(1 ship mode): 5
         local mapStyle = -1
         if(GAME.galcon.global.MAP_STYLE == "mix") then
             mapStyle = getMapStyle(numMapStyles)            
         else
             mapStyle = GAME.galcon.global.MAP_STYLE
+            print(mapStyle)
         end
 
         if mapStyle == 0 then
@@ -680,6 +681,10 @@ function galcon_classic_init()
             sh = sh / 1.25
             OPTS.neutrals = OPTS.neutrals / 2
         end
+        if mapStyle == 5 then
+            sw = sw / 1.25
+            sh = sh / 1.25
+        end
         g2.view_set(0, 0, sw, sh)
 
         local planets = {}
@@ -688,10 +693,14 @@ function galcon_classic_init()
         local home_r = prodToRadius(home_production)
         
         if mapStyle == 4 then
-	    home_production = math.floor(math.random(1, 100))
-	    home_ships = math.floor(math.random(1, 100))
-	    home_r = prodToRadius(home_production)
-	end
+            home_production = math.floor(math.random(1, 100))
+            home_ships = math.floor(math.random(1, 100))
+            home_r = prodToRadius(home_production)
+        elseif mapStyle == 5 then
+            home_production = 10
+            home_ships = 1
+            home_r = prodToRadius(75)
+	    end
 
         local a = math.random(0,360)
         for i,user in pairs(users) do
@@ -700,6 +709,7 @@ function galcon_classic_init()
             local y = sh/2 + (sh-sh/15*2)*math.sin(a*math.pi/180.0)/2.0
 
             G.home = g2.new_planet(user, x, y, home_production, home_ships);
+            G.home.planet_r = home_r
             a = a + 360/#users
 
             local planetHome = {}
@@ -737,7 +747,8 @@ function galcon_classic_init()
         local prodMin = 30
         local prodMax = 100
 
-        for i=1, OPTS.neutrals/2 do
+        local count = OPTS.neutrals/2
+        for i=1, count do
             local prod = 0
             if stylePick == 4 and mapStyle == 3 then
                 prod = math.random(20, 120)
@@ -755,11 +766,16 @@ function galcon_classic_init()
                 prod = math.random(15, 90)
             elseif mapStyle == 4 then
                 prod = math.floor(math.random(1, 100))
+            elseif mapStyle == 5 then
+                prod = 10
             else 
                 prod = math.random(prodMin, prodMax)
             end
             math.random(prodMin, prodMax)
             local radius = prodToRadius(prod)
+            if mapStyle == 5 then
+                radius = prodToRadius(50)
+            end
             local x = math.random(radius, sw - radius)
             local y = math.random(radius, sh - radius)
             local cost = 0
@@ -774,6 +790,8 @@ function galcon_classic_init()
             elseif mapStyle == 4 then
             	local costRatio = math.floor(home_ships * .5)
             	cost = math.floor(math.random(0, costRatio))
+            elseif mapStyle == 5 then
+                cost = 0
             elseif mapStyle > numMapStyles then
                 print("Error: mapStyle out of range ("..mapStyle..')')
             end
@@ -803,8 +821,10 @@ function galcon_classic_init()
                 end
             end
 
-            g2.new_planet(o, x, y, prod, cost)
-            g2.new_planet(o, sw - x, sh - y, prod, cost)
+            local plan = g2.new_planet(o, x, y, prod, cost)
+            local planSym = g2.new_planet(o, sw - x, sh - y, prod, cost)
+            plan.planet_r = radius
+            planSym.planet_r = radius
 
             local planet = {}
             planet.x = x

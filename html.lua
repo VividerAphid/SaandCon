@@ -536,7 +536,7 @@ function soloModeText()
 end
 
 function mapStyleText()
-    local table = {["mix"] = "Mix", [0] = "Classic", [1] = "PhilBuff", [2] = "12p", [3] = "SaandBuff", [4] = "Wonk"}
+    local table = {["mix"] = "Mix", [0] = "Classic", [1] = "PhilBuff", [2] = "12p", [3] = "SaandBuff", [4] = "Wonk",  [5] = "1 Ship"}
     return table[GAME.galcon.global.MAP_STYLE]
 end
 
