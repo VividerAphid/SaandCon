@@ -699,7 +699,7 @@ function galcon_classic_init()
         elseif mapStyle == 5 then
             home_production = 10
             home_ships = 1
-            home_r = prodToRadius(75)
+            home_r = prodToRadius(50)
 	    end
 
         local a = math.random(0,360)
@@ -774,7 +774,7 @@ function galcon_classic_init()
             math.random(prodMin, prodMax)
             local radius = prodToRadius(prod)
             if mapStyle == 5 then
-                radius = prodToRadius(50)
+                radius = prodToRadius(35)
             end
             local x = math.random(radius, sw - radius)
             local y = math.random(radius, sh - radius)
