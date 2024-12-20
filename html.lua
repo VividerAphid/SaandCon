@@ -26,10 +26,9 @@ function resetLobbyHtml(e)
                 settingsBar()..
                 [[
                 <tr><td></td></tr>
-                <tr><td colspan=2><input type='button' value='Start' onclick='/start' class='button1' /></td></tr>
+                <tr><td colspan=3><input type='button' value='Start' onclick='/start' class='button1' /></td></tr>
                 <tr><td></td></tr>
-                <tr><td><input type='button' value='Play' onclick='/play' class='button2' /></td>
-                <tr><td><input type='button' value='Away' onclick='/away' class='button2' /></td>
+                <tr><td colspan=3><input type='button' value='Toggle /Play' onclick='/toggleplay' class='button2' /></td>
                 <tr><td><input type='button' value='GG' onclick='/gg' class='button2' /></td>
                 <tr><td colspan=2></td></tr>
             ]]..
@@ -148,11 +147,20 @@ function modeTab(e)
 end
 
 function settingsTab(e)
+    local home_prod = GAME.galcon.global.HOME_PROD
+    local start_ships = GAME.galcon.global.STARTING_SHIPS
+    if(GAME.galcon.gamemode == "Grid") then
+        home_prod = GAME.galcon.global.GRID.HOME_PROD
+        start_ships = GAME.galcon.global.GRID.START_SHIPS
+    end
     local html = [[
         <table><tr><td colspan=3>
         <h2>Settings</h2>
         <tr><td colspan=3><input type='button' value='Solo Mode' onclick='/solo' />
         <tr><td colspan=1><h3>Timer:</h3><td><input type='slider' onchange="/timer {$timer}" value=']]..GAME.galcon.global.TIMER_LENGTH..[[' name='timer' low=0 high=30/>
+        <tr><td colspan=1><h3>Starting Ships:</h3><td><input type='slider' onchange="/startships {$ships}" value=']]..start_ships..[[' name='ships' low=0 high=200/>
+        <tr><td colspan=1><h3>Home Prod:</h3><td><input type='slider' onchange="/homeprod {$prod}" value=']]..home_prod..[[' name='prod' low=0 high=200/>
+        <tr><td colspan=1><h3>Home Count:</h3><td><input type='slider' onchange="/homes {$homes}" value=']]..GAME.galcon.global.HOME_COUNT..[[' name='homes' low=1 high=3/>
         <tr><td><input type='button' value="Change seed" onclick='/seed {$seedbox}' />
             <td><input type="text" name='seedbox' value=""/>
         <tr><td><input type='button' value='Replay seed' onclick='/replayseed' />
@@ -475,6 +483,9 @@ function loadModeSpecificButtons()
     local html = ""
     if(GAME.galcon.gamemode == "Grid") then
         html = "<tr><td colspan=3><h3>Map Type<tr><td colspan=2><input type='button' value='Mix' onclick='/gridstyle mix' class='button2' /><tr><td colspan=2><input type='button' value='Standard' onclick='/gridstyle standard' class='button2' /><tr><td colspan=2><input type='button' value='Donut' onclick='/gridstyle donut' class='button2' /><tr><td colspan=2><input type='button' value='Hexagon' onclick='/gridstyle hexagon' class='button2' />"
+        html = html .. [[<tr><td colspan=1><h3>Neut Cost:</h3><td><input type='slider' onchange="/gridneutcost {$neutcost}" value=']]..GAME.galcon.global.GRID.NEUT_COST..[[' name='neutcost' low=0 high=200/>
+                         <tr><td colspan=1><h3>Neut Prod:</h3><td><input type='slider' onchange="/gridneutprod {$neutprod}" value=']]..GAME.galcon.global.GRID.NEUT_PROD..[[' name='neutprod' low=0 high=200/>
+                        ]]
     elseif (GAME.galcon.gamemode == "Classic") then
         html = "<tr><td colspan=3><h3>Map Style <tr><td colspan=1><input type='button' value='Mix' onclick='/mapstyle mix' class='button2' /><td colspan=1><input type='button' value='Classic' onclick='/mapstyle classic' class='button2' /><tr><td colspan=1><input type='button' value='PhilBuff' onclick='/mapstyle philbuff' class='button2' /><td colspan=1><input type='button' value='12 Planet' onclick='/mapstyle 12p' class='button2' /><tr><td colspan=1><input type='button' value='SaandBuff' onclick='/mapstyle saandbuff' class='button2' /><td colspan=1><input type='button' value='Wonk' onclick='/mapstyle wonk' class='button2' />"
         if(GAME.galcon.global.MAP_STYLE == 3) then
@@ -555,7 +566,7 @@ function ingamePauseMenu()
     --TODO: Make rage quit button leave lobby AND not kick everyone else
     return [[<table>
     <tr><td colspan=2><input type='button' value='Resume' onclick='resume' class='ibutton1' icon='icon-resume'/>
-    <tr><td><input type='button' value='Surrender' onclick='/surrender' class='ibutton1' icon='icon-surrender'/>
+    <tr><td><input type='button' height=100 value='Surrender' onclick='/surrender' class='ibutton1' icon='icon-surrender'/>
     <tr><td><input type='button' value='Rage Quit' onclick='/ragequit' class='ibutton1' icon='icon-leave'/>
     </table>]]
 

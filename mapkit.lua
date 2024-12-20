@@ -126,3 +126,15 @@ function getSaandbuffVals(version, prod)
     end
     return cost
 end
+
+function getSaandDistProd(version, distance, maxDistance)
+    local prod = 50
+    prod = (distance/maxDistance)*100
+    return prod
+end
+
+function getSaandDistCost(version, prod)
+    local cost = 15
+    cost = prod
+    return cost
+end

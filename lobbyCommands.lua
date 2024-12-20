@@ -1,10 +1,10 @@
 function handleNetMessage(e)
     if (e.type == 'net:message' and string.lower(e.value) == '/play') or (e.type == "net:message" and string.lower(e.value) == "/queue") then
-        if GAME.clients[e.uid].status == "away" then
-            GAME.clients[e.uid].status = "queue"
-            clients_queue(e)
-            net_send("","message",e.name .. " is /queue")
-        end
+        playStateCheck(e)
+    end
+    if e.type == 'net:message' and e.value =='/toggleplay' then
+        --print("toggle!")
+        playStateCheck(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/gg" then
         if GAME.clients[e.uid].status == "play" then
@@ -13,6 +13,9 @@ function handleNetMessage(e)
         else
             net_send(e.uid, "message", "Only active players can gg")
         end
+    end
+    if (e.type == 'net:message' and string.lower(e.value) == '/version') then
+        net_send(e.uid, "message", "Version is "..GAME.galcon.global.CONFIGS.version)
     end
     if (e.type == 'net:message' and string.lower(e.value) == '/lobby') then
         --net_send("", "message", "<debug> net:message for lobby")
@@ -31,11 +34,12 @@ function handleNetMessage(e)
         settingsTab(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == '/away' then
-        if GAME.clients[e.uid].status == "play" or GAME.clients[e.uid].status == "queue" then
-            GAME.clients[e.uid].status = "away"
-            clients_queue(e)
-            net_send("","message",e.name .. " is /away")
-        end
+        -- if GAME.clients[e.uid].status == "play" or GAME.clients[e.uid].status == "queue" then
+        --     GAME.clients[e.uid].status = "away"
+        --     clients_queue(e)
+        --     net_send("","message",e.name .. " is /away")
+        -- end
+        playStateCheck(e)
     end
     -- can break a lot of things DONT USE
     if e.type == "net:message" and string.sub(e.value,1,11) == "/maxplayers" then
@@ -53,7 +57,37 @@ function handleNetMessage(e)
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,6)) == "/timer" then
         GAME.galcon.global.TIMER_LENGTH = string.sub(e.value, 8, string.len(e.value)) * 60
-        resetLobbyHtml()
+        net_send("", "message", "Timer changed to " .. string.sub(e.value, 8, string.len(e.value)) * 60)
+        --resetLobbyHtml()
+    end
+    if e.type =='net:message' and string.lower(string.sub(e.value,1,6)) == "/homes" then
+        GAME.galcon.global.HOME_COUNT = string.sub(e.value, 8, string.len(e.value))
+        net_send("", "message", "Home count changed to " .. string.sub(e.value, 8, string.len(e.value)))
+        --resetLobbyHtml()
+    end
+    if e.type =='net:message' and string.lower(string.sub(e.value,1,9)) == "/homeprod" then
+        if(GAME.gamemode == "Grid") then
+            GAME.galcon.global.GRID.HOME_PROD = string.sub(e.value, 11, string.len(e.value))
+        else
+            GAME.galcon.global.HOME_PROD = string.sub(e.value, 11, string.len(e.value))
+        end
+        net_send("", "message", "Home prod changed to " .. string.sub(e.value, 11, string.len(e.value)))
+        --resetLobbyHtml()
+    end
+    if e.type =='net:message' and string.lower(string.sub(e.value,1,11)) == "/startships" then
+        net_send("", "message", "Starting ships changed to " .. string.sub(e.value, 13, string.len(e.value)))
+        GAME.galcon.global.STARTING_SHIPS = string.sub(e.value, 13, string.len(e.value))
+        --resetLobbyHtml()
+    end
+    if e.type =='net:message' and string.lower(string.sub(e.value,1,13)) == "/gridneutcost" then
+        net_send("", "message", "Grid neut cost changed to " .. string.sub(e.value, 15, string.len(e.value)))
+        GAME.galcon.global.GRID.NEUT_COST = string.sub(e.value, 15, string.len(e.value))
+        --resetLobbyHtml()
+    end
+    if e.type =='net:message' and string.lower(string.sub(e.value,1,13)) == "/gridneutprod" then
+        net_send("", "message", "Grid neut prod changed to " .. string.sub(e.value, 15, string.len(e.value)))
+        GAME.galcon.global.GRID.NEUT_PROD = string.sub(e.value, 15, string.len(e.value))
+        --resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == '/color' or e.type == 'net:message' and string.lower(e.value) ==  '/colors' then
         net_send(e.uid,"message",'(Server -> '..e.name..') Type "/hex [0x######] to change your color."')
@@ -612,27 +646,35 @@ function handleNetMessage(e)
             net_send('', "message", "Winner stays mode is deactivated.")
         end
     end
+    if e.type == 'net:message' and string.lower(e.value) == "/defaults" then
+        net_send("","message",e.name .. " /defaults")
+        net_send("","message","Lobby reset to default settings.")
+        GAME.galcon.gamemode = "Classic"
+        GAME.galcon.tournament = false
+        GAME.galcon.setmode = false
+        GAME.galcon.global.WINNER_STAYS = GAME.galcon.global.CONFIGS.defaults.WINNER_STAYS
+        GAME.galcon.global.MAX_PLAYERS = GAME.galcon.global.CONFIGS.defaults.MAX_PLAYERS
+        GAME.galcon.global.SOLO_MODE = false
+        GAME.galcon.global.MAP_STYLE = GAME.galcon.global.CONFIGS.defaults.MAP_STYLE
+        GAME.galcon.global.SAANDBUFF_DATA = GAME.galcon.global.CONFIGS.defaults.SAANDBUFF_DATA
+        GAME.galcon.global.TIMER_LENGTH = GAME.galcon.global.CONFIGS.defaults.TIMER_LENGTH
+        GAME.galcon.global.STARTING_SHIPS = GAME.galcon.global.CONFIGS.defaults.STARTING_SHIPS
+        GAME.galcon.global.HOME_COUNT = GAME.galcon.global.CONFIGS.defaults.HOME_COUNT
+        GAME.galcon.global.HOME_PROD = GAME.galcon.global.CONFIGS.defaults.HOME_PROD
+        GAME.galcon.global.GRID = GAME.galcon.global.CONFIGS.defaults.GRID
+        GAME.galcon.global.SEED_DATA = GAME.galcon.global.CONFIGS.defaults.SEED_DATA
+        GAME.galcon.global.stupidSettings = GAME.galcon.global.CONFIGS.defaults.stupidSettings
+        resetLobbyHtml()
+    end
 end
 
 function handleOnclick(e)
+    if e.type == 'onclick' and e.value =='/toggleplay' then
+        --print("toggle!")
+        playStateCheck(e)
+    end
     if e.type == 'onclick' and e.value == '/play' then
-        if e.status == "away" then
-            e.status = "queue"
-            clients_queue()
-            net_send("","message",e.name .. " is /queue")
-        end
-        if e.name == nil then
-            for i,v in pairs(GAME.clients) do
-                if g2.uid == v.uid then
-                    if v.status == "away" then
-                        v.status = "queue"
-                        clients_queue()
-                        net_send("","message",v.name .. " is /queue")
-
-                    end
-                end
-            end
-        end
+        playStateCheck(e)
     end
     if e.type == 'onclick' and string.lower(e.value) == "/gg" then
        if GAME.clients[e.uid or g2.uid].status == "play" then
@@ -643,22 +685,7 @@ function handleOnclick(e)
         end
     end
     if e.type == 'onclick' and e.value == '/away' then
-        if e.status == "play" or e.status == "queue" then
-            e.status = "away"
-            clients_queue()
-            net_send("","message",e.name .. " is /away")
-        end
-        if e.name == nil then
-            for i,v in pairs(GAME.clients) do
-                if g2.uid == v.uid then
-                    if v.status == "play" or v.status == "queue" then
-                        v.status = "away"
-                        clients_queue()
-                        net_send("","message",v.name .. " is /away")
-                    end
-                end
-            end
-        end
+        playStateCheck(e)
     end
     if e.type == 'onclick' and e.value == '/lobby' then
         --net_send("", "message", "<debug> onclick for lobby")
@@ -689,4 +716,16 @@ function handleOnclick(e)
         wardrobeShips(g2)
     end
     
+end
+
+function playStateCheck(e)
+    if GAME.clients[e.uid or g2.uid].status == "away" then
+        GAME.clients[e.uid or g2.uid].status = "queue"
+        clients_queue()
+        net_send("","message",(e.name or g2.name) .. " is /queue")
+    elseif GAME.clients[e.uid or g2.uid].status == "play" or GAME.clients[e.uid or g2.uid].status == "queue" then
+        GAME.clients[e.uid or g2.uid].status = "away"
+        clients_queue()
+        net_send("","message",(e.name or g2.name) .. " is /away")
+    end
 end

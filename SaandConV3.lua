@@ -34,6 +34,7 @@ end
 function menu_init()
     GAME.modules.menu = GAME.modules.menu or {}
     local obj = GAME.modules.menu
+    local _CONFIGS = loadConfigs()
     function obj:init()
         g2.html = startupMenu()
         GAME.data = json.decode(g2.data)
@@ -47,33 +48,20 @@ function menu_init()
         GAME.galcon.tournament = false
         GAME.galcon.setmode = false
         GAME.galcon.global = {
-            CONFIGS = loadConfigs(),
-            WINNER_STAYS = false,
+            CONFIGS = _CONFIGS,
+            WINNER_STAYS = _CONFIGS.defaults.WINNER_STAYS,
             PLAYER_QUEUE = {},
-            MAX_PLAYERS = 2,
+            MAX_PLAYERS = _CONFIGS.defaults.MAX_PLAYERS,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
-            MAP_STYLE = 3,
-            SAANDBUFF_DATA = {
-                VERSIONS_ENABLED = {true, true, true, true, true, true, true, true, true, true}, --V1-V10
-                DISTANCE_ENABLED = true
-            },
-            TIMER_LENGTH = 0,
-            SEED_DATA = {
-                SEED = 1,
-                PREV_SEED = 1,
-                CUSTOMISED = false,
-                KEEP_SEED = false,
-                SEED_STRING = "",
-                PREV_SEED_STRING = "",
-            },
-            stupidSettings = {
-                silverMode = false,
-                yodaFilter = false,
-                breadmode = false,
-                saandmode = false,
-                rechameleon = false,
-                recID = 0, 
-            },
+            MAP_STYLE = _CONFIGS.defaults.MAP_STYLE,
+            SAANDBUFF_DATA = _CONFIGS.defaults.SAANDBUFF_DATA, --See configs
+            TIMER_LENGTH = _CONFIGS.defaults.TIMER_LENGTH,
+            STARTING_SHIPS = _CONFIGS.defaults.STARTING_SHIPS,
+            HOME_COUNT = _CONFIGS.defaults.HOME_COUNT,
+            HOME_PROD = _CONFIGS.defaults.HOME_PROD,
+            GRID= _CONFIGS.defaults.GRID,
+            SEED_DATA = _CONFIGS.defaults.SEED_DATA,
+            stupidSettings = _CONFIGS.defaults.stupidSettings,
             ships=buildShipList(),
             planets= {'normal','honeycomb','ice','terrestrial','gasgiant','craters','gaseous','lava', 'void', 'disco','swirls','floralpattern',
                 'hearts', 'clovers', 'zerba', 'giraffe', 'eyes', 'cow', 'fossil', 'snowcaps', 'smooth', 
@@ -526,7 +514,7 @@ function galcon_classic_init()
     end
     
     
-    g2.bkgr_src = "black" --"gui-xicon2o"
+    g2.bkgr_src = "black"
 
     local users = {}
     G.users = users
@@ -565,7 +553,7 @@ function galcon_classic_init()
         g2.view_set(0, 0, sw, sh)
         local planets = {}
 
-        local home_production, home_ships = 100, 100
+        local home_production, home_ships = 100, GAME.galcon.global.STARTING_SHIPS
         local home_r = prodToRadius(home_production)
 
         local a = math.random(0,360)
@@ -689,7 +677,7 @@ function galcon_classic_init()
 
         local planets = {}
 
-        local home_production, home_ships = 100, 100
+        local home_production, home_ships = GAME.galcon.global.HOME_PROD, GAME.galcon.global.STARTING_SHIPS
         local home_r = prodToRadius(home_production)
         
         if mapStyle == 4 then
@@ -703,33 +691,40 @@ function galcon_classic_init()
 	    end
 
         local a = math.random(0,360)
-        for i,user in pairs(users) do
-            local x,y
-            local x = sw/2 + (sw-pad*2)*math.cos(a*math.pi/180.0)/2.0
-            local y = sh/2 + (sh-sh/15*2)*math.sin(a*math.pi/180.0)/2.0
-
-            G.home = g2.new_planet(user, x, y, home_production, home_ships);
-            G.home.planet_r = home_r
-            a = a + 360/#users
-
-            local planetHome = {}
-
-            planetHome.x = x
-            planetHome.y = y
-            planetHome.r = home_r
-
-            local planetHomeSym = {}
-
-            planetHomeSym.x = sw - x
-            planetHomeSym.y = sh - y
-            planetHomeSym.r = home_r
-
-            table.insert(planets, planetHome)
-            table.insert(planets, planetHomeSym)
+        --local homeCoords = {0,0}
+        for i=1, GAME.galcon.global.HOME_COUNT do
+            for i,user in pairs(users) do
+                local x,y
+                local x = sw/2 + (sw-pad*2)*math.cos(a*math.pi/180.0)/2.0
+                local y = sh/2 + (sh-sh/15*2)*math.sin(a*math.pi/180.0)/2.0
+    
+                G.home = g2.new_planet(user, x, y, home_production, home_ships);
+                G.home.planet_r = home_r
+                a = a + 360/#users
+    
+                local planetHome = {}
+    
+                planetHome.x = x
+                planetHome.y = y
+                planetHome.r = home_r
+    
+                local planetHomeSym = {}
+    
+                planetHomeSym.x = sw - x
+                planetHomeSym.y = sh - y
+                planetHomeSym.r = home_r
+    
+                table.insert(planets, planetHome)
+                table.insert(planets, planetHomeSym)
+                --homeCoords[0] = x
+                --homeCoords[1] = y
+            end
+            a = math.random(0,360)
         end
         
         local sb_versions = GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED
         local enabled = {}
+        local distOn = GAME.galcon.global.SAANDBUFF_DATA.DISTANCE_ENABLED
         --select all enabled versions of saandbuff
         for i=1, #sb_versions do
             if sb_versions[i] == true then
@@ -750,20 +745,24 @@ function galcon_classic_init()
         local count = OPTS.neutrals/2
         for i=1, count do
             local prod = 0
-            if stylePick == 4 and mapStyle == 3 then
-                prod = math.random(20, 120)
-            elseif stylePick == 5 and mapStyle == 3 then
-                prod = math.random(20, 110)
-            elseif stylePick == 6 and mapStyle == 3 then
-                prod = math.random(20, 120)
-            elseif stylePick == 7 and mapStyle == 3 then
-                prod = math.random(30, 120)
-            elseif stylePick == 8 and mapStyle == 3 then
-                prod = math.random(20, 120)
-            elseif stylePick == 9 and mapStyle == 3 then
-                prod = math.random(15, 80)
-            elseif stylePick == 10 and mapStyle == 3 then
-                prod = math.random(15, 90)
+            if mapStyle == 3 and distOn == false then
+                if stylePick == 4 then
+                    prod = math.random(20, 120)
+                elseif stylePick == 5 then
+                    prod = math.random(20, 110)
+                elseif stylePick == 6 then
+                    prod = math.random(20, 120)
+                elseif stylePick == 7 then
+                    prod = math.random(30, 120)
+                elseif stylePick == 8 then
+                    prod = math.random(20, 120)
+                elseif stylePick == 9 then
+                    prod = math.random(15, 80)
+                elseif stylePick == 10 then
+                    prod = math.random(15, 90)
+                else
+                    prod = math.random(prodMin, prodMax)
+                end
             elseif mapStyle == 4 then
                 prod = math.floor(math.random(1, 100))
             elseif mapStyle == 5 then
@@ -771,13 +770,28 @@ function galcon_classic_init()
             else 
                 prod = math.random(prodMin, prodMax)
             end
-            math.random(prodMin, prodMax)
             local radius = prodToRadius(prod)
+            local x = math.random(radius, sw - radius)
+            local y = math.random(radius, sh - radius)
+            if mapStyle == 3 and distOn then
+                local maxDistance = getDistance(homeCoords[0], homeCoords[1], sw-homeCoords[0], sh-homeCoords[1])/2
+                local distance = getDistance(x, y, homeCoords[0], homeCoords[1])
+                local distanceSym = getDistance(x, y, sw-homeCoords[0], sh-homeCoords[1])
+                local pickedDist = 0
+                print("d ".. math.floor(distance) .. " v dS " .. math.floor(distanceSym))
+                if(distance > distanceSym) then
+                    pickedDist = distanceSym
+                    print("distsym "..i.. " = "..math.floor(distanceSym))
+                else
+                    print("dist "..i.. " = "..math.floor(distance))
+                    pickedDist = distance
+                end
+                prod = getSaandDistProd(version, pickedDist, maxDistance)
+                radius = prodToRadius(prod)
+            end
             if mapStyle == 5 then
                 radius = prodToRadius(35)
             end
-            local x = math.random(radius, sw - radius)
-            local y = math.random(radius, sh - radius)
             local cost = 0
             if mapStyle == 0 then
                 cost = math.floor(math.random(0,30))
@@ -786,7 +800,11 @@ function galcon_classic_init()
             elseif mapStyle == 2 then
                 cost = math.floor(math.random(0,20))
             elseif mapStyle == 3 then
-                cost = getSaandbuffVals(stylePick, prod)
+                if distOn then
+                    cost = getSaandDistCost(stylePick, i)
+                else
+                    cost = getSaandbuffVals(stylePick, prod)
+                end
             elseif mapStyle == 4 then
             	local costRatio = math.floor(home_ships * .5)
             	cost = math.floor(math.random(0, costRatio))
@@ -872,8 +890,8 @@ function galcon_classic_init()
         for i=0, math.sqrt(OPTS.neutrals)-1 do
             for j=0, math.sqrt(OPTS.neutrals)-1 do
             local x, y
-            local neutrals_production = 30
-            local neutrals_cost = 5
+            local neutrals_production = GAME.galcon.global.GRID.NEUT_PROD
+            local neutrals_cost = GAME.galcon.global.GRID.NEUT_COST
 
             x = sh/(OPTS.neutrals-1)*i*(math.sqrt(OPTS.neutrals)+1)
             y = sh/(OPTS.neutrals-1)*j*(math.sqrt(OPTS.neutrals)+1)
@@ -921,7 +939,7 @@ function galcon_classic_init()
                 local position_x = v.position_x
                 local position_y = v.position_y
                 v:destroy()
-                g2.new_planet(users[1], position_x, position_y, 80, 100);
+                g2.new_planet(users[1], position_x, position_y, 80, GAME.galcon.global.STARTING_SHIPS);
             end
             if amountOfPlay() >= 2 then
                 local home2 = nil
@@ -946,7 +964,7 @@ function galcon_classic_init()
                     local position_x = v.position_x
                     local position_y = v.position_y
                     v:destroy()
-                    g2.new_planet(users[2], position_x, position_y, 80, 100);
+                    g2.new_planet(users[2], position_x, position_y, 80, GAME.galcon.global.STARTING_SHIPS);
                 end
                 
             end
@@ -990,7 +1008,7 @@ function galcon_classic_init()
                     local position_x = v.position_x
                     local position_y = v.position_y
                     v:destroy()
-                    g2.new_planet(users[n], position_x, position_y, 80, 100);
+                    g2.new_planet(users[n], position_x, position_y, 80, GAME.galcon.global.STARTING_SHIPS);
                 end
             end
             if #users == 2 then
@@ -998,7 +1016,7 @@ function galcon_classic_init()
                     local position_x = v.position_x
                     local position_y = v.position_y
                     v:destroy()
-                    g2.new_planet(users[inverseN], position_x, position_y, 80, 100);
+                    g2.new_planet(users[inverseN], position_x, position_y, 80, GAME.galcon.global.STARTING_SHIPS);
                 end
             end
         end
