@@ -59,7 +59,7 @@ function menu_init()
             STARTING_SHIPS = _CONFIGS.defaults.STARTING_SHIPS,
             HOME_COUNT = _CONFIGS.defaults.HOME_COUNT,
             HOME_PROD = _CONFIGS.defaults.HOME_PROD,
-            GRID= _CONFIGS.defaults.GRID,
+            GRID = _CONFIGS.defaults.GRID,
             SEED_DATA = _CONFIGS.defaults.SEED_DATA,
             stupidSettings = _CONFIGS.defaults.stupidSettings,
             ships=buildShipList(),
@@ -904,6 +904,7 @@ function galcon_classic_init()
 
         local spawns = {1, 2, 3, 4, 5, 6, 10, 11}
         local home = spawns[math.random(#spawns)]
+        local home_prod = GAME.galcon.global.GRID.HOME_PROD
 
         -- while home == (#planets+1)/2 do
         --     home = math.random(1, #planets)
@@ -939,7 +940,7 @@ function galcon_classic_init()
                 local position_x = v.position_x
                 local position_y = v.position_y
                 v:destroy()
-                g2.new_planet(users[1], position_x, position_y, 80, GAME.galcon.global.STARTING_SHIPS);
+                g2.new_planet(users[1], position_x, position_y, home_prod, GAME.galcon.global.STARTING_SHIPS);
             end
             if amountOfPlay() >= 2 then
                 local home2 = nil
@@ -964,7 +965,7 @@ function galcon_classic_init()
                     local position_x = v.position_x
                     local position_y = v.position_y
                     v:destroy()
-                    g2.new_planet(users[2], position_x, position_y, 80, GAME.galcon.global.STARTING_SHIPS);
+                    g2.new_planet(users[2], position_x, position_y,  home_prod, GAME.galcon.global.STARTING_SHIPS);
                 end
                 
             end
@@ -1008,7 +1009,7 @@ function galcon_classic_init()
                     local position_x = v.position_x
                     local position_y = v.position_y
                     v:destroy()
-                    g2.new_planet(users[n], position_x, position_y, 80, GAME.galcon.global.STARTING_SHIPS);
+                    g2.new_planet(users[n], position_x, position_y,  home_prod, GAME.galcon.global.STARTING_SHIPS);
                 end
             end
             if #users == 2 then
@@ -1016,7 +1017,7 @@ function galcon_classic_init()
                     local position_x = v.position_x
                     local position_y = v.position_y
                     v:destroy()
-                    g2.new_planet(users[inverseN], position_x, position_y, 80, GAME.galcon.global.STARTING_SHIPS);
+                    g2.new_planet(users[inverseN], position_x, position_y,  home_prod, GAME.galcon.global.STARTING_SHIPS);
                 end
             end
         end

@@ -40,7 +40,7 @@ function loadConfigs()
                 recID = 0, 
             },
         },
-        version = "24.12.19", --Do not change unless you made changes to code
+        version = "24.12.20a", --Do not change unless you made changes to code
     }
     return configs
 end

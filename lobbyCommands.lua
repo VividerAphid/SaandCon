@@ -66,9 +66,11 @@ function handleNetMessage(e)
         --resetLobbyHtml()
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,9)) == "/homeprod" then
-        if(GAME.gamemode == "Grid") then
+        if(GAME.galcon.gamemode == "Grid") then
+            print("set grid prod")
             GAME.galcon.global.GRID.HOME_PROD = string.sub(e.value, 11, string.len(e.value))
         else
+            print("set home prod")
             GAME.galcon.global.HOME_PROD = string.sub(e.value, 11, string.len(e.value))
         end
         net_send("", "message", "Home prod changed to " .. string.sub(e.value, 11, string.len(e.value)))
@@ -660,8 +662,10 @@ function handleNetMessage(e)
         GAME.galcon.global.TIMER_LENGTH = GAME.galcon.global.CONFIGS.defaults.TIMER_LENGTH
         GAME.galcon.global.STARTING_SHIPS = GAME.galcon.global.CONFIGS.defaults.STARTING_SHIPS
         GAME.galcon.global.HOME_COUNT = GAME.galcon.global.CONFIGS.defaults.HOME_COUNT
-        GAME.galcon.global.HOME_PROD = GAME.galcon.global.CONFIGS.defaults.HOME_PROD
-        GAME.galcon.global.GRID = GAME.galcon.global.CONFIGS.defaults.GRID
+        GAME.galcon.global.GRID.NEUT_COST = GAME.galcon.global.CONFIGS.defaults.GRID.NEUT_COST
+        GAME.galcon.global.GRID.NEUT_PROD = GAME.galcon.global.CONFIGS.defaults.GRID.NEUT_PROD
+        GAME.galcon.global.GRID.HOME_PROD = GAME.galcon.global.CONFIGS.defaults.GRID.HOME_PROD
+        GAME.galcon.global.GRID.START_SHIPS = GAME.galcon.global.CONFIGS.defaults.GRID.START_SHIPS
         GAME.galcon.global.SEED_DATA = GAME.galcon.global.CONFIGS.defaults.SEED_DATA
         GAME.galcon.global.stupidSettings = GAME.galcon.global.CONFIGS.defaults.stupidSettings
         resetLobbyHtml()
