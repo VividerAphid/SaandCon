@@ -1442,10 +1442,10 @@ end
 
 function editPlayerData(mode, uid, data)
     --name, color, coin-u, coin-s, title, ship, skin, ownedships, ownedskins
-    playerData_init()
-    print("Mode: " .. mode)
-    print("uid:" .. uid)
-    print("data: ".. data)
+    playerData_init(true)
+    -- print("Mode: " .. mode)
+    -- print("uid:" .. uid)
+    -- print("data: ".. data)
     if mode == "name" then
         playerData.setPlayerName(uid, data)
     elseif mode == "color" then

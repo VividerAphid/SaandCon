@@ -281,13 +281,12 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/reset" then
-        if isAdmin(e.name) then
-            for i, e in pairs(GAME.galcon.scorecard) do
-                GAME.galcon.scorecard[i] = 0
-            end
-            net_send("","message",e.name .. " /reset")
-            clients_queue()
+        for i, e in pairs(GAME.galcon.scorecard) do
+            GAME.galcon.scorecard[i] = 0
         end
+        net_send("","message",e.name .. " /reset")
+        net_send("","message", "Scores reset.")
+        clients_queue()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/silver" and GAME.galcon.global.CONFIGS.enableTrollModes then
         if GAME.clients[e.uid].officialName == "silvershad0w" or GAME.clients[e.uid].officialName == "HostAphid" then

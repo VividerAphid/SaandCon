@@ -46,6 +46,7 @@ function _playerDataInit()
         local data = json.decode(g2.data)
         data.playerData = PDATA
         g2.data = json.encode(data)
+        print("data saved")
     end
 
     function playerData.wipeAllData()
@@ -74,6 +75,8 @@ function _playerDataInit()
         local pData = data.playerData
         if initialLoad then
             print("playerData: Loaded data from g2.data.pData")
+        else
+            print("Runtime load")
         end
         if(pData == nil) then
             print("No player data loaded!")
