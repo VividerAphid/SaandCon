@@ -19,7 +19,7 @@ X-Tab bars for:
 X-Change SaandCon custom classic to "cost = math.floor(math.random(prod/20, prod / 1.50)"
 X-Buttons for seed options
 X-add in saandbuff map gen setting
- -"wardrobe" tab with: 
+X-"wardrobe" tab with: 
  	X-ships 
 	X-skins 
 	X-colors
@@ -33,7 +33,7 @@ X-Mix grid mapstyle
 X-Make player bars not terrible matching maccoland
    X-Silly player titles underneath player name
 	X-Persistent color
- -GG button
+X-GG button
 X-/Father
  -/Rechameleon
 X-/bread
@@ -41,7 +41,7 @@ X-/bread
 
  V4:
  -Rank flags/profiles
- -Combine play/away button into toggle?
+X-Combine play/away button into toggle?
  -Race mode to have regular cluster mode like vacuum mode
  -% trainer mode
  -Float mode increases in difficulty over time

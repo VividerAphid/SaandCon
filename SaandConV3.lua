@@ -51,6 +51,7 @@ function menu_init()
             CONFIGS = _CONFIGS,
             WINNER_STAYS = _CONFIGS.defaults.WINNER_STAYS,
             PLAYER_QUEUE = {},
+            BOTS = {},
             MAX_PLAYERS = _CONFIGS.defaults.MAX_PLAYERS,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = _CONFIGS.defaults.MAP_STYLE,

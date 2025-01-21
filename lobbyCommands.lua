@@ -14,6 +14,18 @@ function handleNetMessage(e)
             net_send(e.uid, "message", "Only active players can gg")
         end
     end
+    if e.type =='net:message' and string.lower(string.sub(e.value,1,10)) == "/givecoins" then
+        local res = find_user_name(e.name)
+        print(res)
+    end
+    if e.type == 'net:message' and string.lower(e.value) == "/addbot" then
+        local bot = g2.new_user("BOTTY", 0xff0000)
+        net_send("", "message", bot.n.." has arrived.")
+        GAME.galcon.global.BOTS[bot.n] = bot
+        resetLobbyHtml()
+    end
+    if e.type == 'net:message' and string.lower(e.value) == "/kickbots" then
+    end
     if (e.type == 'net:message' and string.lower(e.value) == '/version') then
         net_send(e.uid, "message", "Version is "..GAME.galcon.global.CONFIGS.version)
     end
@@ -281,12 +293,16 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/reset" then
-        for i, e in pairs(GAME.galcon.scorecard) do
-            GAME.galcon.scorecard[i] = 0
-        end
         net_send("","message",e.name .. " /reset")
-        net_send("","message", "Scores reset.")
-        clients_queue()
+        if GAME.clients[e.uid].status == "play" then
+            for i, e in pairs(GAME.galcon.scorecard) do
+                GAME.galcon.scorecard[i] = 0
+            end
+            net_send("","message", "Scores reset.")
+            clients_queue()
+        else
+            net_send(e.uid, "message", "Only active players can use /reset")
+        end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/silver" and GAME.galcon.global.CONFIGS.enableTrollModes then
         if GAME.clients[e.uid].officialName == "silvershad0w" or GAME.clients[e.uid].officialName == "HostAphid" then

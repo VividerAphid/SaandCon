@@ -3,7 +3,17 @@ function find_user(uid)
         if e.user_uid == uid then return e end
     end
 end
-
+function find_user_name(name)
+    print("From start: "..name)
+    print(#GAME.clients)
+    for k,e in pairs(GAME.clients) do
+        print("G.c[k]: "..GAME.clients[k].name)
+        if GAME.clients[k].name == name then
+            print("Match!")
+            return GAME.clients[k].name
+        end
+    end
+end
 function radiusToProd(radius)
     local prod = (radius*17 - 168)*5/12
     return prod
