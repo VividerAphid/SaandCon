@@ -268,4 +268,38 @@ function hostUidFix(e)
     else
        return e.uid
     end
- end
+end
+
+function rollRandColor()
+    local r = 0
+    local g = 0
+    local b = 0
+    local brightPick = math.random(1,3) --Pick one of 3 to guarantee bright enough
+    if brightPick == 1 then
+        r = 170
+        g = math.random(0, 255)
+        b = math.random(0, 255)
+    elseif brightPick == 2 then
+        r = math.random(0, 255)
+        g = 170
+        b = math.random(0, 255)
+    else
+        r = math.random(0, 255)
+        g = math.random(0, 255)
+        b = 170
+    end
+    r = string.format("%x", r)
+    g = string.format("%x", g)
+    b = string.format("%x", b)
+
+    if(tonumber(r, 16) < 16) then 
+        r = "0"..r
+    end
+    if(tonumber(g, 16) < 16) then 
+        g = "0"..g
+    end
+    if(tonumber(b, 16) < 16) then 
+        b = "0"..b
+    end
+    return "0x"..r..g..b
+end

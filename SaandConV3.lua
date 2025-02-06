@@ -8,7 +8,8 @@ require("admins")
 require("lobbyCommands")
 require("html")
 require("stages")
-require("mapkit")  
+require("mapkit")
+require("bot_utils")
 
 LICENSE = [[
 mod_server.lua
@@ -52,6 +53,9 @@ function menu_init()
             WINNER_STAYS = _CONFIGS.defaults.WINNER_STAYS,
             PLAYER_QUEUE = {},
             BOTS = {},
+            BOT_UID = -10000,
+            BOT_COUNT = 0,
+            MAX_BOT_COUNT = 32,
             MAX_PLAYERS = _CONFIGS.defaults.MAX_PLAYERS,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = _CONFIGS.defaults.MAP_STYLE,
@@ -160,7 +164,11 @@ function _clients_queue()
                 editPlayerData("color", q.uid, q.color)
             else
                 q.color = v
-                editPlayerData("color", q.uid, q.color)
+                if(q.uid > 0) then
+                    editPlayerData("color", q.uid, q.color)
+                else
+                    q.color = rollRandColor()
+                end
             end
             q.status = "play"
             net_send("","message",q.name .. " is /play")

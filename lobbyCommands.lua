@@ -19,12 +19,22 @@ function handleNetMessage(e)
         print(res)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/addbot" then
-        local bot = g2.new_user("BOTTY", 0xff0000)
-        net_send("", "message", bot.n.." has arrived.")
-        GAME.galcon.global.BOTS[bot.n] = bot
+        local bot_name = getNewBotName()
+        local bot = true
+        local bot_uid = getNewBotUID()
+        GAME.modules.clients:event({uid=bot_uid,name=bot_name,bot=bot,type="net:join"})
+        GAME.clients[bot_uid].title = "BOT_PLAYER"
+        GAME.galcon.global.BOTS[bot_uid] = {name=botname, bot=bot}
         resetLobbyHtml()
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/kickbots" then
+    if e.type == 'net:message' and string.lower(e.value) == "/kickallbots" then
+        for _,v in pairs(GAME.galcon.global.BOTS) do
+            print(_)
+            local bname = GAME.galcon.global.BOTS[_].name
+            GAME.galcon.global.BOTS[_]=nil
+			GAME.modules.clients:event({uid=_,name=bname,type="net:leave"})
+            resetLobbyHtml()
+        end
     end
     if (e.type == 'net:message' and string.lower(e.value) == '/version') then
         net_send(e.uid, "message", "Version is "..GAME.galcon.global.CONFIGS.version)
@@ -107,8 +117,7 @@ function handleNetMessage(e)
         net_send(e.uid,"message",'(Server -> '..e.name..') Type "/hex [0x######] to change your color."')
     end
     if e.type == 'net:message' and string.lower(string.sub(e.value,1,4)) == "/hex" and string.lower(string.sub(e.value,1,8)) ~= "/hexagon" then
-        if GAME.clients[e.uid].status == "play" then
-            
+        if GAME.clients[e.uid].status == "play" then        
             local color = 0
             color = string.sub(e.value,6)
             color = string.lower(color)
@@ -251,6 +260,22 @@ function handleNetMessage(e)
             end
         else
             net_send(e.uid, "message", "Not enough SaandCoins!") 
+        end
+    end
+    if e.type == 'net:message' and string.lower(e.value) == "/rollcolor" then
+        local color = rollRandColor()
+        if GAME.clients[e.uid].coins >= 1 or GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins == false then
+            GAME.clients[e.uid].color = color
+            GAME.clients[e.uid].colorData = color
+            editPlayerData("color", e.uid, color)
+            if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - 1
+                editPlayerData("coin-u", e.uid, -1)
+            end
+            net_send(e.uid,'message','(Server -> '..e.name..') HEX-color changed to: '..color)
+            resetLobbyHtml()
+        else
+            net_send(e.uid, "message", "Not enough SaandCoins!")
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/buycoins" then

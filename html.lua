@@ -208,6 +208,8 @@ function wardrobeColors(e)
     local html = [[<table><tr><td>
         <td><h2>]]..headerText..[[</h2>
         <tr><td><td><input type='button' width=50 value='back' onclick='/wardrobe' class='button2' />
+        <tr><td><td><input type='button' width=50 value='Surprise Me' onclick='/rollcolor' class='button2' />
+        
         <tr><td><input type='button' width=50 background='white:#8a0000' value='  ' onclick='/hex 0x8a0000' class='button2' /></td>
             <td><input type='button' width=50 background='white:#bb0000' value='  ' onclick='/hex 0xbb0000' class='button2' /></td>
             <td><input type='button' width=50 background='white:#ff0000' value='  ' onclick='/hex 0xff0000' class='button2' /></td>
