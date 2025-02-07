@@ -8,6 +8,7 @@ function loadConfigs()
         defaults = {
             WINNER_STAYS = false,
             MAX_PLAYERS = 2,
+            MAX_BOT_COUNT = 16,
             MAP_STYLE = 3,
             SAANDBUFF_DATA = {
                 VERSIONS_ENABLED = {true, true, true, true, true, true, true, true, true, true}, --V1-V10
@@ -40,7 +41,7 @@ function loadConfigs()
                 recID = 0, 
             },
         },
-        version = "25.2.5a", --Do not change unless you made changes to code
+        version = "25.2.6a", --Do not change unless you made changes to code
     }
     return configs
 end

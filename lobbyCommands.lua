@@ -19,22 +19,28 @@ function handleNetMessage(e)
         print(res)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/addbot" then
-        local bot_name = getNewBotName()
-        local bot = true
-        local bot_uid = getNewBotUID()
-        GAME.modules.clients:event({uid=bot_uid,name=bot_name,bot=bot,type="net:join"})
-        GAME.clients[bot_uid].title = "BOT_PLAYER"
-        GAME.galcon.global.BOTS[bot_uid] = {name=botname, bot=bot}
-        resetLobbyHtml()
+        if(GAME.galcon.global.BOT_COUNT < GAME.galcon.global.MAX_BOT_COUNT) then
+            local bot_name = getNewBotName()
+            local bot = true
+            local bot_uid = getNewBotUID()
+            print(bot_uid)
+            GAME.modules.clients:event({uid=bot_uid,name=bot_name,bot=bot,type="net:join"})
+            GAME.clients[bot_uid].title = "BOT_PLAYER"
+            GAME.galcon.global.BOTS[bot_uid] = {name=bot_name, bot=bot}
+            resetLobbyHtml()
+            GAME.galcon.global.BOT_COUNT = GAME.galcon.global.BOT_COUNT + 1
+        else
+            net_send("", "message", "Max bot count is "..GAME.galcon.global.MAX_BOT_COUNT)
+        end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/kickallbots" then
         for _,v in pairs(GAME.galcon.global.BOTS) do
-            print(_)
             local bname = GAME.galcon.global.BOTS[_].name
             GAME.galcon.global.BOTS[_]=nil
 			GAME.modules.clients:event({uid=_,name=bname,type="net:leave"})
             resetLobbyHtml()
         end
+        GAME.galcon.global.BOT_COUNT = 0
     end
     if (e.type == 'net:message' and string.lower(e.value) == '/version') then
         net_send(e.uid, "message", "Version is "..GAME.galcon.global.CONFIGS.version)

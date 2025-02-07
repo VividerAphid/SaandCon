@@ -55,7 +55,7 @@ function menu_init()
             BOTS = {},
             BOT_UID = -10000,
             BOT_COUNT = 0,
-            MAX_BOT_COUNT = 32,
+            MAX_BOT_COUNT = _CONFIGS.defaults.MAX_BOT_COUNT,
             MAX_PLAYERS = _CONFIGS.defaults.MAX_PLAYERS,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
             MAP_STYLE = _CONFIGS.defaults.MAP_STYLE,
@@ -187,6 +187,10 @@ function clients_init()
             local newCoins = GAME.galcon.global.CONFIGS.saandCoins.newPlayerSaandCoins
             local incomingPlayerData = {uid=e.uid,officialName=e.name, name=e.name, ship="ship",skin="normal",status="away", 
                     title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}}
+            if(tonumber(e.uid) < 0) then
+                incomingPlayerData.skin = getNewBotSkin()
+                incomingPlayerData.ship = getNewBotShip()
+            end
             if playerData.getUserData(e.uid) == nil then
                 playerData.InitNewPlayer(e.uid)
                 playerData.setPlayerCoins(e.uid, newCoins)
@@ -214,7 +218,6 @@ function clients_init()
             clients_queue(e)
             net_send("","message",e.name .. " joined")
             g2.net_send("","sound","sfx-join");
-
             if GAME.galcon.scorecard[e.uid] == nil then
                 GAME.galcon.scorecard[e.uid] = GAME.galcon.wins
             end
@@ -397,7 +400,7 @@ function chat_init()
             if GAME.galcon.global.stupidSettings.yodaFilter and string.lower(GAME.clients[e.uid].name) == "master_yoda_" then
                 net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].name.."> ".."GG WP"}))
             else
-                net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].name.."> "..e.value}))
+                net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].name.."> "..e.value}))       
             end     
         end
     end
@@ -1306,7 +1309,7 @@ function galcon_stop(res, timerWinner, time)
                         u = u + 1
                     end
                     GAME.galcon.scorecard[j] = u
-                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(winner.user_uid) > 0 then
                         net_send(j,"message","You earned 1 SaandCoin!")
                         GAME.clients[j].coins = GAME.clients[j].coins + 1
                         playerData.updateCoins(winner.user_uid, 1)
@@ -1316,8 +1319,11 @@ function galcon_stop(res, timerWinner, time)
                 end
             end
             if loser ~= nil and loser.user_uid ~= nil then
-                elo.update_elo(string.lower(winner.title_value), string.lower(loser.title_value), true)
-                elo.save_ratings()
+                if((tonumber(winner.user_uid) > 0 and tonumber(loser.user_uid) > 0)) then
+                    print("elo updated")
+                    elo.update_elo(string.lower(winner.title_value), string.lower(loser.title_value), true)
+                    elo.save_ratings()
+                end
             end
            
             --print("loser uid: ".. loser.user_uid)
@@ -1328,6 +1334,12 @@ function galcon_stop(res, timerWinner, time)
             if winner == "galaxy227" then
                 net_send("", "message", "galaxy227 wins by timers default!")
             end
+        end
+        if(winner ~= nil and tonumber(winner.user_uid) < -10) then
+            getBotGG(tonumber(winner.user_uid), true)
+        end
+        if(loser ~= nil and tonumber(loser.user_uid) < -10) then
+            getBotGG(tonumber(loser.user_uid), false)
         end
     end
     g2.net_send("","sound","sfx-stop");
@@ -1433,7 +1445,9 @@ function printEndProdAndShip()
         local ship = math.floor(ships[o])
         local rem = math.floor(math.fmod(ships[o], 1) * 1000)
         ship = ship + (rem/1000)
-        net_send("","chat", json.encode({color=GAME.clients[o.user_uid].color,value= o.title_value .. "- Production: "..v .. "   Ships: "..ship}))
+        local fixedUID = o.user_uid
+        if(tonumber(o.user_uid) < 0) then fixedUID = tonumber(o.user_uid) end
+        net_send("","chat", json.encode({color=GAME.clients[fixedUID].color,value= o.title_value .. "- Production: "..v .. "   Ships: "..ship}))
 
     end
 
