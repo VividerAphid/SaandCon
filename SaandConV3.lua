@@ -53,6 +53,7 @@ function menu_init()
             WINNER_STAYS = _CONFIGS.defaults.WINNER_STAYS,
             PLAYER_QUEUE = {},
             BOTS = {},
+            BOT_TYPES = {protowaffle=bot_protowaffle, classic=bot_classic},
             BOT_UID = -10000,
             BOT_COUNT = 0,
             MAX_BOT_COUNT = _CONFIGS.defaults.MAX_BOT_COUNT,
@@ -218,7 +219,8 @@ function clients_init()
             clients_queue(e)
             net_send("","message",e.name .. " joined")
             g2.net_send("","sound","sfx-join");
-            if GAME.galcon.scorecard[e.uid] == nil then
+            if tonumber(GAME.galcon.scorecard[e.uid]) == nil then
+                --print("e.uid: " ..e.uid)
                 GAME.galcon.scorecard[e.uid] = GAME.galcon.wins
             end
         end
@@ -551,6 +553,12 @@ function galcon_classic_init()
                 p.planet_crash = 2
             end
             client.live = 0
+            if tonumber(p.user_uid) < 0 then
+                local b = GAME.galcon.global.BOTS[client.uid]
+                --print(b.bot)
+                --print(GAME.galcon.global.BOT_TYPES[b.bot])
+                b.run = GAME.galcon.global.BOT_TYPES['classic'](p)
+            end
         end
     end
     if playcount > 1 and GAME.galcon.global.SOLO_MODE then
@@ -669,7 +677,7 @@ function galcon_classic_init()
             mapStyle = getMapStyle(numMapStyles)            
         else
             mapStyle = GAME.galcon.global.MAP_STYLE
-            print(mapStyle)
+            --print(mapStyle)
         end
 
         if mapStyle == 0 then
@@ -1302,7 +1310,11 @@ function galcon_stop(res, timerWinner, time)
             end
 
             for j, u in pairs(GAME.galcon.scorecard) do
-                if winner.user_uid == j then
+                local uid = winner.user_uid --stupid negatives in lua being treated as strings
+                if(tonumber(uid) < 0) then
+                    uid = tonumber(uid)
+                end
+                if uid == j then
                     if GAME.galcon.global.stupidSettings.silverMode and (GAME.clients[winner.user_uid].officialName == "silvershad0w") then
                         u = u + 15
                     else
@@ -1380,6 +1392,11 @@ function galcon_classic_loop()
     --         check_for_match_end()
     --     end
     -- end
+    for _,v in pairs(GAME.galcon.global.BOTS)do
+		if v.run then
+			v.run:loop()
+		end
+	end
     check_for_match_end()
     --net_send("","view",json.encode({math.random(-1000, 10),math.random(-1000, 10), math.random(10, 1000), math.random(10, 1000)}))
 end
