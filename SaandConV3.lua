@@ -165,7 +165,7 @@ function _clients_queue()
                 editPlayerData("color", q.uid, q.color)
             else
                 q.color = v
-                if(q.uid > 0) then
+                if(tonumber(q.uid) > 0) then
                     editPlayerData("color", q.uid, q.color)
                 else
                     q.color = rollRandColor()

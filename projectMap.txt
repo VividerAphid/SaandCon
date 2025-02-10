@@ -84,5 +84,9 @@ handleNetMessage()
 handleOnclick()
 
 <bot_utils>
-getBotName()
-getBotUID()
+getNewBotName()
+getNewBotUID()
+getNewBotShip()
+getNewBotSkin()
+getBotGG()
+sendBotMessage()

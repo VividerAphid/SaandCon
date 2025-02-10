@@ -53,6 +53,7 @@ function getBotGG(botuid, win)
 end
 
 function sendBotMessage(uid, message)
+    --really just the same as the chat_init but adds a [BOT] tag to guarantee all bots are identifiable as bots
     local bot = GAME.clients[uid]
     net_send("","chat",json.encode({uid=bot.uid,color=bot.color,value="<[BOT]"..bot.name.."> "..message}))
 end

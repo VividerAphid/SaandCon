@@ -6,7 +6,7 @@ function handleNetMessage(e)
         --print("toggle!")
         playStateCheck(e)
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/gg" then
+    if e.type == 'net:message' and (string.lower(e.value) == "/gg" or string.lower(e.value) == "/ggwp") then
         if GAME.clients[e.uid].status == "play" then
             net_send("","message",e.name .. " GG's!")
             g2.net_send("","sound","sfx-gg")
@@ -360,8 +360,8 @@ function handleNetMessage(e)
         end
         
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/ggwp" and GAME.galcon.global.CONFIGS.enableTrollModes then
-        net_send("", "message", e.name .. " /ggwp")
+    if e.type == 'net:message' and string.lower(e.value) == "/yodamute" and GAME.galcon.global.CONFIGS.enableTrollModes then
+        net_send("", "message", e.name .. " /yodamute")
         if GAME.clients[e.uid].officialName == "hurrinado334" or GAME.clients[e.uid].officialName == "HostAphid" then
             net_send("", "message", "You are fragile enough...")
             if GAME.galcon.global.stupidSettings.yodaFilter then
