@@ -560,6 +560,12 @@ function galcon_classic_init()
                 b.run = GAME.galcon.global.BOT_TYPES['classic'](p)
             end
         end
+        -- Let spectators see planet ship counts.
+        if client.status == "queue" or client.status == "away" then
+            local spectator = g2.new_user(client.name,client.color)
+            spectator.user_uid = client.uid
+            spectator.ui_ships_show_mask = 0xF
+        end
     end
     if playcount > 1 and GAME.galcon.global.SOLO_MODE then
         net_send('',"message","Solo mode disabled due to multiple players!")
