@@ -372,7 +372,7 @@ function handleNetMessage(e)
                 net_send("", "message", "Yoda filter active!")
             end
         else
-            if string.lower(e.officialName) == "master_yoda_" then
+            if string.lower(GAME.clients[e.uid].officialName) == "master_yoda_" then
                 if GAME.galcon.global.stupidSettings.yodaFilter then
                     net_send("", "message", "Nope you did this to yourself ".. e.name)
                 else

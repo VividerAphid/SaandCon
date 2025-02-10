@@ -553,7 +553,7 @@ function galcon_classic_init()
                 p.planet_crash = 2
             end
             client.live = 0
-            if tonumber(p.user_uid) < 0 then
+            if tonumber(p.user_uid) < 0 then --see if the player is a bot and set up bot stuff
                 local b = GAME.galcon.global.BOTS[client.uid]
                 --print(b.bot)
                 --print(GAME.galcon.global.BOT_TYPES[b.bot])
