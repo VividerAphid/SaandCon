@@ -1309,7 +1309,8 @@ function galcon_stop(res, timerWinner, time)
                         end 
                     end
                 else
-                    net_send("","message",winner.title_value.." conquered the galaxy")
+                    local messageOptions = {winner.title_value.." conquered the galaxy"}
+                    net_send("","message",messageOptions[math.random(1, #messageOptions)])
                 end
             else
                 net_send("","message",winner.title_value.." finished in "..GAME.galcon.finishTime.." seconds")
