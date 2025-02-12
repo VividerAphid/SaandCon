@@ -116,6 +116,14 @@ function menu_init()
     end
 end
 --------------------------------------------------------------------------------
+function set_spectator_mode(client)
+    if client == nil then return end
+    if client.status == "queue" or client.status == "away" then
+        local spectator = g2.new_user(client.name, client.color)
+        spectator.user_uid = client.uid
+        spectator.ui_ships_show_mask = 0xF
+    end
+end
 function clients_queue(e)
     _clients_queue()
     resetLobbyHtml(e)
@@ -216,6 +224,7 @@ function clients_init()
                 incomingPlayerData.status = "away"
             end
             GAME.clients[e.uid] = incomingPlayerData
+            set_spectator_mode(GAME.clients[e.uid])
             clients_queue(e)
             net_send("","message",e.name .. " joined")
             g2.net_send("","sound","sfx-join");
@@ -561,11 +570,7 @@ function galcon_classic_init()
             end
         end
         -- Let spectators see planet ship counts.
-        if client.status == "queue" or client.status == "away" then
-            local spectator = g2.new_user(client.name,client.color)
-            spectator.user_uid = client.uid
-            spectator.ui_ships_show_mask = 0xF
-        end
+        set_spectator_mode(client)
     end
     if playcount > 1 and GAME.galcon.global.SOLO_MODE then
         net_send('',"message","Solo mode disabled due to multiple players!")
