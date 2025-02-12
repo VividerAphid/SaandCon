@@ -1666,6 +1666,30 @@ function galcon_init()
         end
     end
 end
+function count_productionPlayer(uid)
+    local prod = 0
+    local user = find_user(uid)
+    local userPlanets = g2.search("planet owner:" .. user)
+    for _i, planet in ipairs(userPlanets) do
+        prod = prod + planet.ships_production
+    end
+    return prod
+end
+
+function count_shipsPlayer(uid)
+    local ships = 0
+    local user = find_user(uid)
+    local userPlanets = g2.search("planet owner:" .. user)
+    for _i, planet in ipairs(userPlanets) do
+        ships = ships + planet.ships_value
+    end
+
+    local userFleets = g2.search("fleet owner:" .. user)
+    for _i, o in ipairs(userFleets) do
+        ships = ships + o.fleet_ships
+    end
+    return ships
+end
 function clients_leave(e, rageQuit)
     if e.uid ~= g2.uid then
         net_send(e.uid,"state","quit")
