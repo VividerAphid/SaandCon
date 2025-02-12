@@ -30,11 +30,11 @@ end
 
 function getBotGG(botuid, win)
     local winOptions = {"Close", "GG", "GG WP", "Almost", "Nice try"}
-    local gloatOptions = {"IM WIN", "Not even close noob", "Noob", "Try being better", "Get gud", "LOL", "BOW", "You've been mounted"}
+    local gloatOptions = {"IM WIN", "Not even close noob", "Noob", "Try being better", "Get gud", "LOL", "BOW", "You've been mounted", "I take, I take take take"}
     local loseOptions = {"GG", "GG WP", "Nice", "Good one", "WP"}
     local saltOptions = {"Stinking mcs", "Kid was climbing on me again", "Kid climbed my phone", "Ping was above 10", "-_-", "Bruh",
                         "LIE ITEMS SHIPS", "FLY "..math.random(5, 10).." REAL ".. math.random(20, 50), "Stupid mid maps", "Noob", "LAG", 
-                        "Don't make me learn PC and smack you silly"}
+                        "Don't make me learn PC and smack you silly", "???????", "Bro what did he take???", "050500505505000050500505 HOW?????"}
     local message = ""
     if(win) then
         if(math.random(1, 4) == 4) then
