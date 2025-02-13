@@ -686,6 +686,15 @@ function displayTimer(time)
     if second < 10 then
         second = "0"..second
     end
-    g2.status = minute..":"..second
-    g2.net_send("","status",g2.status)
+    g2.status = get_formmatted_time(time)
+    g2.net_send("","status",get_formmatted_time(time))
+end
+
+function get_formmatted_time(time)
+    local minute = math.floor(time / 60)
+    local second = math.floor(time % 60)
+    if second < 10 then
+        second = "0"..second
+    end
+    return minute..":"..second
 end
