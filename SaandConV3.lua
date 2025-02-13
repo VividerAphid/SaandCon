@@ -118,10 +118,13 @@ end
 --------------------------------------------------------------------------------
 function set_spectator_mode(client)
     if client == nil then return end
+    if GAME.galcon.users == nil then return end
+
     if client.status == "queue" or client.status == "away" then
         local spectator = g2.new_user(client.name, client.color)
         spectator.user_uid = client.uid
         spectator.ui_ships_show_mask = 0xF
+        GAME.galcon.users[#GAME.galcon.users+1] = spectator
     end
 end
 function clients_queue(e)
