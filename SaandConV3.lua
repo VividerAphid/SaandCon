@@ -1544,6 +1544,8 @@ function galcon_init()
         local status = ""
         local count = 1
         local maxplayers = 2
+        local timer = " [" .. get_formmatted_time(self.timeLeft) .. "] "
+        local versus = " VS "
         for i,v in pairs(stats) do
             if count > maxplayers then
                 break
@@ -1551,12 +1553,15 @@ function galcon_init()
             status = status .. i .. " - Prod: " .. v.prod .. " Ships: " .. string.format('%d', v.ships)
             if count == 1 and #playersWithStatus("play") > 1 then
                 if GAME.galcon.global.TIMER_LENGTH ~= 0 then
-                    status = status .. " [" .. get_formmatted_time(self.timeLeft) .. "] "
+                    status = status .. timer
                 else
-                    status = status .. " VS "
+                    status = status .. versus
                 end
             end
             count = count + 1
+        end
+        if #playersWithStatus("play") == 1 and GAME.galcon.global.TIMER_LENGTH ~= 0 then
+            status = timer .. " " .. status
         end
         return status
     end
