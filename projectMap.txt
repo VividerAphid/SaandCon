@@ -42,7 +42,6 @@ stage6()
 
 	<utils>
 find_user()
-find_user_name()
 radiusToProd()
 prodToRadius()
 searchString()

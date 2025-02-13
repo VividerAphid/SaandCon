@@ -1,10 +1,40 @@
 function handleNetMessage(e)
     if (e.type == 'net:message' and string.lower(e.value) == '/play') or (e.type == "net:message" and string.lower(e.value) == "/queue") then
-        playStateCheck(e)
+        if GAME.clients[e.uid].status == "away" then
+            GAME.clients[e.uid].status = "queue"
+            clients_queue(e)
+            net_send("","message",e.name .. " is /queue")
+        end
+    end
+    if e.type == 'net:message' and string.lower(string.sub(e.value,1,5)) == '/play' then
+        local target_name = string.sub(e.value, 7)
+        for _,v in pairs(GAME.clients)do
+            if v.name:lower()==target_name:lower()then
+                if(tonumber(v.uid) < 0 or isAdmin(e.name)) then
+                    if v.status == "away" then
+                        v.status = "queue"
+                        clients_queue(v)
+                        net_send("","message",v.name .. " is /queue")
+                    end
+                else
+                    net_send(e.uid, "message", "Must be admin to /play that player")
+                end
+            end
+        end 
     end
     if e.type == 'net:message' and e.value =='/toggleplay' then
         --print("toggle!")
         playStateCheck(e)
+    end
+    if e.type == 'net:message' and string.lower(string.sub(e.value,1,11)) == '/toggleplay' then
+        local target_player = string.sub(e.value, 13)
+        for _,v in pairs(GAME.clients)do
+            if v.name:lower()==target_player:lower()then
+                if(tonumber(v.uid) < 0 or isAdmin(e.uid)) then
+                    playStateCheck(v)
+                end
+            end
+        end 
     end
     if e.type == 'net:message' and (string.lower(e.value) == "/gg" or string.lower(e.value) == "/ggwp") then
         if GAME.clients[e.uid].status == "play" then
@@ -15,8 +45,58 @@ function handleNetMessage(e)
         end
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,10)) == "/givecoins" then
-        local res = find_user_name(e.name)
-        print(res)
+        local chunks = {} --break into substrings, [2] for name [3] for coin amount   
+        for chunk in e.value:gmatch("%S+") do table.insert(chunks, chunk) end
+        local target_name = chunks[2] or ""
+        local coins = tonumber(chunks[3]) or 0
+        for _,v in pairs(GAME.clients) do
+            if v.name:lower()==target_name:lower()then
+                if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
+                    if GAME.clients[e.uid].coins >= coins and coins > -1 then
+                        net_send(v.uid, "message", e.name.." gives you "..coins.." SaandCoins!")
+                        net_send(e.uid, "message", "You gave "..v.name.." "..coins.." SaandCoins!")
+                        if tonumber(v.uid) > 0 then
+                            GAME.clients[e.uid].coins = GAME.clients[e.uid].coins - coins
+                            editPlayerData("coin-u", e.uid, coins*-1)
+                            GAME.clients[v.uid].coins = GAME.clients[v.uid].coins + coins
+                            editPlayerData("coin-u", v.uid, coins)
+                        else
+                            net_send("", "message", "Bots cannot receive tips. Their wages compensate them well enough.")
+                            sendBotMessage(v.uid, "Thank you for the coins "..e.name..", but I cannot accept them.")
+                        end
+                    elseif coins < 0 then
+                        net_send(e.uid, "message", "Good try. You think I didn't think of that? ;)")
+                    else
+                        net_send(e.uid, "message", "Not enough SaandCoins!")
+                        net_send("", "message", e.name.." showers "..v.name.." in "..coins.." fake SaandCoins!")
+                    end
+                else
+                    net_send("", "message", e.name.." showers "..v.name.." in "..coins.." fake SaandCoins!")
+                end
+            end
+        end
+    end
+    if e.type =='net:message' and string.lower(string.sub(e.value,1,11)) == "/awardcoins" then
+        if(e.name == "HostAphid" and isAdmin(e.name)) then
+            local chunks = {} --break into substrings, [2] for name [3] for coin amount   
+            for chunk in e.value:gmatch("%S+") do table.insert(chunks, chunk) end
+            local target_name = chunks[2]
+            local coins = tonumber(chunks[3])
+            for _,v in pairs(GAME.clients) do
+                if v.name:lower()==target_name:lower()then
+                    net_send("", "message", v.name.." was awarded "..coins.." SaandCoins!")
+                    local amount = coins
+                    if(coins < 0 and ((GAME.clients[v.uid].coins - coins) <= 0)) then
+                        amount = 0
+                    end
+                    GAME.clients[v.uid].coins = GAME.clients[v.uid].coins + amount
+                    editPlayerData("coin-u", v.uid, amount)
+                    net_send(v.uid, "message", "You now have "..GAME.clients[v.uid].coins.." SaandCoins!")
+                end
+            end
+        else
+            net_send(e.uid, "message", "You are not authorized to award coins.")
+        end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/addbot" then
         if(GAME.galcon.global.BOT_COUNT < GAME.galcon.global.MAX_BOT_COUNT) then
@@ -71,13 +151,40 @@ function handleNetMessage(e)
         --net_send("", "message", "<debug> net:message for settings")
         settingsTab(e)
     end
+    if e.type == 'net:message' and string.lower(string.sub(e.value,1,5)) == '/away' then
+        local target_name = string.sub(e.value, 7)
+        for _,v in pairs(GAME.clients)do
+            if v.name:lower()==target_name:lower()then
+                if(tonumber(v.uid) < 0 or isAdmin(e.name)) then
+                    if v.status == "play" or v.status == "queue" then
+                        v.status = "away"
+                        clients_queue(v)
+                        net_send("","message",v.name .. " is /away")
+                    end
+                else
+                    net_send(e.uid, "message", "Must be admin to /away that player")
+                end
+            end
+        end 
+    end
     if e.type == 'net:message' and string.lower(e.value) == '/away' then
-        -- if GAME.clients[e.uid].status == "play" or GAME.clients[e.uid].status == "queue" then
-        --     GAME.clients[e.uid].status = "away"
-        --     clients_queue(e)
-        --     net_send("","message",e.name .. " is /away")
-        -- end
-        playStateCheck(e)
+        if GAME.clients[e.uid].status == "play" or GAME.clients[e.uid].status == "queue" then
+            GAME.clients[e.uid].status = "away"
+            clients_queue(e)
+            net_send("","message",e.name .. " is /away")
+        end
+        --playStateCheck(e)
+    end
+    if e.type == 'net:message' and string.lower(e.value) == "/awayall" then
+        if isAdmin(e.name) then
+            for _,c in pairs(GAME.clients) do
+                if c.uid ~= e.uid then
+                    c.status = "away"
+                    net_send("","message",c.name .. " is /away")
+                end
+            end
+            clients_queue()
+        end
     end
     -- can break a lot of things DONT USE
     if e.type == "net:message" and string.sub(e.value,1,11) == "/maxplayers" then
@@ -298,17 +405,6 @@ function handleNetMessage(e)
         net_send("", "message", e.name.. " tried to buy their way to glory!")
         wardrobeCoinsSuccess(e)
     end
-    if e.type == 'net:message' and string.lower(e.value) == "/awayall" then
-        if isAdmin(e.name) then
-            for _,c in pairs(GAME.clients) do
-                if c.uid ~= e.uid then
-                    c.status = "away"
-                    net_send("","message",c.name .. " is /away")
-                end
-            end
-            clients_queue()
-        end
-    end
     if e.type == 'net:message' and string.lower(string.sub(e.value,1,6)) == "/admin" then
         if isAdmin(e.name) then
             local adminName = string.sub(e.value,8)
@@ -335,7 +431,7 @@ function handleNetMessage(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/reset" then
         net_send("","message",e.name .. " /reset")
-        if GAME.clients[e.uid].status == "play" then
+        if GAME.clients[e.uid].status == "play" or isAdmin(e.name) then
             for i, e in pairs(GAME.galcon.scorecard) do
                 GAME.galcon.scorecard[i] = 0
             end
