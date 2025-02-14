@@ -41,7 +41,7 @@ function loadConfigs()
                 recID = 0, 
             },
         },
-        version = "25.2.12b", --Do not change unless you made changes to code
+        version = "25.2.13a", --Do not change unless you made changes to code
     }
     return configs
 end
