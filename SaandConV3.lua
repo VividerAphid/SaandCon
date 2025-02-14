@@ -118,6 +118,7 @@ end
 --------------------------------------------------------------------------------
 function set_spectator_mode(client)
     if client == nil then return end
+
     if client.status == "queue" or client.status == "away" then
         local spectator = g2.new_user(client.name, client.color)
         spectator.user_uid = client.uid
@@ -561,7 +562,7 @@ function galcon_classic_init()
             if GAME.galcon.gamemode == "Race" then
                 p.planet_crash = 2
             end
-            client.live = 0
+            client.inGame = true
             if tonumber(p.user_uid) < 0 then --see if the player is a bot and set up bot stuff
                 local b = GAME.galcon.global.BOTS[client.uid]
                 --print(b.bot)
@@ -1374,6 +1375,9 @@ function galcon_stop(res, timerWinner, time)
         g2.state = "play"
         GAME.engine:next(GAME.modules.lobby)
     --[[ end ]]
+    for i,v in pairs(GAME.clients) do
+        v.inGame = false
+    end
 end
 
 function getNumNonNeutralUsers()
@@ -1524,6 +1528,74 @@ function galcon_init()
     GAME.modules.galcon = GAME.modules.galcon or {}
     GAME.galcon = GAME.galcon or {}
     local obj = GAME.modules.galcon
+
+    function obj:get_player_stats()
+        local stats = {}
+        for i,v in pairs(GAME.galcon.users) do
+            local name = v.title_value
+            local prod = count_productionPlayer(v.user_uid)
+            local ships = count_shipsPlayer(v.user_uid)
+            stats[name] = {prod = prod, ships = ships}
+        end
+        return stats
+    end
+
+    function obj:get_spectator_status(stats)
+        local status = ""
+        local count = 1
+        local maxplayers = 2
+        local timer = " [" .. get_formmatted_time(self.timeLeft) .. "] "
+        local versus = " VS "
+        for i,v in pairs(stats) do
+            if count > maxplayers then
+                break
+            end
+            status = status .. i .. " - Prod: " .. v.prod .. " Ships: " .. string.format('%d', v.ships)
+            if count == 1 and #playersWithStatus("play") > 1 then
+                if GAME.galcon.global.TIMER_LENGTH ~= 0 then
+                    status = status .. timer
+                else
+                    status = status .. versus
+                end
+            end
+            count = count + 1
+        end
+        if #playersWithStatus("play") == 1 and GAME.galcon.global.TIMER_LENGTH ~= 0 then
+            status = timer .. " " .. status
+        end
+        return status
+    end
+
+    function obj:is_spectator(client)
+        if client.ui_ships_show_mask == 0xF then
+            return true
+        end
+    end
+
+    function obj:update_status(uid, status)
+        if uid == g2.uid then
+            g2.status = status
+        else
+            g2.net_send(uid, "status", status)
+        end
+    end
+
+    function obj:update_player_status()
+        for i,v in pairs(GAME.clients) do
+            if GAME.galcon.global.TIMER_LENGTH ~= 0 and v.inGame then
+                obj:update_status(v.uid, get_formmatted_time(self.timeLeft))
+            end
+        end
+    end
+
+    function obj:update_spectator_status()
+        for i,v in pairs(GAME.clients) do
+            if not v.inGame then
+                obj:update_status(v.uid, obj:get_spectator_status(self.playerStats))
+            end
+        end
+    end
+
     function obj:init()
         g2.state = "play"
         params_set("state","play")
@@ -1537,11 +1609,23 @@ function galcon_init()
         GAME.galcon.finishTime = 0
         self.raceLock = false
         self.hexaGridLock = false
+        self.playerStats = obj:get_player_stats()
+        self.statusTimer = ""
+        self.spectatorStatus = ""
+        self.timeLeft = 0
     end
+        
     function obj:loop(t)
         galcon_classic_loop()
         self.time = self.time + t
         self.timeout = self.timeout + t
+
+        self.playerStats = obj:get_player_stats()
+        --self.spectatorStatus = obj:set_spectator_status(self.playerStats)
+        
+        obj:update_player_status()
+        obj:update_spectator_status()
+        
         if GAME.galcon.gamemode == "Float" then
             update_score(self.time)
             displayFloatTimer(self.time)
@@ -1553,9 +1637,9 @@ function galcon_init()
             end
         end
         if GAME.galcon.global.TIMER_LENGTH ~= 0 then
-            local timeLeft = GAME.galcon.global.TIMER_LENGTH - math.floor(self.time)
-            displayTimer(timeLeft)
-            if timeLeft < 1 then
+            self.timeLeft = GAME.galcon.global.TIMER_LENGTH - math.floor(self.time)
+            --displayTimer(self.timeLeft)
+            if self.timeLeft < 1 then
                 galcon_stop(#GAME.galcon.users>1, calc_Timer_Win())
             end
         end
@@ -1665,6 +1749,30 @@ function galcon_init()
             end
         end
     end
+end
+function count_productionPlayer(uid)
+    local prod = 0
+    local user = find_user(uid)
+    local userPlanets = g2.search("planet owner:" .. user)
+    for _i, planet in ipairs(userPlanets) do
+        prod = prod + planet.ships_production
+    end
+    return prod
+end
+
+function count_shipsPlayer(uid)
+    local ships = 0
+    local user = find_user(uid)
+    local userPlanets = g2.search("planet owner:" .. user)
+    for _i, planet in ipairs(userPlanets) do
+        ships = ships + planet.ships_value
+    end
+
+    local userFleets = g2.search("fleet owner:" .. user)
+    for _i, o in ipairs(userFleets) do
+        ships = ships + o.fleet_ships
+    end
+    return ships
 end
 function clients_leave(e, rageQuit)
     if e.uid ~= g2.uid then
