@@ -149,13 +149,13 @@ function modeTab(e)
         <table>
         <tr><td><table class='box' background='white:0x333333'>
                 <tr><td colspan=3><h2>Modes</h2>
-                <tr><td colspan=1><input type='button' value='Classic' onclick='/classic' class='button2' />
-                    <td colspan=1><input type='button' value='Stages' onclick='/stages' class='button2' />
-                    <td colspan=1><input type='button' value='Frenzy' onclick='/frenzy' class='button2' />
-                <tr><td colspan=1><input type='button' value='Grid' onclick='/grid' class='button2' />
-                    <td colspan=1><input type='button' value='Float' onclick='/float' class='button2' />
-                    <td colspan=1><input type='button' value='Line' onclick='/line' class='button2' />
-                <tr><td colspan=3><input type='button' value='Race' onclick='/race' class='button2' />
+                <tr><td colspan=1><input type='button' width=100 value='Classic' onclick='/classic' class='button2' />
+                    <td colspan=1><input type='button' width=100 value='Stages' onclick='/stages' class='button2' />
+                    <td colspan=1><input type='button' width=100 value='Frenzy' onclick='/frenzy' class='button2' />
+                <tr><td colspan=1><input type='button' width=100 value='Grid' onclick='/grid' class='button2' />
+                    <td colspan=1><input type='button' width=100 value='Float' onclick='/float' class='button2' />
+                    <td colspan=1><input type='button' width=100 value='Line' onclick='/line' class='button2' />
+                <tr><td colspan=3><input type='button' width=100 value='Race' onclick='/race' class='button2' />
                 </td></tr>
             </table>
         <tr><td><table class='box' background='white:0x333333'>

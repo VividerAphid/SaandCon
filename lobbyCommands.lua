@@ -865,7 +865,7 @@ function handleOnclick(e)
         --net_send("", "message", "<debug> onclick for lobby")
         resetLobbyHtml(g2)
     end
-    if e.type == 'onclick' and e.value == '/mode' then
+    if e.type == 'onclick' and e.value == '/settings' then
         --net_send("", "message", "<debug> onclick for mode")
         modeTab(g2)
     end
@@ -876,10 +876,6 @@ function handleOnclick(e)
     if e.type == 'onclick' and e.value == '/leaderboard' then
         --net_send("", "message", "<debug> onclick for leaderboard")
         loadScoreboard(g2)
-    end
-    if e.type == 'onclick' and e.value == '/settings' then
-        --net_send("", "message", "<debug> onclick for settings")
-        settingsTab(g2)
     end
     if e.type == 'onclick' and e.value == '/wardrobe' then
         wardrobe(g2)
