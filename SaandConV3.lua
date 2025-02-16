@@ -120,7 +120,7 @@ end
 function set_spectator_mode(client)
     if client == nil then return end
 
-    if client.status == "queue" or client.status == "away" then
+    if client.status == "queue" or client.status == "away" and not GAME.galcon.gamemode == "Float" then
         local spectator = g2.new_user(client.name, client.color)
         spectator.user_uid = client.uid
         spectator.ui_ships_show_mask = 0xF
