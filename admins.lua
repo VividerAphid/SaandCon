@@ -14,6 +14,7 @@ function admins_init()
 	makeAdmin("hurrinado334")
     makeAdmin("archidor")
     makeAdmin("bdt")
+    makeAdmin("deadmoon")
 end
 
 function initAdmins()

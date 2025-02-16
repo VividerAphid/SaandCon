@@ -77,7 +77,7 @@ function handleNetMessage(e)
         end
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,11)) == "/awardcoins" then
-        if(e.name == "HostAphid" and isAdmin(e.name)) then
+        if(e.uid == g2.uid) then --hack to check if host is making the command, dont let anyone else use it
             local chunks = {} --break into substrings, [2] for name [3] for coin amount   
             for chunk in e.value:gmatch("%S+") do table.insert(chunks, chunk) end
             local target_name = chunks[2]
@@ -132,6 +132,25 @@ function handleNetMessage(e)
         end
         GAME.galcon.global.BOT_COUNT = 0
     end
+    if e.type == 'net:message' and string.lower(string.sub(e.value,1,5)) == "/kick" then
+        if(isAdmin(e.name)) then
+            local target_name = string.sub(e.value, 7)
+            for _,v in pairs(GAME.clients)do
+                if v.name:lower()==target_name:lower()then
+                    if(tonumber(v.uid) < 0) then
+                        GAME.galcon.global.BOTS[_]=nil
+                        GAME.modules.clients:event({uid=_,name=target_name,type="net:leave"})
+                    else
+                        net_send("", "message", target_name.." was kicked.")
+                        clients_leave(_, false)
+                    end
+                end
+            end 
+        else
+            net_send(e.uid,"message", "Not authorised to kick players.")
+        end
+        
+    end
     if (e.type == 'net:message' and string.lower(e.value) == '/version') then
         net_send(e.uid, "message", "Version is "..GAME.galcon.global.CONFIGS.version)
     end
@@ -139,17 +158,17 @@ function handleNetMessage(e)
         --net_send("", "message", "<debug> net:message for lobby")
         resetLobbyHtml(e)
     end
-    if (e.type == 'net:message' and string.lower(e.value) == '/mode') then
+    if (e.type == 'net:message' and string.lower(e.value) == '/settings') then
         --net_send("", "message", "<debug> net:message for mode")
         modeTab(e)
     end
-    if (e.type == 'net:message' and string.lower(e.value) == '/leaderboard') then
+    if (e.type == 'net:message' and string.lower(e.value) == '/profile') then
         --net_send("", "message", "<debug> net:message for leaderboard")
-        loadScoreboard(e)
+        loadProfile(e)
     end
-    if (e.type == 'net:message' and string.lower(e.value) == '/settings') then
+    if (e.type == 'net:message' and string.lower(e.value) == '/leaderboard') then
         --net_send("", "message", "<debug> net:message for settings")
-        settingsTab(e)
+        loadScoreboard(e)
     end
     if e.type == 'net:message' and string.lower(string.sub(e.value,1,5)) == '/away' then
         local target_name = string.sub(e.value, 7)
@@ -684,7 +703,6 @@ function handleNetMessage(e)
             clients_queue()
         end
     end
-
     if e.type == 'net:message' and string.lower(e.value) == "/float" then
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Float"
@@ -850,6 +868,10 @@ function handleOnclick(e)
     if e.type == 'onclick' and e.value == '/mode' then
         --net_send("", "message", "<debug> onclick for mode")
         modeTab(g2)
+    end
+    if e.type == 'onclick' and e.value == '/profile' then
+        --net_send("", "message", "<debug> onclick for mode")
+        loadProfile(g2)
     end
     if e.type == 'onclick' and e.value == '/leaderboard' then
         --net_send("", "message", "<debug> onclick for leaderboard")
