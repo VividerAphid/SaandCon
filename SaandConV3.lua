@@ -43,6 +43,7 @@ function menu_init()
         g2.form.port = GAME.data.port or "23099"
         g2.form.title = GAME.data.title or "SaandCon"
         g2.state = "menu"
+        g2.chat_keywords(json.encode(_CONFIGS.chat_keywords))
         GAME.galcon.wins = 0
         GAME.galcon.scorecard = {}
         GAME.galcon.gamemode = "Classic" or "Stages" or "Frenzy" or "Grid" or "Float" or "Line" or "Race"
@@ -225,6 +226,8 @@ function clients_init()
                 incomingPlayerData.status = "away"
             end
             GAME.clients[e.uid] = incomingPlayerData
+            keywords_addKeyword(e.name)
+            keywords_refreshKeywords()
             set_spectator_mode(GAME.clients[e.uid])
             clients_queue(e)
             net_send("","message",e.name .. " joined")
@@ -237,6 +240,8 @@ function clients_init()
         if e.type == 'net:leave' then
             --print("called from first net:leave")
             GAME.clients[e.uid] = nil
+            keywords_removeKeyword(e.name)
+            keywords_refreshKeywords()
             net_send("","message",e.name .. " left")
             g2.net_send("","sound","sfx-leave");
             clients_queue(e)

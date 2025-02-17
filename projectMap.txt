@@ -10,7 +10,7 @@ getLadderTable()
 getLadderSorted()
 loadScoreboard()
 modeTab()
-settingsTab()
+loadProfile()
 wardrobe()
 wardrobeColors()
 wardrobeSkins()
@@ -64,6 +64,9 @@ find_enemy()
 getUserItems()
 hostUidFix()
 rollRandColor()
+keywords_refreshKeywords()
+keywords_addKeyword()
+keywords_removeKeyword()
 
 	<mapkit>
 getMapStyle()
@@ -82,7 +85,7 @@ cleansePlayerName()
 handleNetMessage()
 handleOnclick()
 
-<bot_utils>
+	<bot_utils>
 getNewBotName()
 getNewBotUID()
 getNewBotShip()

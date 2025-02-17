@@ -67,9 +67,9 @@ function lobby_tabs(e)
         <table>
             <td><input type='button' class='tab' width='15%' pseudo='first'      disabled='true'                                           />
 			<td><input type='button' class='tab' width='22%' value='Lobby'       icon='icon-new_game'  onclick='/lobby'                    />
-            <td><input type='button' class='tab' width='22%' value='Modes'       icon='icon-new_map'  onclick='/mode'                      />
-            <td><input type='button' class='tab' width='22%' value='Ranks/Style' icon='icon-queue'    onclick='/leaderboard'               />
-            <td><input type='button' class='tab' width='22%' value='Settings'    icon='icon-options'  onclick='/settings'    pseudo='last' />
+            <td><input type='button' class='tab' width='22%' value='Settings'       icon='icon-new_map'  onclick='/settings'                      />
+            <td><input type='button' class='tab' width='22%' value='Profile' icon='icon-account'    onclick='/profile'               />
+            <td><input type='button' class='tab' width='22%' value='Ranks/More'    icon='icon-queue'  onclick='/leaderboard'    pseudo='last' />
         </table>
     ]]
 
@@ -87,7 +87,7 @@ function getLadderTable()
     local ladder = getLadderSorted()
 
     for k, v in ipairs(ladder) do
-        html = html .. "<tr><td><h3>" .. v.username .. "</h3><td>" .. common_utils.round(v.value)
+        html = html .. "<tr><td>" .. v.username .. "<td>" .. common_utils.round(v.value)
     end
 
     html = html .. "</tr></td>"
@@ -108,11 +108,24 @@ function getLadderSorted()
     return ladder
 end
 
+function loadProfile(e)
+    local html = [[
+        <table>
+        <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='ibutton' icon='icon-store' /></td></tr>
+        <tr><td><p>&nbsp;</p>
+        <tr><td>Coming soon...</td></tr>
+        </table>
+    ]]
+    if e == nil then
+        params_set("html", html)
+    else
+        net_send(e.uid, "html", html)
+    end
+end
+
 function loadScoreboard(e)
     local html = [[
               <table>
-              <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='ibutton' icon='icon-store' /></td></tr>
-              <tr><td><p>&nbsp;</p>
               <tr><td><h2>ELO Leaderboard</h2>
             ]] ..
                 getLadderTable() .. [[
@@ -126,49 +139,43 @@ function loadScoreboard(e)
 end
 
 function modeTab(e)
-	local html = [[
-        <table><tr><td>
-        <h2>Modes</h2>
-        <tr><td colspan=2><input type='button' value='Classic' onclick='/classic' class='button2' />
-        <tr><td colspan=2><input type='button' value='Stages' onclick='/stages' class='button2' />
-        <tr><td colspan=2><input type='button' value='Frenzy' onclick='/frenzy' class='button2' />
-        <tr><td colspan=2><input type='button' value='Grid' onclick='/grid' class='button2' />
-        <tr><td colspan=2><input type='button' value='Float' onclick='/float' class='button2' />
-        <tr><td colspan=2><input type='button' value='Line' onclick='/line' class='button2' />
-        <tr><td colspan=2><input type='button' value='Race' onclick='/race' class='button2' />
-        </td></tr>
-        </table>
-        ]]
-    if e == nil then
-        params_set("html", html)
-    else
-        net_send(e.uid, "html", html)
-    end
-end
-
-function settingsTab(e)
     local home_prod = GAME.galcon.global.HOME_PROD
     local start_ships = GAME.galcon.global.STARTING_SHIPS
     if(GAME.galcon.gamemode == "Grid") then
         home_prod = GAME.galcon.global.GRID.HOME_PROD
         start_ships = GAME.galcon.global.GRID.START_SHIPS
     end
-    local html = [[
-        <table><tr><td colspan=3>
-        <h2>Settings</h2>
-        <tr><td colspan=3><input type='button' value='Solo Mode' onclick='/solo' />
-        <tr><td colspan=1><h3>Timer:</h3><td><input type='slider' onchange="/timer {$timer}" value=']]..GAME.galcon.global.TIMER_LENGTH..[[' name='timer' low=0 high=30/>
-        <tr><td colspan=1><h3>Starting Ships:</h3><td><input type='slider' onchange="/startships {$ships}" value=']]..start_ships..[[' name='ships' low=0 high=200/>
-        <tr><td colspan=1><h3>Home Prod:</h3><td><input type='slider' onchange="/homeprod {$prod}" value=']]..home_prod..[[' name='prod' low=0 high=200/>
-        <tr><td colspan=1><h3>Home Count:</h3><td><input type='slider' onchange="/homes {$homes}" value=']]..GAME.galcon.global.HOME_COUNT..[[' name='homes' low=1 high=3/>
-        <tr><td><input type='button' value="Change seed" onclick='/seed {$seedbox}' />
-            <td><input type="text" name='seedbox' value=""/>
-        <tr><td><input type='button' value='Replay seed' onclick='/replayseed' />
-            <td><input type='button' value='Keep Seed' onclick='/keepseed' />
-        ]]
-        .. 
-        loadModeSpecificButtons() ..[[
-        </td></tr>
+	local html = [[
+        <table>
+        <tr><td><table class='box' background='white:0x333333'>
+                <tr><td colspan=3><h2>Modes</h2>
+                <tr><td colspan=1><input type='button' width=100 value='Classic' onclick='/classic' class='button2' />
+                    <td colspan=1><input type='button' width=100 value='Stages' onclick='/stages' class='button2' />
+                    <td colspan=1><input type='button' width=100 value='Frenzy' onclick='/frenzy' class='button2' />
+                <tr><td colspan=1><input type='button' width=100 value='Grid' onclick='/grid' class='button2' />
+                    <td colspan=1><input type='button' width=100 value='Float' onclick='/float' class='button2' />
+                    <td colspan=1><input type='button' width=100 value='Line' onclick='/line' class='button2' />
+                <tr><td colspan=3><input type='button' width=100 value='Race' onclick='/race' class='button2' />
+                </td></tr>
+            </table>
+        <tr><td><table class='box' background='white:0x333333'>
+                <table><tr><td colspan=3>
+            <h2>Settings</h2>
+            <tr><td colspan=3><input type='button' value='Solo Mode' onclick='/solo' />
+            <tr><td colspan=1><h3>Timer:</h3><td><input type='slider' onchange="/timer {$timer}" value=']]..GAME.galcon.global.TIMER_LENGTH..[[' name='timer' low=0 high=30/>
+            <tr><td colspan=1><h3>Starting Ships:</h3><td><input type='slider' onchange="/startships {$ships}" value=']]..start_ships..[[' name='ships' low=0 high=200/>
+            <tr><td colspan=1><h3>Home Prod:</h3><td><input type='slider' onchange="/homeprod {$prod}" value=']]..home_prod..[[' name='prod' low=0 high=200/>
+            <tr><td colspan=1><h3>Home Count:</h3><td><input type='slider' onchange="/homes {$homes}" value=']]..GAME.galcon.global.HOME_COUNT..[[' name='homes' low=1 high=3/>
+            <tr><td><input type='button' value="Change seed" onclick='/seed {$seedbox}' />
+                <td><input type="text" name='seedbox' value=""/>
+            <tr><td><input type='button' value='Replay seed' onclick='/replayseed' />
+                <td><input type='button' value='Keep Seed' onclick='/keepseed' />
+            ]]
+            .. 
+            loadModeSpecificButtons() ..[[
+            </td></tr>
+            </table>
+                </table>       
         </table>
         ]]
     if e == nil then

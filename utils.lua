@@ -292,3 +292,43 @@ function rollRandColor()
     end
     return "0x"..r..g..b
 end
+
+function keywords_refreshKeywords()
+    local EncodedKeywords = json.encode(GAME.galcon.global.CONFIGS.chat_keywords)
+    g2.chat_keywords(EncodedKeywords)
+    net_send("", "keywords", EncodedKeywords)
+end
+
+function keywords_addKeyword(keyword)
+    local keywords = GAME.galcon.global.CONFIGS.chat_keywords
+    
+    local found = false
+    for i, word in pairs(keywords) do
+        if word == keyword then
+            found = true
+        end
+    end
+    if not found then
+        table.insert(keywords, keyword)
+    end
+
+    keywords_refreshKeywords()
+end
+
+function keywords_removeKeyword(keyword)
+    local keywords = GAME.galcon.global.CONFIGS.chat_keywords
+    local removedKeywords = 0
+
+    for i, word in pairs(keywords) do
+        if word == keyword then
+            table.remove(keywords, i)
+            removedKeywords = removedKeywords + 1
+        end
+    end
+
+    if not removedKeywords then
+        print("ERROR: " .. keyword " wasn't found.")
+    end
+
+    keywords_refreshKeywords()
+end
