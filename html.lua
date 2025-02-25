@@ -68,7 +68,7 @@ function lobby_tabs(e)
             <td><input type='button' class='tab' width='15%' pseudo='first'      disabled='true'                                           />
 			<td><input type='button' class='tab' width='22%' value='Lobby'       icon='icon-new_game'  onclick='/lobby'                    />
             <td><input type='button' class='tab' width='22%' value='Settings'       icon='icon-new_map'  onclick='/settings'                      />
-            <td><input type='button' class='tab' width='22%' value='Profile' icon='icon-account'    onclick='/profile'               />
+            <td><input type='button' class='tab' width='22%' value='Profile' icon='icon-account'    onclick='/profile self'               />
             <td><input type='button' class='tab' width='22%' value='Ranks/More'    icon='icon-queue'  onclick='/leaderboard'    pseudo='last' />
         </table>
     ]]
@@ -82,15 +82,20 @@ function lobby_tabs(e)
 end
 
 function getLadderTable()
-    local html = ""
+    local html = "<table>"
 
     local ladder = getLadderSorted()
 
     for k, v in ipairs(ladder) do
-        html = html .. "<tr><td>" .. v.username .. "<td>" .. common_utils.round(v.value)
+        local player = playerData.getUserData(v.username)
+        html = html .. [[<tr><td><td><table class='box' color=']]..player.color..[['background='white:]]..player.color..[['>
+                            <td>]] .. player.displayName ..[[: </td> 
+                            <td>]] .. common_utils.round(v.value) ..[[ </td>
+                            <td><input type='button' width=20 height=20 value='' onclick='/profile ]]..v.username..[['><img width=20 height=20 src='icon-account'/></input>"
+                        </table>]]
     end
 
-    html = html .. "</tr></td>"
+    html = html .. "</tr></td></table>"
     return html
 end
 
@@ -108,12 +113,89 @@ function getLadderSorted()
     return ladder
 end
 
-function loadProfile(e)
+function loadProfile(e, targetPlayerUID)
+    local player = GAME.clients[hostUidFix(e)]
+    local winStats = playerWinData.getUserData(hostUidFix(e))
+    if(targetPlayerUID ~= nil) then
+        player = playerData.getUserData(targetPlayerUID)
+        winStats = playerWinData.getUserData(targetPlayerUID)
+        if (player.color == nil) then
+            player.color = "0xaaaaaa"
+        end
+    end
+    local darkenedColor = darkenColor(player.color)
+    --<trophy width=80 height=80 value=']]..player.ship..[['/>
+    --<planet background='planet:#000000' data="]]..json.encode(data)..[[" color=0xff0000 team=0xff0000 width=80 height=80/>
+    local quote = player.quote or ""
+    local chunks = {}  
+    if(quote ~= nil) then 
+        for chunk in quote:gmatch("%S+") do table.insert(chunks, chunk) end
+        local charCount = 0
+        local builtQuote = ""
+        for c,s in pairs(chunks) do
+            charCount = charCount + #s
+            if(charCount >= 25) then
+                charCount = 0
+                builtQuote = builtQuote .. "<br/>" .. s
+            else
+                builtQuote = builtQuote .. " " .. s
+            end
+        end
+        --print(charCount)
+        quote = builtQuote
+    end
     local html = [[
         <table>
         <tr><td><input type='button' value='Wardrobe' icon='icon-store' onclick='/wardrobe' class='ibutton' icon='icon-store' /></td></tr>
         <tr><td><p>&nbsp;</p>
-        <tr><td>Coming soon...</td></tr>
+        <tr><td><table class='box' color=']]..player.color..[[' background='white:]]..darkenedColor..[['>
+            <tr colspan=3><td><div font='font-gui2:50' color=']]..player.color..[['>]]..player.displayName..[[</div>
+            <tr colspan=3><td><div font='font-gui2:25'> Level ]]..player.level..[[ (Prestige ]]..player.prestige..[[) </div>
+            <tr colspan=3><td><div font='font-gui2:30'>"]]..quote..[["</div>
+            <tr colspan=3><td><img src=']]..player.ship..[['</td>
+            <tr colspan=3><td>
+            <tr><td><table>
+                <tr><td><table>
+                    <tr><td class='box' background='white:0x999999'><div font='font-gui2:25'> Ships Unlocked: ]]..#player.ownedShips..[[</div>
+                        <td class='box' background='white:0x999999'><div font='font-gui2:25'> Skins Unlocked: ]]..#player.ownedSkins..[[</div></table>
+                <tr><td>
+                <tr><td><table><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Total W: ]]..player.stats['total'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Total M: ]]..player.stats['total'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Total L: ]]..player.stats['total'].losses..[[</div></table>      
+                </table>
+                <tr><td>
+                <tr><td><table>
+                    <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> #1 Victim: ]]..playerData.getUserData(winStats.victim.uid).displayName..[[</div>
+                    <tr><td class='box' background='white:0xdd0000'><div font='font-gui2:25'> #1 Threat: ]]..playerData.getUserData(winStats.threat.uid).displayName..[[</div></table>
+                <tr><td>
+                <tr><td><table><tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Classic W: ]]..player.stats['classic'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Classic M: ]]..player.stats['classic'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Classic L: ]]..player.stats['classic'].losses..[[</div>
+                <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Grid W: ]]..player.stats['grid'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Grid M: ]]..player.stats['grid'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Grid L: ]]..player.stats['grid'].losses..[[</div>
+                <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Frenzy W: ]]..player.stats['frenzy'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Frenzy M: ]]..player.stats['frenzy'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Frenzy L: ]]..player.stats['frenzy'].losses..[[</div>
+                    <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Stages W: ]]..player.stats['stages'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Stages M: ]]..player.stats['stages'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Stages L: ]]..player.stats['stages'].losses..[[</div>
+                    <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Line W: ]]..player.stats['line'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Line M: ]]..player.stats['line'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Line L: ]]..player.stats['line'].losses..[[</div>
+                    <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Race W: ]]..player.stats['race'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Race M: ]]..player.stats['race'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Race L: ]]..player.stats['race'].losses..[[</div>
+                    <tr><td>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Float M: ]]..player.stats['float'].matches..[[</div>
+                    <td>
+                    </table>
+                    <tr><td>
+                    <tr><td class='box' background='white:0x999999'><div font='font-gui2:25'>VS Players Stats:</div>
+                    <tr><td><table>
+                        ]]..buildPlayerWinStats(targetPlayerUID)..[[
+                    </table>
+            </table></td>
         </table>
     ]]
     if e == nil then
@@ -123,10 +205,22 @@ function loadProfile(e)
     end
 end
 
+function buildPlayerWinStats(uid)
+    local html = ""
+    local stats = playerWinData.getUserData(uid).stats
+    for p,s in pairs(stats) do
+        local opp = playerData.getUserData(p)
+        html = html.."<tr><td class='box' background='white:"..opp.color.."'><div font='font-gui2:20'>"..opp.displayName..
+            "</div><td td class='box' background='white:0x00dd00'><div font='font-gui2:20'>W: "..s.wins..
+            "</div><td td class='box' background='white:0xdd0000'><div font='font-gui2:20'>L: "..s.losses.."</div>"
+    end
+    return html
+end
+
 function loadScoreboard(e)
     local html = [[
               <table>
-              <tr><td><h2>ELO Leaderboard</h2>
+              <tr><td><td><h2>ELO Leaderboard</h2>
             ]] ..
                 getLadderTable() .. [[
                 </table>
@@ -189,7 +283,7 @@ function wardrobe(e)
     local saandCoinHeader = [[]]
     local buyCoinBtn = [[]]
     if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins then
-        saandCoinHeader = [[<tr><td><h2>Your SaandCoins: ]]..GAME.clients[e.uid].coins..[[</h2></td><td><img src="coin" width=50 height=50></tr>]]
+        saandCoinHeader = [[<tr><td><h2>Your ]]..GAME.galcon.global.CONFIGS.saandCoins.currency_name..[[: ]]..GAME.clients[e.uid].coins..[[</h2></td><td><img src="coin" width=50 height=50></tr>]]
         buyCoinBtn = [[<tr><td><input type='button' value='Buy Coins' onclick='/wardrobe coins' icon="icon-store" class='ibutton' />]]
     end
     local html = [[<table><tr><td>
@@ -201,6 +295,7 @@ function wardrobe(e)
         <tr><td><input type='button' value='Skins' onclick='/wardrobe skins' icon="icon-world" class='ibutton' />
         <tr><td><input type='button' value='Name Change' onclick='/wardrobe name' icon="icon-membership" class='ibutton' />
         <tr><td><input type='button' value='Title Change' onclick='/wardrobe title' icon="icon-admin" class='ibutton' />
+        <tr><td><input type='button' value='Profile Quote' onclick='/wardrobe quote' icon="icon-chat" class='ibutton' />
         ]]..buyCoinBtn..[[
         </table
     ]]
@@ -355,8 +450,24 @@ function wardrobeTitle(e)
     <h2>]]..headerText..[[</h2>
     <tr><td colspan=3><input type='button' width=100 value='back' onclick='/wardrobe' />
     <tr>
-    <tr><td>New Name:<td> <input type='text' name="newtitle" value=]]..GAME.clients[e.uid].title..[[/>
+    <tr><td>New Title:<td> <input type='text' name="newtitle" value=]]..GAME.clients[e.uid].title..[[/>
     <tr><td colspan=3><input type='button' class='ibutton' icon="coin" value="Confirm" onclick='/title {$newtitle}'/>
+    ]]
+
+    net_send(e.uid, "html", html)
+end
+
+function wardrobeQuote(e)
+    local headerText = "Profile Quote"
+    if(GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins) then
+        headerText = headerText .. " (10 per)"
+    end
+    local html = [[<table><tr><td colspan=3>
+    <h2>]]..headerText..[[</h2>
+    <tr><td colspan=3><input type='button' width=100 value='back' onclick='/wardrobe' />
+    <tr>
+    <tr><td>New Quote:<td> <input type='text' name="newquote" value=]]..(GAME.clients[e.uid].quote or "")..[[/>
+    <tr><td colspan=3><input type='button' class='ibutton' icon="coin" value="Confirm" onclick='/quote {$newquote}'/>
     ]]
 
     net_send(e.uid, "html", html)
@@ -617,13 +728,13 @@ function playerInState(state)
             end
             local builtName = ""
             if(e.status == "queue") then
-                builtName = e.name..stateString(e.status, queueNum)
+                builtName = GAME.clients[e.uid].displayName..stateString(e.status, queueNum)
                 queueNum = queueNum + 1
             else
-                builtName = e.name..stateString(e.status)
+                builtName = GAME.clients[e.uid].displayName..stateString(e.status)
             end
             if isAdmin(e.name) then
-                if string.sub(e.name,1,1) ~= "#" then
+                if string.sub(GAME.clients[e.uid].displayName,1,1) ~= "#" then
                     --TODO GET WIDTH WORKING FOR BOTH BARS
                     players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..builtName..playerBarScoreSpacing("#"..builtName, true)..wins .. "<br/>["..e.title.."]"
                 end

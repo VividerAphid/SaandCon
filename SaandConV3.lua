@@ -1,6 +1,7 @@
 require("mod_common_utils")
 require("mod_elo")
 require("mod_playerData")
+require("mod_wintracker")
 require("configs")
 require("utils")
 require("censorList")
@@ -40,6 +41,17 @@ function menu_init()
         g2.html = startupMenu()
         GAME.data = json.decode(g2.data)
         if type(GAME.data) ~= "table" then GAME.data = {} end
+        if GAME.data.wipeKeyWord == nil or GAME.data.wipeKeyWord ~= _CONFIGS.wipeKeyWord then
+            print("Data Wiped per configs keyword mismatch!")
+            g2.data = json.encode({})
+            GAME.data = json.decode(g2.data)
+            GAME.data.wipeKeyWord = _CONFIGS.wipeKeyWord
+            g2.data = json.encode(GAME.data)
+            GAME.data = json.decode(g2.data)
+            playerData.wipeAllData()
+            playerWinData.wipeAllData()
+            elo.clear_ratings()
+        end
         g2.form.port = GAME.data.port or "23099"
         g2.form.title = GAME.data.title or "SaandCon"
         g2.state = "menu"
@@ -54,7 +66,7 @@ function menu_init()
             WINNER_STAYS = _CONFIGS.defaults.WINNER_STAYS,
             PLAYER_QUEUE = {},
             BOTS = {},
-            BOT_TYPES = {protowaffle=bot_protowaffle, classic=bot_classic},
+            BOT_TYPES = {punchingbag={func=punchingbag_bot,uid=-1, displayName="Punching Bag"}, protowaffle={func=bot_protowaffle, uid=-3, displayName="Protowaffle"}, classic={func=bot_classic, uid=-2, displayName="Classic"}},
             BOT_UID = -10000,
             BOT_COUNT = 0,
             MAX_BOT_COUNT = _CONFIGS.defaults.MAX_BOT_COUNT,
@@ -69,6 +81,7 @@ function menu_init()
             GRID = _CONFIGS.defaults.GRID,
             SEED_DATA = _CONFIGS.defaults.SEED_DATA,
             stupidSettings = _CONFIGS.defaults.stupidSettings,
+            matchXp = 0,
             ships=buildShipList(),
             planets= {'normal','honeycomb','ice','terrestrial','gasgiant','craters','gaseous','lava', 'void', 'disco','swirls','floralpattern',
                 'hearts', 'clovers', 'zerba', 'giraffe', 'eyes', 'cow', 'fossil', 'snowcaps', 'smooth', 
@@ -132,12 +145,12 @@ function clients_queue(e)
 end
 function _clients_queue()
     local colors = {
-        0x0000ff,0xff0000,
-        0xffff00,0x00ffff,
-        0xffffff,0xff8800,
-        0x99ff99,0xff9999,
-        0xbb00ff,0xff88ff,
-        0x9999ff,0x00ff00,
+        '0x0000ff','0xff0000',
+        '0xffff00','0x00ffff',
+        '0xffffff','0xff8800',
+        '0x99ff99','0xff9999',
+        '0xbb00ff','0xff88ff',
+        '0x9999ff','0x00ff00',
     }
     -- delete colors above MAX_PLAYERS treshold
     for i, v in pairs(colors) do
@@ -150,7 +163,7 @@ function _clients_queue()
     for k,e in pairs(GAME.clients) do
         -- set color of "away" and "queue" players to grey
         if e.status == "away" or e.status == "queue" then
-            e.color = 0x555555
+            e.color = '0x555555'
         end
         if e.status == "queue" then 
             q = e 
@@ -182,7 +195,7 @@ function _clients_queue()
                 end
             end
             q.status = "play"
-            net_send("","message",q.name .. " is /play")
+            net_send("","message",q.displayName .. " is /play")
             return
         end
     end
@@ -196,29 +209,58 @@ function clients_init()
         if e.type == 'net:join' then
             playerData_init()
             local newCoins = GAME.galcon.global.CONFIGS.saandCoins.newPlayerSaandCoins
-            local incomingPlayerData = {uid=e.uid,officialName=e.name, name=e.name, ship="ship",skin="normal",status="away", 
-                    title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}}
-            if(tonumber(e.uid) < 0) then
-                incomingPlayerData.skin = getNewBotSkin()
-                incomingPlayerData.ship = getNewBotShip()
-            end
+            local incomingPlayerData = {uid=e.uid,displayName=e.name, name=e.name, ship="ship",skin="normal",status="away", 
+                    title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}, stats=getNewStatTable()}
             if playerData.getUserData(e.uid) == nil then
-                playerData.InitNewPlayer(e.uid)
-                playerData.setPlayerCoins(e.uid, newCoins)
-                playerData.setPlayerName(e.uid, e.name)
-                playerData.saveData()
+                if(tonumber(e.uid) < 0) then
+                    incomingPlayerData.skin = getNewBotSkin()
+                    incomingPlayerData.ship = getNewBotShip()
+                    incomingPlayerData.botID = GAME.galcon.global.BOT_TYPES[e.bot].uid
+                    incomingPlayerData.botName = e.bot
+                    if(playerData.getUserData(e.bot) == nil) then
+                        print("New bot record")
+                        local id = e.bot
+                        playerData.InitNewPlayer(id)
+                        playerData.setPlayerDisplayName(id, "BOT-"..GAME.galcon.global.BOT_TYPES[e.bot].displayName)
+                        playerData.setPlayerColor(id, rollRandColor())
+                        playerData.setPlayerStats(id, getNewStatTable())
+                        playerData.setPlayerLevel(id, 0)
+                        playerData.setPlayerXP(id, 0)
+                        playerData.setPlayerPrestige(id, 0)
+                        playerData.setPlayerQuote(id, "I'm a bot")
+                        playerData.saveData()
+                        
+                        playerWinData.initNewWinData(id)
+                        playerWinData.saveData()
+                    end
+                else
+                    playerData.InitNewPlayer(e.uid)
+                    playerData.setPlayerCoins(e.uid, newCoins)
+                    playerData.setPlayerDisplayName(e.uid, e.name)
+                    playerData.setPlayerStats(e.uid, getNewStatTable())
+                    playerData.setPlayerLevel(e.uid, 0)
+                    playerData.setPlayerXP(e.uid, 0)
+                    playerData.setPlayerPrestige(e.uid, 0)
+                    playerData.saveData()
+
+                    playerWinData.initNewWinData(e.uid)
+                    playerWinData.saveData()
+                end
             else
-                -- playerData.clearPlayerEntry(e.uid)
-                -- playerData.saveData()
+                --playerData.clearPlayerEntry(e.uid)
+                --playerData.wipeAllData()
+                --playerData.saveData()
                 local datPack = playerData.getUserData(e.uid)
-                incomingPlayerData.name = datPack.name
+                incomingPlayerData.displayName = datPack.displayName
                 incomingPlayerData.ship = datPack.ship
                 incomingPlayerData.skin = datPack.skin
                 incomingPlayerData.title = datPack.title
+                incomingPlayerData.quote = datPack.quote
                 incomingPlayerData.colorData = datPack.color
                 incomingPlayerData.coins = datPack.coins
                 incomingPlayerData.ownedShips = datPack.ownedShips
                 incomingPlayerData.ownedSkins = datPack.ownedSkins
+                incomingPlayerData.stats = datPack.stats or getNewStatTable()
             end
             if amountOfPlay() < GAME.galcon.global.MAX_PLAYERS then
                 incomingPlayerData.status = "queue"
@@ -227,10 +269,11 @@ function clients_init()
             end
             GAME.clients[e.uid] = incomingPlayerData
             keywords_addKeyword(e.name)
+            keywords_addKeyword(GAME.clients[e.uid].displayName)
             keywords_refreshKeywords()
             set_spectator_mode(GAME.clients[e.uid])
             clients_queue(e)
-            net_send("","message",e.name .. " joined")
+            net_send("","message",GAME.clients[e.uid].displayName .. " joined")
             g2.net_send("","sound","sfx-join");
             if tonumber(GAME.galcon.scorecard[e.uid]) == nil then
                 --print("e.uid: " ..e.uid)
@@ -239,10 +282,11 @@ function clients_init()
         end
         if e.type == 'net:leave' then
             --print("called from first net:leave")
-            GAME.clients[e.uid] = nil
             keywords_removeKeyword(e.name)
+            keywords_removeKeyword(GAME.clients[e.uid].displayName)
             keywords_refreshKeywords()
-            net_send("","message",e.name .. " left")
+            net_send("","message",GAME.clients[e.uid].displayName .. " left")
+            GAME.clients[e.uid] = nil
             g2.net_send("","sound","sfx-leave");
             clients_queue(e)
         end
@@ -463,9 +507,9 @@ function lobby_init()
         if e.type == 'net:message' and string.lower(e.value) == '/start' or e.type == 'onclick' and e.value == '/start' then
             if self.isStarted == false and (#playersWithStatus("play") <= GAME.galcon.global.MAX_PLAYERS) then
                 if e.name == nil then
-                    net_send("","message",g2.name.." /start")
+                    net_send("","message",GAME.clients[g2.uid].displayName.." /start")
                 else
-                    net_send("","message",e.name.." /start")
+                    net_send("","message",GAME.clients[e.uid].displayName.." /start")
                 end
                 self.startTimer = 0
                 self.countDown = 0
@@ -572,7 +616,8 @@ function galcon_classic_init()
                 local b = GAME.galcon.global.BOTS[client.uid]
                 --print(b.bot)
                 --print(GAME.galcon.global.BOT_TYPES[b.bot])
-                b.run = GAME.galcon.global.BOT_TYPES['classic'](p)
+                --print(GAME.galcon.global.BOT_TYPES[b.bot].uid)
+                b.run = GAME.galcon.global.BOT_TYPES[b.bot].func(p)
             end
         end
         -- Let spectators see planet ship counts.
@@ -1248,8 +1293,9 @@ function galcon_classic_init()
         net_send('',"message","Map seed: "..seedstring)
     else
         net_send('',"message","Map seed: "..(seed % 1616606700) )
-    end 
-    g2.net_send("","sound","sfx-start");
+    end
+    GAME.galcon.global.matchXp = 0 
+    g2.net_send("","sound","sfx-start")
     local r = g2.search("planet")
 end
 
@@ -1288,7 +1334,7 @@ function galcon_stop(res, timerWinner, time)
         if winner ~= nil and winner ~= "galaxy227" then
             loser = find_enemy(winner.user_uid)
             if GAME.galcon.gamemode ~= "Race" then
-                if GAME.galcon.global.stupidSettings.breadmode and (GAME.clients[winner.user_uid].officialName == "bread" or GAME.clients[loser.user_uid].officialName == "bread") then 
+                if GAME.galcon.global.stupidSettings.breadmode and (GAME.clients[winner.user_uid].name == "bread" or GAME.clients[loser.user_uid].name == "bread") then 
                     local messageList = {[0]="BAKED", [1]="TOASTED", 
                     [2]="ROLLED", [3]="COOKED", [4]="FLOURED", 
                     [5]="CRUNCHED", [6]="SLICED", [7]="DIPPED",
@@ -1303,7 +1349,7 @@ function galcon_stop(res, timerWinner, time)
                         GAME.clients[loser.user_uid].title = messageList[ranPick] 
                     end
                 elseif GAME.galcon.global.stupidSettings.saandmode then
-                    if string.lower(GAME.clients[winner.user_uid].officialName) == "binah." then
+                    if string.lower(GAME.clients[winner.user_uid].name) == "binah." then
                         net_send("","message",winner.title_value.." enslaved "..loser.title_value)
                         net_send("", "message", "BOW THEE SUBJECT "..loser.title_value.."!")
                         if(GAME.clients[loser.user_uid] ~= nil) then
@@ -1333,12 +1379,14 @@ function galcon_stop(res, timerWinner, time)
                     uid = tonumber(uid)
                 end
                 if uid == j then
-                    if GAME.galcon.global.stupidSettings.silverMode and (GAME.clients[winner.user_uid].officialName == "silvershad0w") then
+                    if GAME.galcon.global.stupidSettings.silverMode and (GAME.clients[winner.user_uid].name == "silvershad0w") then
                         u = u + 15
                     else
                         u = u + 1
                     end
                     GAME.galcon.scorecard[j] = u
+                    handlePlayerMatchUpdate(winner.user_uid, true, GAME.galcon.gamemode)
+                    handlePlayerXpUpdate(winner.user_uid, true)
                     if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(winner.user_uid) > 0 then
                         net_send(j,"message","You earned 1 SaandCoin!")
                         GAME.clients[j].coins = GAME.clients[j].coins + 1
@@ -1349,10 +1397,33 @@ function galcon_stop(res, timerWinner, time)
                 end
             end
             if loser ~= nil and loser.user_uid ~= nil then
-                if((tonumber(winner.user_uid) > 0 and tonumber(loser.user_uid) > 0)) then
-                    print("elo updated")
-                    elo.update_elo(string.lower(winner.title_value), string.lower(loser.title_value), true)
+                handlePlayerMatchUpdate(loser.user_uid, false, GAME.galcon.gamemode)
+                handlePlayerXpUpdate(loser.user_uid, false)
+
+                local winner_uid = winner.user_uid
+                local loser_uid = loser.user_uid
+                if(tonumber(winner.user_uid) < 0) then
+                    winner_uid = GAME.clients[tonumber(winner.user_uid)].botName
+                end
+                if(tonumber(loser.user_uid) < 0) then
+                    loser_uid = GAME.clients[tonumber(loser.user_uid)].botName
+                end
+                playerWinData.loadData(true)
+                playerWinData.updateMatches(winner_uid, loser_uid, true)
+                playerWinData.updateMatches(loser_uid, winner_uid, false)
+                playerWinData.saveData()
+                local samebot = false
+                if(tonumber(winner.user_uid) < 0 and tonumber(loser.user_uid) < 0) then
+                    if(GAME.clients[tonumber(winner.user_uid)].botName == GAME.clients[tonumber(loser.user_uid)].botName) then
+                        samebot = true
+                    end
+                end
+                if not samebot then
+                    elo.load_ratings()
+                    elo.update_elo(string.lower(winner_uid), string.lower(loser_uid), true)
                     elo.save_ratings()
+                else
+                    print("same bot!")
                 end
             end
            
@@ -1401,23 +1472,12 @@ function galcon_classic_loop()
     for k,v in pairs(r) do 
         total = total + 1 
     end
-    -- if getNumNonNeutralUsers() <= 1 and total == 0 then
-    --     if GAME.modules.galcon.timeout > 3 then
-    --         --galcon_stop(false,GAME.modules.galcon.timeout)
-    --         check_for_match_end()
-    --     end
-    -- end
-    -- if getNumNonNeutralUsers() > 1 and total <= 1 then
-    --     if GAME.modules.galcon.timeout > 3 then
-    --         --galcon_stop(true,GAME.modules.galcon.timeout)
-    --         check_for_match_end()
-    --     end
-    -- end
     for _,v in pairs(GAME.galcon.global.BOTS)do
 		if v.run then
 			v.run:loop()
 		end
 	end
+    GAME.galcon.global.matchXp = GAME.galcon.global.matchXp + 1
     check_for_match_end()
     --net_send("","view",json.encode({math.random(-1000, 10),math.random(-1000, 10), math.random(10, 1000), math.random(10, 1000)}))
 end
@@ -1508,7 +1568,7 @@ function editPlayerData(mode, uid, data)
     -- print("uid:" .. uid)
     -- print("data: ".. data)
     if mode == "name" then
-        playerData.setPlayerName(uid, data)
+        playerData.setPlayerDisplayName(uid, data)
     elseif mode == "color" then
         playerData.setPlayerColor(uid, data)
     elseif mode == "coin-u" then
@@ -1517,14 +1577,24 @@ function editPlayerData(mode, uid, data)
         playerData.setPlayerCoins(uid, data)
     elseif mode == "title" then
         playerData.setPlayerTitle(uid, data)
+    elseif mode == "quote" then
+        playerData.setPlayerQuote(uid, data)
     elseif mode == "ship" then
         playerData.setPlayerShip(uid, data)
+    elseif mode == "xp" then
+        playerData.setPlayerXP(uid, data)
+    elseif mode == "level" then
+        playerData.setPlayerLevel(uid, data)
+    elseif mode == "prestige" then
+        playerData.setPlayerPrestige(uid, data)
     elseif mode == "skin" then
         playerData.setPlayerSkin(uid, data)
     elseif mode == "ownedships" then
         playerData.updateShipList(uid, data)
     elseif mode == "ownedskins" then
         playerData.updateSkinList(uid, data)
+    elseif mode == "stats" then
+        playerData.setPlayerStats(uid, data)
     end
     playerData.saveData()
 end
@@ -1555,7 +1625,7 @@ function galcon_init()
             if count > maxplayers then
                 break
             end
-            status = status .. i .. " - Prod: " .. v.prod .. " Ships: " .. string.format('%d', v.ships)
+            status = status .. i .. " - P: " .. v.prod .. " S: " .. string.format('%d', v.ships)
             if count == 1 and #playersWithStatus("play") > 1 then
                 if GAME.galcon.global.TIMER_LENGTH ~= 0 then
                     status = status .. timer
@@ -1679,10 +1749,10 @@ function galcon_init()
         end
         if (e.type == 'net:message' or e.type == 'onclick') and string.lower(e.value) == '/surrender' then
             if e.uid then
-                net_send("","message",e.name.." /surrender")
+                net_send("","message",GAME.clients[e.uid].displayName.." /surrender")
                 galcon_surrender(e.uid)
             else 
-                net_send("","message",g2.name.." /surrender")
+                net_send("","message",GAME.clients[g2.uid].displayName.." /surrender")
                 galcon_surrender(g2.uid)
             end
         end
@@ -1868,6 +1938,9 @@ end
 function playerData_init(initial)
     playerData.loadData(initial)
 end
+function playerWinData_init(initial)
+    playerWinData.loadData(initial)
+end
 function mod_init()
     global("GAME")
     GAME = GAME or {}
@@ -1882,6 +1955,7 @@ function mod_init()
     register_init()
     elo_init()
     playerData_init(true)
+    playerWinData_init(true)
     if g2.headless == nil then
         client_init()
     end

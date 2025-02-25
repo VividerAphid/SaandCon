@@ -231,31 +231,31 @@ function bot_protowaffle(params)
 end
 
 -- search G for all matches
-function search(f) local r = {} for _,o in pairs(G) do if f(o) then r[#r+1] = o end end return r end
+function protowaffle_search(f) local r = {} for _,o in pairs(G) do if f(o) then r[#r+1] = o end end return r end
 
 -- return lists of matching planets
-function all_planets() return search(function (o) return o.type == 'planet' end) end
-function my_planets() return search(function (o) return o.type == 'planet' and o.owner == USER end) end
-function neutral_planets() return search(function (o) return o.type == 'planet' and o.neutral == true end) end
-function enemy_planets() return search(function (o) return o.type == 'planet' and o.owner ~= USER and not o.neutral end) end
-function other_planets() return search(function (o) return o.type == 'planet' and o.owner ~= USER end) end
+function protowaffle_all_planets() return protowaffle_search(function (o) return o.type == 'planet' end) end
+function protowaffle_my_planets() return protowaffle_search(function (o) return o.type == 'planet' and o.owner == USER end) end
+function protowaffle_neutral_planets() return protowaffle_search(function (o) return o.type == 'planet' and o.neutral == true end) end
+function protowaffle_enemy_planets() return protowaffle_search(function (o) return o.type == 'planet' and o.owner ~= USER and not o.neutral end) end
+function protowaffle_other_planets() return protowaffle_search(function (o) return o.type == 'planet' and o.owner ~= USER end) end
 
 -- return list of matching fleets
-function all_fleets() return search(function(o) return o.type == 'fleet' end) end
-function my_fleets() return search(function (o) return o.type == 'fleet' and o.owner == USER end) end
-function enemy_fleets() return search(function(o) return o.type == 'fleet' and o.owner ~= USER end) end
+function protowaffle_all_fleets() return protowaffle_search(function(o) return o.type == 'fleet' end) end
+function protowaffle_my_fleets() return protowaffle_search(function (o) return o.type == 'fleet' and o.owner == USER end) end
+function protowaffle_enemy_fleets() return protowaffle_search(function(o) return o.type == 'fleet' and o.owner ~= USER end) end
 
 -- issue a single redirect order
-function redirect(from,to)
+function protowaffle_redirect(from,to)
     return { {action='redirect',from=from.n,to=to.n} }
 end
 -- issue a single send order
-function send(percent,from,to)
+function protowaffle_send(percent,from,to)
     return { {action='send',percent=percent,from=from.n,to=to.n} }
 end
 
 -- search list for the best match
-function find(Q,eval)
+function protowaffle_find(Q,eval)
     local r, v
     for _,o in pairs(Q) do
         _v = eval(o)
@@ -267,7 +267,7 @@ function find(Q,eval)
 end
 
 -- calculate simple distance between two items
-function distance(a,b) 
+function protowaffle_distance(a,b) 
     local dx = b.x-a.x ; local dy = b.y-a.y ;
     return sqrt(dx*dx+dy*dy)
 end

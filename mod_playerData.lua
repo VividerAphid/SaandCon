@@ -22,12 +22,28 @@ function _playerDataInit()
         PDATA[uid].color = color
     end
 
-    function playerData.setPlayerName(uid, name)
-        PDATA[uid].name = name
+    function playerData.setPlayerPrestige(uid, prestige)
+        PDATA[uid].prestige = prestige
+    end
+
+    function playerData.setPlayerLevel(uid, level)
+        PDATA[uid].level = level
+    end
+
+    function playerData.setPlayerXP(uid, xp)
+        PDATA[uid].xp = xp
+    end
+
+    function playerData.setPlayerDisplayName(uid, name)
+        PDATA[uid].displayName = name
     end
     
     function playerData.setPlayerTitle(uid, title)
         PDATA[uid].title = title
+    end
+
+    function playerData.setPlayerQuote(uid, quote)
+        PDATA[uid].quote = quote
     end
 
     function playerData.setPlayerShip(uid, ship)
@@ -38,6 +54,10 @@ function _playerDataInit()
         PDATA[uid].skin = skin
     end
 
+    function playerData.setPlayerStats(uid, stats)
+        PDATA[uid].stats = stats
+    end
+
     function playerData.getUserData(uid)
         return PDATA[uid]
     end
@@ -46,7 +66,7 @@ function _playerDataInit()
         local data = json.decode(g2.data)
         data.playerData = PDATA
         g2.data = json.encode(data)
-        print("data saved")
+        --print("data saved")
     end
 
     function playerData.wipeAllData()
@@ -54,7 +74,7 @@ function _playerDataInit()
     end 
 
     function playerData.InitNewPlayer(uid)
-        PDATA[uid] = {name="Player", title="", coins=0, color=0xff0000, ship="ship-0", skin="normal", ownedShips={"ship-0"}, ownedSkins={"normal"}}
+        PDATA[uid] = {name="Player", title="", coins=0, color=0xff0000, ship="ship-0", skin="normal", ownedShips={"ship-0"}, ownedSkins={"normal"},stats={}}
     end
 
     function playerData.clearPlayerEntry(uid)
@@ -69,14 +89,16 @@ function _playerDataInit()
     --skin
     --shiplist
     --skinlist
+    --totalWins
+    --totalLosses
     
     function playerData.loadData(initialLoad)
         local data = json.decode(g2.data)
         local pData = data.playerData
         if initialLoad then
-            print("playerData: Loaded data from g2.data.pData")
+            --print("playerData: Loaded data from g2.data.pData")
         else
-            print("Runtime load")
+            --print("Runtime load")
         end
         if(pData == nil) then
             print("No player data loaded!")

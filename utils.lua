@@ -293,6 +293,98 @@ function rollRandColor()
     return "0x"..r..g..b
 end
 
+function handlePlayerMatchUpdate(uid, isWin, mode)
+    if(tonumber(uid) < 0) then
+        uid = GAME.clients[tonumber(uid)].botName
+        handleBotMatchUpdate(uid, isWin, mode)
+    else
+        if(string.lower(mode) ~= 'float') then
+            if(isWin) then
+                GAME.clients[uid].stats['total'].wins = GAME.clients[uid].stats['total'].wins + 1
+                GAME.clients[uid].stats[string.lower(mode)].wins = GAME.clients[uid].stats[string.lower(mode)].wins + 1
+            else
+                GAME.clients[uid].stats['total'].losses = GAME.clients[uid].stats['total'].losses + 1
+                GAME.clients[uid].stats[string.lower(mode)].losses = GAME.clients[uid].stats[string.lower(mode)].losses + 1
+            end
+        end
+        GAME.clients[uid].stats['total'].matches = GAME.clients[uid].stats['total'].matches + 1
+        GAME.clients[uid].stats[string.lower(mode)].matches = GAME.clients[uid].stats[string.lower(mode)].matches + 1
+        editPlayerData("stats", uid, GAME.clients[uid].stats)
+    end
+end
+
+function handleBotMatchUpdate(uid, isWin, mode)
+    local botData = playerData.getUserData(uid)
+    if(string.lower(mode) ~= 'float') then
+        if(isWin) then
+            botData.stats['total'].wins = botData.stats['total'].wins + 1
+            botData.stats[string.lower(mode)].wins = botData.stats[string.lower(mode)].wins + 1
+        else
+            botData.stats['total'].losses = botData.stats['total'].losses + 1
+            botData.stats[string.lower(mode)].losses = botData.stats[string.lower(mode)].losses + 1
+        end
+    end
+    botData.stats['total'].matches = botData.stats['total'].matches + 1
+    botData.stats[string.lower(mode)].matches = botData.stats[string.lower(mode)].matches + 1
+    editPlayerData("stats", uid, botData.stats)
+end
+
+function getLvlXpCap(level)
+    return math.pow((level)*5, 2) * 2
+end
+
+function handlePrestige(uid)
+    local player = playerData.getUserData(uid)
+    player.level = 0
+    player.xp = 0
+    player.prestige = player.prestige + 1
+    net_send("", "message", player.displayName.." prestiged to level "..player.prestige.." and was born again!")
+    editPlayerData("level", uid, player.level)
+    editPlayerData("xp", uid, player.xp)
+    editPlayerData("prestige", uid, player.prestige)
+end
+
+function handlePlayerXpUpdate(uid, isWin)
+    --formula ((lvl*5) ^ 2) * 2
+    local isbot = false
+    if(tonumber(uid) < 0) then
+        uid = GAME.clients[tonumber(uid)].botName
+        isbot = true
+    end
+    local player = playerData.getUserData(uid)
+    local levelXpCap = getLvlXpCap(player.level+1)
+    local incomingXp = GAME.galcon.global.matchXp
+    local maxLevel = GAME.galcon.global.CONFIGS.maxPlayerLevel
+    if(not isWin) then
+        incomingXp = math.floor(incomingXp * .3)
+    end
+    if player.level < maxLevel then
+        if levelXpCap - player.xp < incomingXp then
+            incomingXp = incomingXp - (levelXpCap - player.xp)
+            player.level = player.level + 1
+            player.xp = 0
+            net_send("", "message", player.displayName.." reached level "..player.level.."!")
+        end
+        if player.level < maxLevel then
+            while(incomingXp >= levelXpCap) do
+                incomingXp = incomingXp - levelXpCap
+                player.level = player.level + 1
+                levelXpCap = getLvlXpCap(player.level + 1)
+                net_send("", "message", player.displayName.." reached level "..player.level.."!")
+                if player.level == maxLevel then
+                    break
+                end
+            end
+        end
+        editPlayerData("level", uid, player.level)
+    end
+    player.xp = player.xp + incomingXp
+    editPlayerData("xp", uid, player.xp)
+    if isbot and player.level == maxLevel then
+        handlePrestige(uid)
+    end
+end
+
 function keywords_refreshKeywords()
     local EncodedKeywords = json.encode(GAME.galcon.global.CONFIGS.chat_keywords)
     g2.chat_keywords(EncodedKeywords)

@@ -3,7 +3,9 @@ function loadConfigs()
         saandCoins = {
             enableSaandCoins = false, 
             newPlayerSaandCoins = 15,
+            currency_name = "SaandCoins"
         },
+        maxPlayerLevel = 55,
         enableTrollModes = true, --Enables silly features like /ggwp, /father etc
         defaults = {
             WINNER_STAYS = false,
@@ -41,7 +43,8 @@ function loadConfigs()
                 recID = 0, 
             },
         },
-        version = "25.2.15b", --Do not change unless you made changes to code
+        version = "25.2.23a", --Do not change unless you made changes to code
+        wipeKeyWord = "White Rabbit",
         chat_keywords = {"Mins", "/addbot", "/away", "/awayall", "/defaults", "/givecoins", "/kickbot", "/kickallbots", "/replayseed", "/reset", "/rollcolor", "/start", "/surrender", "/version",},
     }
     return configs
