@@ -282,10 +282,8 @@ function clients_init()
         end
         if e.type == 'net:leave' then
             --print("called from first net:leave")
-            keywords_removeKeyword(e.name)
-            keywords_removeKeyword(GAME.clients[e.uid].displayName)
-            keywords_refreshKeywords()
-            net_send("","message",GAME.clients[e.uid].displayName .. " left")
+            local player = playerData.getUserData(botUidFix(e))
+            net_send("","message",player.displayName .. " left")
             GAME.clients[e.uid] = nil
             g2.net_send("","sound","sfx-leave");
             clients_queue(e)
@@ -1850,11 +1848,11 @@ function count_shipsPlayer(uid)
     return ships
 end
 function clients_leave(e, rageQuit)
+    if rageQuit then
+        net_send("","message",GAME.clients[e.uid].displayName .. " rage quit!")
+    end
     if e.uid ~= g2.uid then
         net_send(e.uid,"state","quit")
-    end
-    if rageQuit then
-        net_send("","message",e.name .. " rage quit!")
     end
     if GAME.clients[e.uid] ~= nil then
         if GAME.clients[e.uid].status == "play" and numWithStatus("play") == 1 and g2.state ~= "lobby" then
@@ -1863,7 +1861,6 @@ function clients_leave(e, rageQuit)
         GAME.clients[e.uid].status = "away"
         clients_queue()
         GAME.clients[e.uid] = nil
-        keywords_removeKeyword(e.name)
         play_sound("sfx-leave")
         clients_queue()
     end

@@ -74,7 +74,7 @@ function _playerDataInit()
     end 
 
     function playerData.InitNewPlayer(uid)
-        PDATA[uid] = {name="Player", title="", coins=0, color=0xff0000, ship="ship-0", skin="normal", ownedShips={"ship-0"}, ownedSkins={"normal"},stats={}}
+        PDATA[uid] = {displayName="Player", title="", coins=0, color=0xff0000, ship="ship-0", skin="normal", ownedShips={"ship-0"}, ownedSkins={"normal"},stats={}}
     end
 
     function playerData.clearPlayerEntry(uid)

@@ -259,6 +259,14 @@ function hostUidFix(e)
     end
 end
 
+function botUidFix(e)
+    if(tonumber(e.uid) < 0) then
+        return GAME.clients[tonumber(e.uid)].botName
+    else
+        return e.uid
+    end
+end
+
 function rollRandColor()
     local r = 0
     local g = 0

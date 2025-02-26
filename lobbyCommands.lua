@@ -604,7 +604,10 @@ function handleNetMessage(e)
         else 
             galcon_surrender(g2.uid)
         end
-        GAME.clients[e.uid] = nil
+        --GAME.clients[e.uid] = nil
+        keywords_removeKeyword(e.name)
+        keywords_removeKeyword(GAME.clients[e.uid].displayName)
+        keywords_refreshKeywords()
         clients_leave(e, true)
     end
     if e.type == 'net:message' and string.lower(e.value) == '/wardrobe' then
