@@ -301,40 +301,21 @@ function rollRandColor()
     return "0x"..r..g..b
 end
 
-function handlePlayerMatchUpdate(uid, isWin, mode)
-    if(tonumber(uid) < 0) then
-        uid = GAME.clients[tonumber(uid)].botName
-        handleBotMatchUpdate(uid, isWin, mode)
-    else
+function handlePlayerMatchUpdate(puid, isWin, mode)
+    local player = playerData.getUserData(puid)
         if(string.lower(mode) ~= 'float') then
             if(isWin) then
-                GAME.clients[uid].stats['total'].wins = GAME.clients[uid].stats['total'].wins + 1
-                GAME.clients[uid].stats[string.lower(mode)].wins = GAME.clients[uid].stats[string.lower(mode)].wins + 1
+                player.stats['total'].wins = player.stats['total'].wins + 1
+                player.stats[string.lower(mode)].wins = player.stats[string.lower(mode)].wins + 1
             else
-                GAME.clients[uid].stats['total'].losses = GAME.clients[uid].stats['total'].losses + 1
-                GAME.clients[uid].stats[string.lower(mode)].losses = GAME.clients[uid].stats[string.lower(mode)].losses + 1
+                player.stats['total'].losses = player.stats['total'].losses + 1
+                player.stats[string.lower(mode)].losses = player.stats[string.lower(mode)].losses + 1
             end
         end
-        GAME.clients[uid].stats['total'].matches = GAME.clients[uid].stats['total'].matches + 1
-        GAME.clients[uid].stats[string.lower(mode)].matches = GAME.clients[uid].stats[string.lower(mode)].matches + 1
-        editPlayerData("stats", uid, GAME.clients[uid].stats)
-    end
-end
-
-function handleBotMatchUpdate(uid, isWin, mode)
-    local botData = playerData.getUserData(uid)
-    if(string.lower(mode) ~= 'float') then
-        if(isWin) then
-            botData.stats['total'].wins = botData.stats['total'].wins + 1
-            botData.stats[string.lower(mode)].wins = botData.stats[string.lower(mode)].wins + 1
-        else
-            botData.stats['total'].losses = botData.stats['total'].losses + 1
-            botData.stats[string.lower(mode)].losses = botData.stats[string.lower(mode)].losses + 1
-        end
-    end
-    botData.stats['total'].matches = botData.stats['total'].matches + 1
-    botData.stats[string.lower(mode)].matches = botData.stats[string.lower(mode)].matches + 1
-    editPlayerData("stats", uid, botData.stats)
+        player.stats['total'].matches = player.stats['total'].matches + 1
+        player.stats[string.lower(mode)].matches = player.stats[string.lower(mode)].matches + 1
+        editPlayerData("stats", puid, player.stats)
+    -- end
 end
 
 function getLvlXpCap(level)
@@ -355,8 +336,7 @@ end
 function handlePlayerXpUpdate(uid, isWin)
     --formula ((lvl*5) ^ 2) * 2
     local isbot = false
-    if(tonumber(uid) < 0) then
-        uid = GAME.clients[tonumber(uid)].botName
+    if(type(uid) == "string") then
         isbot = true
     end
     local player = playerData.getUserData(uid)

@@ -1383,8 +1383,8 @@ function galcon_stop(res, timerWinner, time)
                         u = u + 1
                     end
                     GAME.galcon.scorecard[j] = u
-                    handlePlayerMatchUpdate(winner.user_uid, true, GAME.galcon.gamemode)
-                    handlePlayerXpUpdate(winner.user_uid, true)
+                    handlePlayerMatchUpdate( botUidFix({uid=winner.user_uid}), true, GAME.galcon.gamemode)
+                    handlePlayerXpUpdate( botUidFix({uid=winner.user_uid}), true)
                     if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(winner.user_uid) > 0 then
                         net_send(j,"message","You earned 1 SaandCoin!")
                         GAME.clients[j].coins = GAME.clients[j].coins + 1
@@ -1394,18 +1394,14 @@ function galcon_stop(res, timerWinner, time)
                     end                
                 end
             end
+            
             if loser ~= nil and loser.user_uid ~= nil then
-                handlePlayerMatchUpdate(loser.user_uid, false, GAME.galcon.gamemode)
-                handlePlayerXpUpdate(loser.user_uid, false)
+                local winner_uid = botUidFix({uid=winner.user_uid}) --dumb hack to make botUidFix work since its expecting a table with .uid property
+                local loser_uid = botUidFix({uid=loser.user_uid})
 
-                local winner_uid = winner.user_uid
-                local loser_uid = loser.user_uid
-                if(tonumber(winner.user_uid) < 0) then
-                    winner_uid = GAME.clients[tonumber(winner.user_uid)].botName
-                end
-                if(tonumber(loser.user_uid) < 0) then
-                    loser_uid = GAME.clients[tonumber(loser.user_uid)].botName
-                end
+                handlePlayerMatchUpdate(loser_uid, false, GAME.galcon.gamemode)
+                handlePlayerXpUpdate(loser_uid, false)
+                
                 playerWinData.loadData(true)
                 playerWinData.updateMatches(winner_uid, loser_uid, true)
                 playerWinData.updateMatches(loser_uid, winner_uid, false)
@@ -1855,7 +1851,7 @@ function clients_leave(e, rageQuit)
         net_send(e.uid,"state","quit")
     end
     if GAME.clients[e.uid] ~= nil then
-        if GAME.clients[e.uid].status == "play" and numWithStatus("play") == 1 and g2.state ~= "lobby" then
+        if GAME.clients[e.uid].status == "play" and playersWithStatus("play") == 1 and g2.state ~= "lobby" then
             GAME.engine:next(GAME.modules.lobby)
         end
         GAME.clients[e.uid].status = "away"
