@@ -303,6 +303,7 @@ end
 
 function handlePlayerMatchUpdate(puid, isWin, mode)
     local player = playerData.getUserData(puid)
+    print("match update uid: "..puid)
         if(string.lower(mode) ~= 'float') then
             if(isWin) then
                 player.stats['total'].wins = player.stats['total'].wins + 1
@@ -339,6 +340,7 @@ function handlePlayerXpUpdate(uid, isWin)
     if(type(uid) == "string") then
         isbot = true
     end
+    print("xp update uid: "..uid)
     local player = playerData.getUserData(uid)
     local levelXpCap = getLvlXpCap(player.level+1)
     local incomingXp = GAME.galcon.global.matchXp

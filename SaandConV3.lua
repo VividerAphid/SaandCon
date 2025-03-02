@@ -1344,6 +1344,8 @@ function galcon_stop(res, timerWinner, time)
         printEndProdAndShip()
         if winner ~= nil and winner ~= "galaxy227" then
             loser = find_enemy(winner.user_uid)
+            print("winner uid: "..winner.user_uid)
+            print("loser uid: "..loser.user_uid)
             if GAME.galcon.gamemode ~= "Race" then
                 if GAME.galcon.global.stupidSettings.breadmode and (GAME.clients[winner.user_uid].name == "bread" or GAME.clients[loser.user_uid].name == "bread") then 
                     local message = getBreadMessage()

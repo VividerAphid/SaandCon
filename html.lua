@@ -1,13 +1,13 @@
 function startupMenu()
     return [[
         <table>
-        <tr><td colspan=2><h1>Galcon 2 Server</h1>
+        <tr><td colspan=3><h1>Galcon 2 Server</h1>
         <tr><td><p>&nbsp;</p>
-        <tr><td><input type='text' name='title' value='$TITLE' />
+        <tr><td>Server Title:<td><input type='text' name='title' value='$TITLE' />
         <tr><td><p>&nbsp;</p>
-        <tr><td><input type='text' name='port' value='$PORT' />
+        <tr><td>Server Port:<td><input type='text' name='port' value='$PORT' />
         <tr><td><p>&nbsp;</p>
-        <tr><td><input type='button' value='Start Server' onclick='host' />"
+        <tr><td colspan=3><input type='button' value='Start Server' onclick='host' />"
         </table>
         ]]
 end
@@ -124,9 +124,10 @@ function loadProfile(e, targetPlayerUID)
             player.color = "0xaaaaaa"
         end
     end
+    print("profile tab click:")
     print("callerUID: " .. hostUidFix(e))
     print("targetUID: " .. targetPlayerUID)
-    print("winStats: "..winStats)
+    print(winStats)
     local darkenedColor = darkenColor(player.color)
     --<trophy width=80 height=80 value=']]..player.ship..[['/>
     --<planet background='planet:#000000' data="]]..json.encode(data)..[[" color=0xff0000 team=0xff0000 width=80 height=80/>
