@@ -101,6 +101,7 @@ end
 
 function getLadderSorted()
     local ladder = {}
+    elo.load_ratings()
     for k, v in pairs(elo.get_elos()) do
         table.insert(ladder, {username = k, value = v})
     end
@@ -123,6 +124,9 @@ function loadProfile(e, targetPlayerUID)
             player.color = "0xaaaaaa"
         end
     end
+    print("callerUID: " .. hostUidFix(e))
+    print("targetUID: " .. targetPlayerUID)
+    print("winStats: "..winStats)
     local darkenedColor = darkenColor(player.color)
     --<trophy width=80 height=80 value=']]..player.ship..[['/>
     --<planet background='planet:#000000' data="]]..json.encode(data)..[[" color=0xff0000 team=0xff0000 width=80 height=80/>

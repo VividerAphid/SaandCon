@@ -1324,6 +1324,19 @@ function requeueLoser(uid)
     end
 end
 
+function getBreadMessage()
+    local messageList = {[0]="BAKED", [1]="TOASTED", 
+        [2]="ROLLED", [3]="COOKED", [4]="FLOURED", 
+        [5]="CRUNCHED", [6]="SLICED", [7]="DIPPED",
+        [8]="BOWLED", [9]="SANDWICHED", [10]="SERVED",
+        [11]="FLUFFED", [12]="LEAVENED", [13]="ATE",
+        [14]="KNEADED",[15]="TOSSED", [16]="LOAFED",
+        [17]="BUTTERED", [18]="HEELED", [19]="FERMENTED",
+        [20]="YEASTED", [21]="CRUSTED"}
+    local ranPick = math.floor(math.random()*#messageList)
+    return messageList[ranPick]
+end
+
 function galcon_stop(res, timerWinner, time)
     if res == true then
         local winner = timerWinner or most_production()
@@ -1333,18 +1346,10 @@ function galcon_stop(res, timerWinner, time)
             loser = find_enemy(winner.user_uid)
             if GAME.galcon.gamemode ~= "Race" then
                 if GAME.galcon.global.stupidSettings.breadmode and (GAME.clients[winner.user_uid].name == "bread" or GAME.clients[loser.user_uid].name == "bread") then 
-                    local messageList = {[0]="BAKED", [1]="TOASTED", 
-                    [2]="ROLLED", [3]="COOKED", [4]="FLOURED", 
-                    [5]="CRUNCHED", [6]="SLICED", [7]="DIPPED",
-                    [8]="BOWLED", [9]="SANDWICHED", [10]="SERVED",
-                    [11]="FLUFFED", [12]="LEAVENED", [13]="ATE",
-                    [14]="KNEADED",[15]="TOSSED", [16]="LOAFED",
-                    [17]="BUTTERED", [18]="HEELED", [19]="FERMENTED",
-                    [20]="YEASTED", [21]="CRUSTED"}
-                    local ranPick = math.floor(math.random()*#messageList)
-                    net_send("", "message", winner.title_value.." "..messageList[ranPick].. " "..loser.title_value)
+                    local message = getBreadMessage()
+                    net_send("", "message", winner.title_value.." "..message.. " "..loser.title_value)
                     if(GAME.clients[loser.user_uid] ~= nil) then
-                        GAME.clients[loser.user_uid].title = messageList[ranPick] 
+                        GAME.clients[loser.user_uid].title = message 
                     end
                 elseif GAME.galcon.global.stupidSettings.saandmode then
                     if string.lower(GAME.clients[winner.user_uid].name) == "binah." then
@@ -1377,15 +1382,15 @@ function galcon_stop(res, timerWinner, time)
                     uid = tonumber(uid)
                 end
                 if uid == j then
-                    if GAME.galcon.global.stupidSettings.silverMode and (GAME.clients[winner.user_uid].name == "silvershad0w") then
+                    if GAME.galcon.global.stupidSettings.silverMode and (GAME.clients[uid].name == "silvershad0w") then
                         u = u + 15
                     else
                         u = u + 1
                     end
                     GAME.galcon.scorecard[j] = u
-                    handlePlayerMatchUpdate( botUidFix({uid=winner.user_uid}), true, GAME.galcon.gamemode)
-                    handlePlayerXpUpdate( botUidFix({uid=winner.user_uid}), true)
-                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(winner.user_uid) > 0 then
+                    handlePlayerMatchUpdate(botUidFix({uid=uid}), true, GAME.galcon.gamemode)
+                    handlePlayerXpUpdate(botUidFix({uid=uid}), true)
+                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(uid) > 0 then
                         net_send(j,"message","You earned 1 SaandCoin!")
                         GAME.clients[j].coins = GAME.clients[j].coins + 1
                         playerData.updateCoins(winner.user_uid, 1)
