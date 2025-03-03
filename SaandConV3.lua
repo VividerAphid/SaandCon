@@ -137,6 +137,7 @@ function set_spectator_mode(client)
         local spectator = g2.new_user(client.name, client.color)
         spectator.user_uid = client.uid
         spectator.ui_ships_show_mask = 0xF
+        spectator.user_neutral = 1
     end
 end
 function clients_queue(e)
