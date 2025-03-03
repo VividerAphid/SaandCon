@@ -224,8 +224,14 @@ function handleNetMessage(e)
         net_send(e.uid,"message","/who: "..msg)
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,6)) == "/timer" then
-        GAME.galcon.global.TIMER_LENGTH = string.sub(e.value, 8, string.len(e.value)) * 60
-        net_send("", "message", "Timer changed to " .. string.sub(e.value, 8, string.len(e.value)) * 60)
+        local timer_value = tonumber(string.sub(e.value, 8, string.len(e.value)))
+        if(timer_value ~= "" and type(timer_value) == "number") then
+            GAME.galcon.global.TIMER_LENGTH = timer_value * 60
+            net_send("", "message", "Timer changed to " .. timer_value * 60)
+        else
+            net_send(e.uid, "message", "Timer value not recognised")
+        end
+        
         --resetLobbyHtml()
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,6)) == "/homes" then
