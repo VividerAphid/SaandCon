@@ -115,6 +115,8 @@ function getLadderSorted()
 end
 
 function loadProfile(e, targetPlayerUID)
+    playerData.loadData(true)
+    playerWinData.loadData(true)
     local player = GAME.clients[hostUidFix(e)]
     local winStats = playerWinData.getUserData(hostUidFix(e))
     if(targetPlayerUID ~= nil) then
@@ -124,10 +126,6 @@ function loadProfile(e, targetPlayerUID)
             player.color = "0xaaaaaa"
         end
     end
-    print("profile tab click:")
-    print("callerUID: " .. hostUidFix(e))
-    print("targetUID: " .. targetPlayerUID)
-    print(winStats)
     local darkenedColor = darkenColor(player.color)
     --<trophy width=80 height=80 value=']]..player.ship..[['/>
     --<planet background='planet:#000000' data="]]..json.encode(data)..[[" color=0xff0000 team=0xff0000 width=80 height=80/>
