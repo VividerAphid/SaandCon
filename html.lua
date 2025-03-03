@@ -85,6 +85,7 @@ function getLadderTable()
     local html = "<table>"
 
     local ladder = getLadderSorted()
+    playerData.loadData(true)
 
     for k, v in ipairs(ladder) do
         local player = playerData.getUserData(v.username)
