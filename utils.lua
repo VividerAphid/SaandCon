@@ -227,11 +227,8 @@ function most_production_tie_check()
 end
 
 function find_enemy(uid)
-    print("find_enemy: "..uid)
     for n, e in pairs(g2.search("user")) do
         -- user_neutral is not strictly necessary
-        print(e.user_uid.. ": ")
-        print(e.user_neutral)
         if e.user_uid ~= uid and not e.user_neutral and e.title_value ~= "neutral" then
             return e
         end
