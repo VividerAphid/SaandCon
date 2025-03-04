@@ -209,6 +209,7 @@ function clients_init()
     function obj:event(e)
         if e.type == 'net:join' then
             playerData_init()
+            playerWinData.loadData(true)
             local newCoins = GAME.galcon.global.CONFIGS.saandCoins.newPlayerSaandCoins
             local incomingPlayerData = {uid=e.uid,displayName=e.name, name=e.name, ship="ship",skin="normal",status="away", 
                     title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}, stats=getNewStatTable()}
