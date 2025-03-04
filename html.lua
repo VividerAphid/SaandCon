@@ -91,8 +91,9 @@ function getLadderTable()
         local player = playerData.getUserData(v.username)
         html = html .. [[<tr><td><td><table class='box' color=']]..player.color..[['background='white:]]..player.color..[['>
                             <td>]] .. player.displayName ..[[: </td> 
-                            <td>]] .. common_utils.round(v.value) ..[[ </td>
-                            <td><input type='button' width=20 height=20 value='' onclick='/profile ]]..v.username..[['><img width=20 height=20 src='icon-account'/></input>"
+                            <td>Elo: ]] .. common_utils.round(v.value) ..[[ | </td>
+                            <td>M: ]] .. player.stats['total'].matches ..[[ </td>
+                            <td>&nbsp;<input type='button' width=20 height=20 value='' onclick='/profile ]]..v.username..[['><img width=20 height=20 src='icon-account'/></input>"
                         </table>]]
     end
 
