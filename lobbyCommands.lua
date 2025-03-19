@@ -14,7 +14,7 @@ function handleNetMessage(e)
                     if v.status == "away" then
                         v.status = "queue"
                         clients_queue(v)
-                        net_send("","message",GAME.clients[e.uid].displayName .. " is /queue")
+                        net_send("","message",GAME.clients[v.uid].displayName .. " is /queue")
                     end
                 else
                     net_send(e.uid, "message", "Must be admin to /play that player")

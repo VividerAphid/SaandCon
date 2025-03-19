@@ -162,38 +162,46 @@ function loadProfile(e, targetPlayerUID)
             <tr><td><table>
                 <tr><td><table>
                     <tr><td class='box' background='white:0x999999'><div font='font-gui2:25'> Ships Unlocked: ]]..#player.ownedShips..[[</div>
-                        <td class='box' background='white:0x999999'><div font='font-gui2:25'> Skins Unlocked: ]]..#player.ownedSkins..[[</div></table>
+                    <td class='box' background='white:0x999999'><div font='font-gui2:25'> Skins Unlocked: ]]..#player.ownedSkins..[[</div></table>
                 <tr><td>
-                <tr><td><table><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Total W: ]]..player.stats['total'].wins..[[</div>
-                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Total M: ]]..player.stats['total'].matches..[[</div>
-                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Total L: ]]..player.stats['total'].losses..[[</div></table>      
+                <tr><td class='box' background='white:0x999999'><div font='font-gui2:25'> Elo: ]]..math.floor(elo.get_elo(targetPlayerUID))..[[</div>
+                <tr><td>
+                <tr><td><table><tr><td class='box' background='white:0xdddddd'><div font='font-gui2:25'> Totals: </div>
+                    <td class='box' background='white:0x00dd00'><div font='font-gui2:25'> W: ]]..player.stats['total'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> M: ]]..player.stats['total'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> L: ]]..player.stats['total'].losses..[[</div></table>      
                 </table>
                 <tr><td>
                 <tr><td><table>
                     <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> #1 Victim: ]]..playerData.getUserData(winStats.victim.uid).displayName..[[</div>
                     <tr><td class='box' background='white:0xdd0000'><div font='font-gui2:25'> #1 Threat: ]]..playerData.getUserData(winStats.threat.uid).displayName..[[</div></table>
                 <tr><td>
-                <tr><td><table><tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Classic W: ]]..player.stats['classic'].wins..[[</div>
-                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Classic M: ]]..player.stats['classic'].matches..[[</div>
-                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Classic L: ]]..player.stats['classic'].losses..[[</div>
-                <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Grid W: ]]..player.stats['grid'].wins..[[</div>
-                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Grid M: ]]..player.stats['grid'].matches..[[</div>
-                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Grid L: ]]..player.stats['grid'].losses..[[</div>
-                <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Frenzy W: ]]..player.stats['frenzy'].wins..[[</div>
-                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Frenzy M: ]]..player.stats['frenzy'].matches..[[</div>
-                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Frenzy L: ]]..player.stats['frenzy'].losses..[[</div>
-                    <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Stages W: ]]..player.stats['stages'].wins..[[</div>
-                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Stages M: ]]..player.stats['stages'].matches..[[</div>
-                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Stages L: ]]..player.stats['stages'].losses..[[</div>
-                    <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Line W: ]]..player.stats['line'].wins..[[</div>
-                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Line M: ]]..player.stats['line'].matches..[[</div>
-                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Line L: ]]..player.stats['line'].losses..[[</div>
-                    <tr><td class='box' background='white:0x00dd00'><div font='font-gui2:25'> Race W: ]]..player.stats['race'].wins..[[</div>
-                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Race M: ]]..player.stats['race'].matches..[[</div>
-                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> Race L: ]]..player.stats['race'].losses..[[</div>
-                    <tr><td>
-                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> Float M: ]]..player.stats['float'].matches..[[</div>
-                    <td>
+                <tr><td><table><tr><td class='box' background='white:0xdddddd'><div font='font-gui2:25'> Classic: </div>
+                    <td class='box' background='white:0x00dd00'><div font='font-gui2:25'> W: ]]..player.stats['classic'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> M: ]]..player.stats['classic'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> L: ]]..player.stats['classic'].losses..[[</div>
+                <tr><td class='box' background='white:0xdddddd'><div font='font-gui2:25'> Grid: </div>
+                    <td class='box' background='white:0x00dd00'><div font='font-gui2:25'> W: ]]..player.stats['grid'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> M: ]]..player.stats['grid'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> L: ]]..player.stats['grid'].losses..[[</div>
+                <tr><td class='box' background='white:0xdddddd'><div font='font-gui2:25'> Frenzy: </div>
+                    <td class='box' background='white:0x00dd00'><div font='font-gui2:25'> W: ]]..player.stats['frenzy'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> M: ]]..player.stats['frenzy'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> L: ]]..player.stats['frenzy'].losses..[[</div>
+                <tr><td class='box' background='white:0xdddddd'><div font='font-gui2:25'> Stages: </div>
+                    <td class='box' background='white:0x00dd00'><div font='font-gui2:25'> W: ]]..player.stats['stages'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> M: ]]..player.stats['stages'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> L: ]]..player.stats['stages'].losses..[[</div>
+                <tr><td class='box' background='white:0xdddddd'><div font='font-gui2:25'> Line: </div>
+                    <td class='box' background='white:0x00dd00'><div font='font-gui2:25'> W: ]]..player.stats['line'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> M: ]]..player.stats['line'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> L: ]]..player.stats['line'].losses..[[</div>
+                <tr><td class='box' background='white:0xdddddd'><div font='font-gui2:25'> Race: </div>
+                    <td class='box' background='white:0x00dd00'><div font='font-gui2:25'> W: ]]..player.stats['race'].wins..[[</div>
+                    <td class='box' background='white:0x0000dd'><div font='font-gui2:25'> M: ]]..player.stats['race'].matches..[[</div>
+                    <td class='box' background='white:0xdd0000'><div font='font-gui2:25'> L: ]]..player.stats['race'].losses..[[</div>
+                <tr><td class='box' background='white:0xdddddd'><div font='font-gui2:25'> Float: </div>
+                    <td colspan=3 class='box' background='white:0x0000dd'><div font='font-gui2:25'> M: ]]..player.stats['float'].matches..[[</div>
                     </table>
                     <tr><td>
                     <tr><td class='box' background='white:0x999999'><div font='font-gui2:25'>VS Players Stats:</div>
@@ -216,8 +224,9 @@ function buildPlayerWinStats(uid)
     for p,s in pairs(stats) do
         local opp = playerData.getUserData(p)
         html = html.."<tr><td class='box' background='white:"..opp.color.."'><div font='font-gui2:20'>"..opp.displayName..
-            "</div><td td class='box' background='white:0x00dd00'><div font='font-gui2:20'>W: "..s.wins..
-            "</div><td td class='box' background='white:0xdd0000'><div font='font-gui2:20'>L: "..s.losses.."</div>"
+            "</div><td class='box' background='white:0x00dd00'><div font='font-gui2:20'>W: "..s.wins..
+            "</div><td class='box' background='white:0xdd0000'><div font='font-gui2:20'>L: "..s.losses.."</div>"..
+            "<td><input type='button' width=20 height=20 value='' onclick='/profile "..p.."'><img width=20 height=20 src='icon-account'/></input>"
     end
     return html
 end

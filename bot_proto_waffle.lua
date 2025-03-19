@@ -1,6 +1,7 @@
 --'Proto Waffle'
 function bot_protowaffle(params)
-	G,USER=params.items,params.user
+	local G = g2.items
+	local USER = g2.user
 	local plist,players={},{}
 	search(function(v)
 		if not v.neutral and(v.type=="planet"or v.type=="fleet")then

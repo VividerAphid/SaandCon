@@ -274,9 +274,9 @@ function clients_init()
             keywords_addKeyword(GAME.clients[e.uid].displayName)
             keywords_refreshKeywords()
             set_spectator_mode(GAME.clients[e.uid])
-            clients_queue(e)
             net_send("","message",GAME.clients[e.uid].displayName .. " joined")
             g2.net_send("","sound","sfx-join");
+            clients_queue(e)
             if tonumber(GAME.galcon.scorecard[e.uid]) == nil then
                 --print("e.uid: " ..e.uid)
                 GAME.galcon.scorecard[e.uid] = GAME.galcon.wins
@@ -603,7 +603,7 @@ function galcon_classic_init()
         end
         if client.status == "play" then
             playcount = playcount+1
-            local p = g2.new_user(client.name,client.color)
+            local p = g2.new_user(client.displayName,client.color)
             users[#users+1] = p
             p.user_uid = client.uid
             p.fleet_image = client.ship
@@ -1339,6 +1339,21 @@ function getBreadMessage()
     return messageList[ranPick]
 end
 
+function getFloatCoins()
+    local coins = 0
+    local score = GAME.galcon.float.score
+    if(score > 0 and score < 2) then
+        coins = 1
+    else
+        if (score >= 1000) then
+            coins = 10
+        else
+            coins = math.ceil(score * .01)
+        end
+    end
+    return coins
+end
+
 function galcon_stop(res, timerWinner, time)
     if res == true then
         local winner = timerWinner or most_production()
@@ -1393,11 +1408,15 @@ function galcon_stop(res, timerWinner, time)
                     handlePlayerMatchUpdate(botUidFix({uid=uid}), true, GAME.galcon.gamemode)
                     handlePlayerXpUpdate(botUidFix({uid=uid}), true)
                     if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(uid) > 0 then
-                        net_send(j,"message","You earned 1 SaandCoin!")
-                        GAME.clients[j].coins = GAME.clients[j].coins + 1
-                        playerData.updateCoins(winner.user_uid, 1)
+                        local count = 1
+                        if(GAME.galcon.gamemode == "Float") then
+                            count = getFloatCoins()
+                        end
+                        net_send(j,"message","You earned "..count.." "..GAME.galcon.global.CONFIGS.saandCoins.currency_name.."!")
+                        GAME.clients[j].coins = GAME.clients[j].coins + count
+                        playerData.updateCoins(winner.user_uid, count)
                         playerData.saveData()
-                        editPlayerData("coin-u", winner.user_uid, 1)
+                        editPlayerData("coin-u", winner.user_uid, count)
                     end                
                 end
             end
