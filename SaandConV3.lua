@@ -459,9 +459,9 @@ function chat_init()
     function obj:event(e)
         if e.type == 'net:message' and not isEmptyOrSlash(e.value) then
             if GAME.galcon.global.stupidSettings.yodaFilter and string.lower(GAME.clients[e.uid].name) == "master_yoda_" then
-                net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].name.."> ".."GG WP"}))
+                net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].displayName.."> ".."GG WP"}))
             else
-                net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].name.."> "..e.value}))       
+                net_send("","chat",json.encode({uid=e.uid,color=GAME.clients[e.uid].color,value="<"..GAME.clients[e.uid].displayName.."> "..e.value}))       
             end     
         end
     end
@@ -1224,6 +1224,9 @@ function galcon_classic_init()
             local player_planet = g2.new_planet(o, x, y, player_neutral_prod, player_neutral_cost);
         end
 
+        local float_enemy = g2.new_user("neutral", rollRandColor())
+        float_enemy.fleet_image = getNewBotShip()
+        GAME.galcon.float.enemy = float_enemy
         for i=1, GAME.galcon.FLOAT.float_neutrals do
             local x = math.random(sw/2 + midmargin*2, sw)
             local y1 = math.random(0, sh/2 - midmargin/1.5)
@@ -1239,7 +1242,8 @@ function galcon_classic_init()
                 y = y2
             end
 
-            g2.new_planet(o, x, y, float_neutral_prod, float_neutral_cost);
+            local planet = g2.new_planet(float_enemy, x, y, float_neutral_prod, float_neutral_cost);
+            planet.title_value = "Mean Guy"
         end
 
         local home_x = math.random(0, sw/2 - midmargin*4)
@@ -1273,7 +1277,10 @@ function galcon_classic_init()
                 table.insert(GAME.galcon.float.v, o)
             end
         end
-
+        
+        GAME.galcon.float.attackRateInd = 1
+        GAME.galcon.float.floatAttackRates = {30, 15, 10, 5, 3}
+        GAME.galcon.float.floatAttackCounts = {1, 2, 3, 15, 250}
         GAME.galcon.float.reinforceplanet = GAME.galcon.float.r[math.random(1,#GAME.galcon.float.r)]
         GAME.galcon.float.reinforceplanet_cost = GAME.galcon.float.reinforceplanet.ships_value
         local planetradius = prodToRadius(GAME.galcon.float.reinforceplanet.ships_production)
@@ -1701,6 +1708,8 @@ function galcon_init()
         self.counter = 0
         self.timeout = 0
         self.floatSpawn = false
+        self.floatAttackFleetSpawned = false
+        self.floatAttacksSpawned = 0
         GAME.galcon.finishTime = 0
         self.raceLock = false
         self.hexaGridLock = false
@@ -1729,6 +1738,20 @@ function galcon_init()
                     GAME.galcon.float.float_fleet = g2.new_fleet(GAME.galcon.users[1], 25, GAME.galcon.float.v[math.random(1, #GAME.galcon.float.v)],GAME.galcon.float.r[math.random(1, #GAME.galcon.float.r)])
                 end
                 self.floatSpawn = true
+            end
+            if math.fmod(math.floor(self.time), GAME.galcon.float.floatAttackRates[GAME.galcon.float.attackRateInd]) == 0 and math.floor(self.time) ~= 0 then
+                if(not self.floatAttackFleetSpawned) then
+                    local attackAmt = math.random(10, 25)
+                    g2.new_fleet(GAME.galcon.float.enemy, attackAmt, GAME.galcon.float.v[math.random(1, #GAME.galcon.float.v)],GAME.galcon.float.r[math.random(1, #GAME.galcon.float.r)])
+                    self.floatAttackFleetSpawned = true
+                    self.floatAttacksSpawned = self.floatAttacksSpawned + 1
+                    if(GAME.galcon.float.floatAttackCounts[GAME.galcon.float.attackRateInd] == self.floatAttacksSpawned and GAME.galcon.float.attackRateInd ~= #GAME.galcon.float.floatAttackRates) then
+                        self.floatAttacksSpawned = 0
+                        GAME.galcon.float.attackRateInd = GAME.galcon.float.attackRateInd + 1
+                    end
+                end
+            else
+                self.floatAttackFleetSpawned = false
             end
         end
         if GAME.galcon.global.TIMER_LENGTH ~= 0 then

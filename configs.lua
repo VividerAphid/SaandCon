@@ -43,7 +43,7 @@ function loadConfigs()
                 recID = 0, 
             },
         },
-        version = "25.3.18a", --Do not change unless you made changes to code
+        version = "25.3.19a", --Do not change unless you made changes to code
         wipeKeyWord = "White Rabbit",
         chat_keywords = {"Mins", "/addbot", "/away", "/awayall", "/defaults", "/givecoins", "/kickbot", "/kickallbots", "/replayseed", "/reset", "/rollcolor", "/start", "/surrender", "/version",},
     }

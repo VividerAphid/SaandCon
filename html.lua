@@ -33,7 +33,7 @@ function resetLobbyHtml(e)
                 <tr><td colspan=2></td></tr>
             ]]..
             [[
-                <tr><td class='box2'><h2>PLAYERS</h2></td></tr>
+                <tr><td colspan=2 class='box2'><h2>PLAYERS</h2></td></tr>
                 <tr><td>
             ]]..
             
@@ -750,10 +750,16 @@ function playerInState(state)
             if isAdmin(e.name) then
                 if string.sub(GAME.clients[e.uid].displayName,1,1) ~= "#" then
                     --TODO GET WIDTH WORKING FOR BOTH BARS
-                    players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..builtName..playerBarScoreSpacing("#"..builtName, true)..wins .. "<br/>["..e.title.."]"
+                    --players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>".."#"..builtName..playerBarScoreSpacing("#"..builtName, true)..wins .. "<br/>["..e.title.."]"
+                    players = players.."<tr><td><table width=200 class='box' background='white:"..darkColor .."'><tr><td align='left'><div color='"..playercolor.."'font='font-gui2:20'>".."#"..builtName.." </div>"..
+                    "<td align='right'><div color='"..playercolor.."'font='font-gui2:20'>"..wins .. "&nbsp;&nbsp;&nbsp;</div>"..
+                    "<tr><td align='left'><div color='"..playercolor.."'font='font-gui2:20'>["..e.title.."]</div></table>"
                 end
             else 
-                players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>" ..builtName.. playerBarScoreSpacing(builtName, false)..wins .."<br/>["..e.title.."]"
+                --players = players.."<tr><td><div class='box' width=200 font='font-gui2:20' background='white:"..darkColor .."' color='"..playercolor.."'>" ..builtName.. playerBarScoreSpacing(builtName, false)..wins .."<br/>["..e.title.."]"
+                players = players.."<tr><td><table width=200 class='box' background='white:"..darkColor .."'><tr><td align='left'><div color='"..playercolor.."'font='font-gui2:20'>"..builtName.." </div>"..
+                "<td align='right'><div color='"..playercolor.."'font='font-gui2:20'>"..wins .. "&nbsp;&nbsp;&nbsp;</div>"..
+                "<tr><td align='left'><div color='"..playercolor.."'font='font-gui2:20'>["..e.title.."] </div></table>"
             end
         end
     end
