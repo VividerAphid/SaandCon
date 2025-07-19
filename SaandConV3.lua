@@ -1606,9 +1606,6 @@ end
 function editPlayerData(mode, uid, data)
     --name, color, coin-u, coin-s, title, ship, skin, ownedships, ownedskins
     playerData_init(true)
-    -- print("Mode: " .. mode)
-    -- print("uid:" .. uid)
-    -- print("data: ".. data)
     if(playerData.getUserData(uid) ~= nil) then
         if mode == "name" then
             playerData.setPlayerDisplayName(uid, data)
@@ -1640,6 +1637,10 @@ function editPlayerData(mode, uid, data)
             playerData.setPlayerStats(uid, data)
         end
         playerData.saveData()
+    else
+        print("Mode: " .. mode)
+        print("uid:" .. uid)
+        print("data: ".. data)
     end
 end
 
