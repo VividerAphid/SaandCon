@@ -847,7 +847,12 @@ function handleNetMessage(e)
     if e.type == 'net:message' and string.lower(e.value) == "/randradius" then
         GAME.galcon.global.CONFIGS.randRadiusMode = not GAME.galcon.global.CONFIGS.randRadiusMode
         net_send("","message",GAME.clients[e.uid].displayName .. " /randradius")
-        net_send("","message","Random radius toggled!")
+        if(GAME.galcon.global.CONFIGS.randRadiusMode) then
+            net_send("","message","Random radius enabled!")
+        else
+            net_send("","message","Random radius disabled!")
+
+        end
     end
     if e.type == 'net:message' and string.lower(string.sub(e.value, 1, 16)) == "/togglesaandbuff" then
         local version = string.lower(string.sub(e.value, 18))
