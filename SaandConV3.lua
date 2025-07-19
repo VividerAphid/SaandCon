@@ -64,6 +64,7 @@ function menu_init()
         GAME.galcon.global = {
             CONFIGS = _CONFIGS,
             WINNER_STAYS = _CONFIGS.defaults.WINNER_STAYS,
+            TEAMS_MODE = _CONFIGS.defaults.TEAMS_MODE,
             PLAYER_QUEUE = {},
             BOTS = {},
             BOT_TYPES = {punchingbag={func=punchingbag_bot,uid=-1, displayName="Punching Bag"}, protowaffle={func=bot_protowaffle, uid=-3, displayName="Protowaffle"}, classic={func=bot_classic, uid=-2, displayName="Classic"}},
@@ -593,6 +594,7 @@ function galcon_classic_init()
     G.users = users
     local playcount = 0
     local modIds = {saandId=-1, aphidId=-1}--temporary for saandbuff
+    local teams = {g2.new_team("T1", 0xaa0000), g2.new_team("T2", 0x0000aa)};
 
     for uid,client in pairs(GAME.clients) do
         if string.lower(client.name) == "binah." then
@@ -603,7 +605,14 @@ function galcon_classic_init()
         end
         if client.status == "play" then
             playcount = playcount+1
-            local p = g2.new_user(client.displayName,client.color)
+            local p = ""
+            if(GAME.galcon.global.TEAMS_MODE) then
+                p = g2.new_user(client.displayName, client.color, teams[(playcount%2) + 1])
+            
+            else
+                p = g2.new_user(client.displayName, client.color)
+            end
+                
             users[#users+1] = p
             p.user_uid = client.uid
             p.fleet_image = client.ship
@@ -668,6 +677,9 @@ function galcon_classic_init()
         for i=1, OPTS.neutrals/2 do 
             local prod = math.random(35,100)
             local radius = prodToRadius(prod)
+            if(GAME.galcon.global.CONFIGS.randRadiusMode) then
+                radius = prodToRadius(math.random(15, 100))
+            end
             local x = math.random(radius, sw - radius)
             local y = math.random(radius, sh - radius)
             local neutrals_cost = math.random(5,35)
@@ -894,6 +906,9 @@ function galcon_classic_init()
                 cost = 0
             elseif mapStyle > numMapStyles then
                 print("Error: mapStyle out of range ("..mapStyle..')')
+            end
+            if(GAME.galcon.global.CONFIGS.randRadiusMode) then
+                radius = prodToRadius(math.random(15, 100))
             end
             local attempts = 0
             local margin = prodToRadius(30)
@@ -1594,36 +1609,38 @@ function editPlayerData(mode, uid, data)
     -- print("Mode: " .. mode)
     -- print("uid:" .. uid)
     -- print("data: ".. data)
-    if mode == "name" then
-        playerData.setPlayerDisplayName(uid, data)
-    elseif mode == "color" then
-        playerData.setPlayerColor(uid, data)
-    elseif mode == "coin-u" then
-        playerData.updateCoins(uid, data)
-    elseif mode == "coin-s" then
-        playerData.setPlayerCoins(uid, data)
-    elseif mode == "title" then
-        playerData.setPlayerTitle(uid, data)
-    elseif mode == "quote" then
-        playerData.setPlayerQuote(uid, data)
-    elseif mode == "ship" then
-        playerData.setPlayerShip(uid, data)
-    elseif mode == "xp" then
-        playerData.setPlayerXP(uid, data)
-    elseif mode == "level" then
-        playerData.setPlayerLevel(uid, data)
-    elseif mode == "prestige" then
-        playerData.setPlayerPrestige(uid, data)
-    elseif mode == "skin" then
-        playerData.setPlayerSkin(uid, data)
-    elseif mode == "ownedships" then
-        playerData.updateShipList(uid, data)
-    elseif mode == "ownedskins" then
-        playerData.updateSkinList(uid, data)
-    elseif mode == "stats" then
-        playerData.setPlayerStats(uid, data)
+    if(playerData.getUserData(uid) ~= nil) then
+        if mode == "name" then
+            playerData.setPlayerDisplayName(uid, data)
+        elseif mode == "color" then
+            playerData.setPlayerColor(uid, data)
+        elseif mode == "coin-u" then
+            playerData.updateCoins(uid, data)
+        elseif mode == "coin-s" then
+            playerData.setPlayerCoins(uid, data)
+        elseif mode == "title" then
+            playerData.setPlayerTitle(uid, data)
+        elseif mode == "quote" then
+            playerData.setPlayerQuote(uid, data)
+        elseif mode == "ship" then
+            playerData.setPlayerShip(uid, data)
+        elseif mode == "xp" then
+            playerData.setPlayerXP(uid, data)
+        elseif mode == "level" then
+            playerData.setPlayerLevel(uid, data)
+        elseif mode == "prestige" then
+            playerData.setPlayerPrestige(uid, data)
+        elseif mode == "skin" then
+            playerData.setPlayerSkin(uid, data)
+        elseif mode == "ownedships" then
+            playerData.updateShipList(uid, data)
+        elseif mode == "ownedskins" then
+            playerData.updateSkinList(uid, data)
+        elseif mode == "stats" then
+            playerData.setPlayerStats(uid, data)
+        end
+        playerData.saveData()
     end
-    playerData.saveData()
 end
 
 function galcon_init()

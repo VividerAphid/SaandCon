@@ -7,8 +7,10 @@ function loadConfigs()
         },
         maxPlayerLevel = 55,
         enableTrollModes = true, --Enables silly features like /ggwp, /father etc
+        randRadiusMode = false,
         defaults = {
             WINNER_STAYS = false,
+            TEAMS_MODE = false,
             MAX_PLAYERS = 2,
             MAX_BOT_COUNT = 16,
             MAP_STYLE = 3,
@@ -43,8 +45,8 @@ function loadConfigs()
                 recID = 0, 
             },
         },
-        version = "25.3.19a", --Do not change unless you made changes to code
-        wipeKeyWord = "White Rabbit",
+        version = "25.7.19a", --Do not change unless you made changes to code
+        wipeKeyWord = "White Rabbit", --Warning: Changing this if you have existing data will wipe that data!
         chat_keywords = {"Mins", "/addbot", "/away", "/awayall", "/defaults", "/givecoins", "/kickbot", "/kickallbots", "/replayseed", "/reset", "/rollcolor", "/start", "/surrender", "/version",},
     }
     return configs

@@ -844,6 +844,11 @@ function handleNetMessage(e)
         GAME.galcon.global.MAP_STYLE = 4
         resetLobbyHtml()
     end
+    if e.type == 'net:message' and string.lower(e.value) == "/randradius" then
+        GAME.galcon.global.CONFIGS.randRadiusMode = not GAME.galcon.global.CONFIGS.randRadiusMode
+        net_send("","message",GAME.clients[e.uid].displayName .. " /randradius")
+        net_send("","message","Random radius toggled!")
+    end
     if e.type == 'net:message' and string.lower(string.sub(e.value, 1, 16)) == "/togglesaandbuff" then
         local version = string.lower(string.sub(e.value, 18))
         version = tonumber(version)
