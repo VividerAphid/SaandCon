@@ -58,8 +58,18 @@ function _playerDataInit()
         PDATA[uid].stats = stats
     end
 
-    function playerData.getUserData(uid)
-        return PDATA[uid]
+    function playerData.getUserData(uid, initialLoad)
+        if(initialLoad and PDATA[uid] == nil) then
+            print("Initial load")
+            return nil
+        else
+            if(PDATA[uid] == nil) then
+                print("Uh oh! No player data found for "..uid)
+                return playerData.getErrorPlayer()
+            else
+                return PDATA[uid]
+            end
+        end
     end
 
     function playerData.saveData()
@@ -75,6 +85,21 @@ function _playerDataInit()
 
     function playerData.InitNewPlayer(uid)
         PDATA[uid] = {displayName="Player", title="", coins=0, color=0xff0000, ship="ship-0", skin="normal", ownedShips={"ship-0"}, ownedSkins={"normal"},stats={}}
+        print("New player data created for "..uid)
+    end
+
+    function playerData.getErrorPlayer()
+        local colors = {
+        '0x0000ff','0xff0000',
+        '0xffff00','0x00ffff',
+        '0xffffff','0xff8800',
+        '0x99ff99','0xff9999',
+        '0xbb00ff','0xff88ff',
+        '0x9999ff','0x00ff00',
+        }
+        return {displayName="Error Player", title="", quote="Uh oh! Your data didn't load for some reason! X(", coins=100, 
+        color=colors[math.random(1, #colors)], ship="ship-0", skin="normal", prestige=420, level=69, 
+        ownedShips={"ship-0"}, ownedSkins={"normal"},stats=getNewStatTable()}
     end
 
     function playerData.clearPlayerEntry(uid)

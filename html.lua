@@ -220,13 +220,16 @@ end
 
 function buildPlayerWinStats(uid)
     local html = ""
-    local stats = playerWinData.getUserData(uid).stats
-    for p,s in pairs(stats) do
-        local opp = playerData.getUserData(p)
-        html = html.."<tr><td class='box' background='white:"..opp.color.."'><div font='font-gui2:20'>"..opp.displayName..
-            "</div><td class='box' background='white:0x00dd00'><div font='font-gui2:20'>W: "..s.wins..
-            "</div><td class='box' background='white:0xdd0000'><div font='font-gui2:20'>L: "..s.losses.."</div>"..
-            "<td><input type='button' width=20 height=20 value='' onclick='/profile "..p.."'><img width=20 height=20 src='icon-account'/></input>"
+    local playDat = playerWinData.getUserData(uid)
+    if(playDat.displayName ~= "Error Player") then
+        local stats = playDat.stats
+        for p,s in pairs(stats) do
+            local opp = playerData.getUserData(p)
+            html = html.."<tr><td class='box' background='white:"..opp.color.."'><div font='font-gui2:20'>"..opp.displayName..
+                "</div><td class='box' background='white:0x00dd00'><div font='font-gui2:20'>W: "..s.wins..
+                "</div><td class='box' background='white:0xdd0000'><div font='font-gui2:20'>L: "..s.losses.."</div>"..
+                "<td><input type='button' width=20 height=20 value='' onclick='/profile "..p.."'><img width=20 height=20 src='icon-account'/></input>"
+        end
     end
     return html
 end

@@ -214,7 +214,7 @@ function clients_init()
             local newCoins = GAME.galcon.global.CONFIGS.saandCoins.newPlayerSaandCoins
             local incomingPlayerData = {uid=e.uid,displayName=e.name, name=e.name, ship="ship",skin="normal",status="away", 
                     title="", colorData=nil, coins=newCoins, ownedShips={"ship"}, ownedSkins={"normal"}, stats=getNewStatTable()}
-            if playerData.getUserData(e.uid) == nil then
+            if playerData.getUserData(e.uid, true) == nil then
                 if(tonumber(e.uid) < 0) then
                     incomingPlayerData.skin = getNewBotSkin()
                     incomingPlayerData.ship = getNewBotShip()
@@ -1427,45 +1427,48 @@ function galcon_stop(res, timerWinner, time)
                         u = u + 1
                     end
                     GAME.galcon.scorecard[j] = u
-                    handlePlayerMatchUpdate(botUidFix({uid=uid}), true, GAME.galcon.gamemode)
-                    handlePlayerXpUpdate(botUidFix({uid=uid}), true)
-                    if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(uid) > 0 then
-                        local count = 1
-                        if(GAME.galcon.gamemode == "Float") then
-                            count = getFloatCoins()
+                    if(playerData.getUserData(uid).displayName ~= "Error Player") then
+                        handlePlayerMatchUpdate(botUidFix({uid=uid}), true, GAME.galcon.gamemode)
+                        handlePlayerXpUpdate(botUidFix({uid=uid}), true)
+                        if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(uid) > 0 then
+                            local count = 1
+                            if(GAME.galcon.gamemode == "Float") then
+                                count = getFloatCoins()
+                            end
+                            net_send(j,"message","You earned "..count.." "..GAME.galcon.global.CONFIGS.saandCoins.currency_name.."!")
+                            GAME.clients[j].coins = GAME.clients[j].coins + count
+                            playerData.updateCoins(winner.user_uid, count)
+                            playerData.saveData()
+                            editPlayerData("coin-u", winner.user_uid, count)
                         end
-                        net_send(j,"message","You earned "..count.." "..GAME.galcon.global.CONFIGS.saandCoins.currency_name.."!")
-                        GAME.clients[j].coins = GAME.clients[j].coins + count
-                        playerData.updateCoins(winner.user_uid, count)
-                        playerData.saveData()
-                        editPlayerData("coin-u", winner.user_uid, count)
-                    end                
+                    end               
                 end
             end
             
             if loser ~= nil and loser.user_uid ~= nil then
                 local winner_uid = botUidFix({uid=winner.user_uid}) --dumb hack to make botUidFix work since its expecting a table with .uid property
                 local loser_uid = botUidFix({uid=loser.user_uid})
-
-                handlePlayerMatchUpdate(loser_uid, false, GAME.galcon.gamemode)
-                handlePlayerXpUpdate(loser_uid, false)
-                
-                playerWinData.loadData(true)
-                playerWinData.updateMatches(winner_uid, loser_uid, true)
-                playerWinData.updateMatches(loser_uid, winner_uid, false)
-                playerWinData.saveData()
-                local samebot = false
-                if(tonumber(winner.user_uid) < 0 and tonumber(loser.user_uid) < 0) then
-                    if(GAME.clients[tonumber(winner.user_uid)].botName == GAME.clients[tonumber(loser.user_uid)].botName) then
-                        samebot = true
+                if(playerData.getUserData(winner_uid).displayName ~= "Error Player" and playerData.getUserData(loser_uid).displayName ~= "Error Player") then
+                    handlePlayerMatchUpdate(loser_uid, false, GAME.galcon.gamemode)
+                    handlePlayerXpUpdate(loser_uid, false)
+                    
+                    playerWinData.loadData(true)
+                    playerWinData.updateMatches(winner_uid, loser_uid, true)
+                    playerWinData.updateMatches(loser_uid, winner_uid, false)
+                    playerWinData.saveData()
+                    local samebot = false
+                    if(tonumber(winner.user_uid) < 0 and tonumber(loser.user_uid) < 0) then
+                        if(GAME.clients[tonumber(winner.user_uid)].botName == GAME.clients[tonumber(loser.user_uid)].botName) then
+                            samebot = true
+                        end
                     end
-                end
-                if not samebot then
-                    elo.load_ratings()
-                    elo.update_elo(string.lower(winner_uid), string.lower(loser_uid), true)
-                    elo.save_ratings()
-                else
-                    print("same bot!")
+                    if not samebot then
+                        elo.load_ratings()
+                        elo.update_elo(string.lower(winner_uid), string.lower(loser_uid), true)
+                        elo.save_ratings()
+                    else
+                        print("same bot!")
+                    end
                 end
             end
            
@@ -1606,7 +1609,7 @@ end
 function editPlayerData(mode, uid, data)
     --name, color, coin-u, coin-s, title, ship, skin, ownedships, ownedskins
     playerData_init(true)
-    if(playerData.getUserData(uid) ~= nil) then
+    if(playerData.getUserData(uid).displayName ~= "Error Player") then
         if mode == "name" then
             playerData.setPlayerDisplayName(uid, data)
         elseif mode == "color" then
@@ -1638,9 +1641,7 @@ function editPlayerData(mode, uid, data)
         end
         playerData.saveData()
     else
-        print("Mode: " .. mode)
-        print("uid:" .. uid)
-        print("data: ".. data)
+        print("Player entry for "..uid.." doesn't exist to be edited!")
     end
 end
 

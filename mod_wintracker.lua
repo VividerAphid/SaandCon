@@ -26,6 +26,10 @@ function _init_wintracker()
         pWDATA[uid] = {victim={uid=uid, wins=0, losses=0}, threat={uid=uid, wins=0, losses=0}, stats={}}
     end
 
+    function playerWinData.getErrorWinData(uid)
+        return {victim={uid=uid, wins=0, losses=0}, threat={uid=uid, wins=0, losses=0}, stats={}}
+    end
+
     function playerWinData.saveData()
         local data = json.decode(g2.data)
         data.playerWinData = pWDATA
@@ -33,7 +37,12 @@ function _init_wintracker()
     end
 
     function playerWinData.getUserData(uid)
-        return pWDATA[uid]
+        if(pWDATA[uid] == nil) then
+            print("Uh oh! No win stats found for "..uid)
+            return playerWinData.getErrorWinData(uid)
+        else
+            return pWDATA[uid]
+        end
     end
 
     function playerWinData.wipeAllData()
