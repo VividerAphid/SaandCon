@@ -130,6 +130,7 @@ end
 function getSaandDistProd(version, distance, maxDistance)
     local prod = 50
     prod = (distance/maxDistance)*100
+    print("picked prod: "..prod)
     return prod
 end
 
@@ -137,4 +138,4 @@ function getSaandDistCost(version, prod)
     local cost = 15
     cost = prod
     return cost
-end
+end 

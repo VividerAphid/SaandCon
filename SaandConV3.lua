@@ -810,8 +810,8 @@ function galcon_classic_init()
     
                 table.insert(planets, planetHome)
                 table.insert(planets, planetHomeSym)
-                --homeCoords[0] = x
-                --homeCoords[1] = y
+                -- homeCoords[0] = x
+                -- homeCoords[1] = y
             end
             a = math.random(0,360)
         end

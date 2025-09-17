@@ -3,59 +3,59 @@ function _playerDataInit()
     local PDATA = {}
 
     function playerData.setPlayerCoins(uid, coins)
-        PDATA[uid].coins = coins
+        PDATA[uid].cn = coins
     end
 
     function playerData.updateCoins(uid, coins)
-        PDATA[uid].coins = PDATA[uid].coins + coins
+        PDATA[uid].cn = PDATA[uid].cn + coins
     end
 
     function playerData.updateShipList(uid, ship)
-        PDATA[uid].ownedShips[#PDATA[uid].ownedShips+1] = ship
+        PDATA[uid].oSh[#PDATA[uid].oSh+1] = ship
     end
 
     function playerData.updateSkinList(uid, skin)
-        PDATA[uid].ownedSkins[#PDATA[uid].ownedSkins+1] = skin
+        PDATA[uid].oSk[#PDATA[uid].oSk+1] = skin
     end
 
     function playerData.setPlayerColor(uid, color)
-        PDATA[uid].color = color
+        PDATA[uid].co = color
     end
 
     function playerData.setPlayerPrestige(uid, prestige)
-        PDATA[uid].prestige = prestige
+        PDATA[uid].p = prestige
     end
 
     function playerData.setPlayerLevel(uid, level)
-        PDATA[uid].level = level
+        PDATA[uid].l = level
     end
 
     function playerData.setPlayerXP(uid, xp)
-        PDATA[uid].xp = xp
+        PDATA[uid].x = xp
     end
 
     function playerData.setPlayerDisplayName(uid, name)
-        PDATA[uid].displayName = name
+        PDATA[uid].dN = name
     end
     
     function playerData.setPlayerTitle(uid, title)
-        PDATA[uid].title = title
+        PDATA[uid].t = title
     end
 
     function playerData.setPlayerQuote(uid, quote)
-        PDATA[uid].quote = quote
+        PDATA[uid].q = quote
     end
 
     function playerData.setPlayerShip(uid, ship)
-        PDATA[uid].ship = ship
+        PDATA[uid].sh = ship
     end
 
     function playerData.setPlayerSkin(uid, skin)
-        PDATA[uid].skin = skin
+        PDATA[uid].sk = skin
     end
 
     function playerData.setPlayerStats(uid, stats)
-        PDATA[uid].stats = stats
+        PDATA[uid].st = convertStatTableToSave(stats)
     end
 
     function playerData.getUserData(uid, initialLoad)
@@ -67,7 +67,9 @@ function _playerDataInit()
                 print("Uh oh! No player data found for "..uid)
                 return playerData.getErrorPlayer()
             else
-                return PDATA[uid]
+                local entry = PDATA[uid]
+                local returnPlayer = {displayName=entry.dN, title=entry.t, color=entry.co, coins=entry.cn, ship=entry.sh, skin=entry.sk, ownedShips=entry.oSh, ownedSkins=entry.oSk, prestige=entry.p, level=entry.l, xp=entry.x, stats=convertStatTableFromSave(entry.st)}
+                return returnPlayer
             end
         end
     end
@@ -84,7 +86,7 @@ function _playerDataInit()
     end 
 
     function playerData.InitNewPlayer(uid)
-        PDATA[uid] = {displayName="Player", title="", coins=0, color=0xff0000, ship="ship-0", skin="normal", ownedShips={"ship-0"}, ownedSkins={"normal"},stats={}}
+        PDATA[uid] = {dN="Player", t="", cn=0, co=0xff0000, sh="ship-0", sk="normal", oSh={"ship-0"}, oSk={"normal"},st={}}
         print("New player data created for "..uid)
     end
 

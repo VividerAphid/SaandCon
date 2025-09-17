@@ -5,17 +5,17 @@ function _init_wintracker()
     function playerWinData.updateMatches(playerUid, opponentUid, isWin)
         local player = pWDATA[playerUid]
         if(player.stats[opponentUid] == nil) then
-            player.stats[opponentUid] = {wins=0, losses=0}
+            player.stats[opponentUid] = {w=0, l=0}
         end
         if(isWin) then
-            player.stats[opponentUid].wins = player.stats[opponentUid].wins + 1
-            if(player.victim.wins < player.stats[opponentUid].wins) then
-                player.victim = {uid=opponentUid, wins=player.stats[opponentUid].wins, losses=player.stats[opponentUid].losses}
+            player.stats[opponentUid].w = player.stats[opponentUid].w + 1
+            if(player.v.w < player.stats[opponentUid].w) then
+                player.v = {uid=opponentUid, w=player.stats[opponentUid].w, l=player.stats[opponentUid].l}
             end
         else
-            player.stats[opponentUid].losses = player.stats[opponentUid].losses + 1
-            if(player.threat.losses < player.stats[opponentUid].losses) then
-                player.threat = {uid=opponentUid, wins=player.stats[opponentUid].wins, losses=player.stats[opponentUid].losses}
+            player.stats[opponentUid].l = player.stats[opponentUid].l + 1
+            if(player.t.l < player.stats[opponentUid].l) then
+                player.t = {uid=opponentUid, w=player.stats[opponentUid].w, l=player.stats[opponentUid].l}
             end
         end
         pWDATA[playerUid] = player
@@ -23,7 +23,7 @@ function _init_wintracker()
 
     function playerWinData.initNewWinData(uid)
         --Set initial threat and victim to self to avoid crash and be funny
-        pWDATA[uid] = {victim={uid=uid, wins=0, losses=0}, threat={uid=uid, wins=0, losses=0}, stats={}}
+        pWDATA[uid] = {v={uid=uid, w=0, l=0}, t={uid=uid, w=0, l=0}, stats={}}
     end
 
     function playerWinData.getErrorWinData(uid)
@@ -76,6 +76,7 @@ playerWinData = _init_wintracker()
 _init_wintracker = nil
 
 function getNewStatTable()
+    --print("New table!")
     local statTable = {
         total = {matches=0, wins=0, losses=0},
         classic = {matches=0, wins=0, losses=0},
@@ -85,6 +86,37 @@ function getNewStatTable()
         float = {matches=0},
         line = {matches=0, wins=0, losses=0},
         race = {matches=0, wins=0, losses=0},
+    }
+
+    return statTable
+end
+
+function convertStatTableFromSave(stats)
+    --print("From save")
+    local converted = {
+        total = {matches= stats.to.m, wins=stats.to.w, losses=stats.to.l},
+        classic = {matches= stats.cl.m, wins=stats.cl.w, losses=stats.cl.l},
+        frenzy = {matches= stats.fr.m, wins=stats.fr.w, losses=stats.fr.l},
+        grid = {matches= stats.gr.m, wins=stats.gr.w, losses=stats.gr.l},
+        stages = {matches= stats.st.m, wins=stats.st.w, losses=stats.st.l},
+        float = {matches= stats.fl.m},
+        line = {matches= stats.li.m, wins=stats.li.w, losses=stats.li.l},
+        race = {matches= stats.ra.m, wins=stats.ra.w, losses=stats.ra.l},
+    }
+    return converted
+end
+
+function convertStatTableToSave(stats)
+    --print("To save")
+    local statTable = {
+        to = {m=stats.total.matches, w=stats.total.wins, l=stats.total.losses},
+        cl = {m=stats.classic.matches, w=stats.classic.wins, l=stats.classic.losses},
+        fr = {m=stats.frenzy.matches, w=stats.frenzy.wins, l=stats.frenzy.losses},
+        gr = {m=stats.grid.matches, w=stats.grid.wins, l=stats.grid.losses},
+        st = {m=stats.stages.matches, w=stats.stages.wins, l=stats.stages.losses},
+        fl = {m=stats.float.matches},
+        li = {m=stats.line.matches, w=stats.line.wins, l=stats.line.losses},
+        ra = {m=stats.race.matches, w=stats.race.wins, l=stats.race.losses},
     }
 
     return statTable
