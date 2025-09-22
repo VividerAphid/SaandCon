@@ -5,6 +5,7 @@ function loadConfigs()
             newPlayerSaandCoins = 15,
             currency_name = "SaandCoins"
         },
+        startTimerLength = 3,
         maxPlayerLevel = 55,
         enableTrollModes = true, --Enables silly features like /ggwp, /father etc
         randRadiusMode = false,
@@ -45,7 +46,7 @@ function loadConfigs()
                 recID = 0, 
             },
         },
-        version = "25.9.16a", --Do not change unless you made changes to code
+        version = "25.9.22a", --Do not change unless you made changes to code
         wipeKeyWord = "Demon Lemon", --Warning: Changing this if you have existing data will wipe that data!
         chat_keywords = {"Mins", "/addbot", "/away", "/awayall", "/defaults", "/givecoins", "/kickbot", "/kickallbots", "/replayseed", "/reset", "/rollcolor", "/start", "/surrender", "/version",},
     }

@@ -61,6 +61,7 @@ function menu_init()
         GAME.galcon.gamemode = "Classic" or "Stages" or "Frenzy" or "Grid" or "Float" or "Line" or "Race"
         GAME.galcon.tournament = false
         GAME.galcon.setmode = false
+        GAME.galcon.gameStarted = false
         GAME.galcon.global = {
             CONFIGS = _CONFIGS,
             WINNER_STAYS = _CONFIGS.defaults.WINNER_STAYS,
@@ -479,7 +480,7 @@ function lobby_init()
     local obj = GAME.modules.lobby
     function obj:init()
         g2.state = "lobby"
-        self.startTimerLength = 3
+        self.startTimerLength = GAME.galcon.global.CONFIGS.startTimerLength
         self.startTimer = 1000
         self.isStarted = false
         self.isSend = false
@@ -495,7 +496,7 @@ function lobby_init()
         if self.startTimer >= 0 and self.startTimer < self.startTimerLength then
             if math.floor(self.startTimer) >= self.countDown then
                 play_sound("sfx-getready")
-                net_send("", "message", ">> T-minus " .. (3 - self.countDown) .. " <<")
+                net_send("", "message", ">> T-minus " .. (self.startTimerLength - self.countDown) .. " <<")
                 self.countDown = self.countDown + 1
             end
         end
@@ -515,7 +516,9 @@ function lobby_init()
                 self.startTimer = 0
                 self.countDown = 0
                 self.isStarted = true
+                GAME.galcon.gameStarted = true
                 self.isSend = true
+                resetLobbyHtml()
             elseif self.isSend == false then
                 net_send("","message", "Player limit: "..GAME.galcon.global.MAX_PLAYERS)
                 self.isSend = true
@@ -635,6 +638,10 @@ function galcon_classic_init()
     if playcount > 1 and GAME.galcon.global.SOLO_MODE then
         net_send('',"message","Solo mode disabled due to multiple players!")
         GAME.galcon.global.SOLO_MODE = false
+    else
+        if GAME.galcon.global.SOLO_MODE then
+            users[#users+1] = g2.new_user("Dummy", rollRandColor())
+        end
     end
     local sw = OPTS.sw -- ELIM RATIO 560x360 -- Saand ratio 520x360
     local sh = OPTS.sh 
@@ -1494,6 +1501,7 @@ function galcon_stop(res, timerWinner, time)
     else
         g2.state = "menu" ]]
         g2.state = "play"
+        GAME.galcon.gameStarted = false
         GAME.engine:next(GAME.modules.lobby)
     --[[ end ]]
     for i,v in pairs(GAME.clients) do
@@ -1548,7 +1556,7 @@ function check_for_match_end()
         galcon_stop(false)
     end
     -- there were multiple players and one person completely died
-    if #G.users > 1 and numPlayersWithShips <= 1 then
+    if #G.users > 1 and numPlayersWithShips <= 1  and GAME.galcon.global.SOLO_MODE == false then
         if GAME.modules.galcon.timeout > 3 then
             --print("Multi-user one died")
             galcon_stop(true)

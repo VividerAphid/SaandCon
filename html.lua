@@ -26,7 +26,7 @@ function resetLobbyHtml(e)
                 settingsBar()..
                 [[
                 <tr><td></td></tr>
-                <tr><td colspan=3><input type='button' value='Start' onclick='/start' class='button1' /></td></tr>
+                <tr><td colspan=3>]]..setStartButtonMode()..[[</tr>
                 <tr><td></td></tr>
                 <tr><td colspan=3><input type='button' value='Toggle /Play' onclick='/toggleplay' class='button2' /></td>
                 <tr><td><input type='button' value='GG' onclick='/gg' class='button2' /></td>
@@ -713,6 +713,14 @@ function ingamePauseMenu()
     --    <tr><td><input type='button' value='Away' onclick='/away' class='ibutton1' icon='icon-away'/>
     --    <tr><td><input type='button' value='Players' onclick='/players?' class='ibutton1' icon='icon-lobby'/>
 
+end
+
+function setStartButtonMode()
+    if(GAME.galcon.gameStarted) then
+        return "<input type='button' value='Starting!' onclick='/start' class='button3' /></td>"
+    else
+        return "<input type='button' value='Start' onclick='/start' class='button1' /></td>"
+    end
 end
 
 function playerInState(state)

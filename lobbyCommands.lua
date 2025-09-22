@@ -903,6 +903,17 @@ function handleNetMessage(e)
         GAME.galcon.global.stupidSettings = GAME.galcon.global.CONFIGS.defaults.stupidSettings
         resetLobbyHtml()
     end
+    if e.type == 'net:message' and string.lower(e.value) == "/countdown" then
+        if isAdmin(e.name) then
+            if GAME.galcon.global.CONFIGS.startTimerLength == 3 then
+                net_send("","message","Countdown timer toggled to 5 seconds!")
+                GAME.galcon.global.CONFIGS.startTimerLength = 5
+            else
+                net_send("","message","Countdown timer toggled to 3 seconds!")
+                GAME.galcon.global.CONFIGS.startTimerLength = 3
+            end
+        end
+    end
 end
 
 function handleOnclick(e)
