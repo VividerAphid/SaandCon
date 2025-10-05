@@ -66,11 +66,17 @@ function menu_init()
             CONFIGS = _CONFIGS,
             WINNER_STAYS = _CONFIGS.defaults.WINNER_STAYS,
             TEAMS_MODE = _CONFIGS.defaults.TEAMS_MODE,
+            RANKED = _CONFIGS.defaults.RANKED,
             PLAYER_QUEUE = {},
             BOTS = {},
             BOT_TYPES = {punchingbag={func=punchingbag_bot,uid=-1, displayName="Punching Bag"}, protowaffle={func=bot_protowaffle, uid=-3, displayName="Protowaffle"}, classic={func=bot_classic, uid=-2, displayName="Classic"}},
             BOT_UID = -10000,
             BOT_COUNT = 0,
+            PLAYLIST_MODE = _CONFIGS.defaults.PLAYLIST_MODE,
+            PLAYLIST = _CONFIGS.defaults.PLAYLIST,
+            PLAYLIST_NAME = _CONFIGS.defaults.PLAYLIST_NAME,
+            PLAYLIST_STYLE = _CONFIGS.defaults.PLAYLIST_STYLE,
+            PLAYLIST_INDEX = _CONFIGS.defaults.PLAYLIST_INDEX,
             MAX_BOT_COUNT = _CONFIGS.defaults.MAX_BOT_COUNT,
             MAX_PLAYERS = _CONFIGS.defaults.MAX_PLAYERS,
             SOLO_MODE = false, --for if someone wants to play a solo game like grid or something
@@ -155,12 +161,6 @@ function _clients_queue()
         '0xbb00ff','0xff88ff',
         '0x9999ff','0x00ff00',
     }
-    -- delete colors above MAX_PLAYERS treshold
-    -- for i, v in pairs(colors) do
-    --     if (i > GAME.galcon.global.MAX_PLAYERS) then
-    --         colors[i] = nil
-    --     end
-    -- end
 
     local q = nil
     for k,e in pairs(GAME.clients) do
@@ -169,7 +169,7 @@ function _clients_queue()
             e.color = '0x555555'
         end
         if e.status == "queue" then 
-            q = e 
+            q = e
         end
 
         -- set color of players in "play" to nil
@@ -186,20 +186,27 @@ function _clients_queue()
     -- assign a color to players in "queue" and set their status to "play"
     for i,v in pairs(colors) do
         if v ~= nil then
-            if(q.colorData ~= nil) then
-                q.color = q.colorData
-                editPlayerData("color", q.uid, q.color)
-            else
-                q.color = colors[math.random(1, #colors)]
-                if(tonumber(q.uid) > 0) then
+            if(#playersWithStatus("play") < GAME.galcon.global.MAX_PLAYERS) then
+                if(q.colorData ~= nil) then
+                    q.color = q.colorData
                     editPlayerData("color", q.uid, q.color)
                 else
-                    q.color = rollRandColor()
+                    q.color = colors[math.random(1, #colors)]
+                    if(tonumber(q.uid) > 0) then
+                        editPlayerData("color", q.uid, q.color)
+                    else
+                        q.color = rollRandColor()
+                    end
+                end
+                removeFromQueue(q.uid)
+                q.status = "play"
+                net_send("","message",q.displayName .. " is /play")
+                return
+            else
+                if(has_value(GAME.galcon.global.PLAYER_QUEUE, q) == false) then
+                    GAME.galcon.global.PLAYER_QUEUE[#GAME.galcon.global.PLAYER_QUEUE + 1] = q
                 end
             end
-            q.status = "play"
-            net_send("","message",q.displayName .. " is /play")
-            return
         end
     end
 end
@@ -287,6 +294,7 @@ function clients_init()
         if e.type == 'net:leave' then
             --print("called from first net:leave")
             local player = playerData.getUserData(botUidFix(e))
+            removeFromQueue(botOrHostUIDFix(e.uid))
             net_send("","message",player.displayName .. " left")
             GAME.clients[e.uid] = nil
             g2.net_send("","sound","sfx-leave");
@@ -540,6 +548,9 @@ function amountOfPlay()
 end
 --------------------------------------------------------------------------------
 function galcon_classic_init()
+    if(GAME.galcon.global.PLAYLIST_MODE) then
+        handlePlayListModeChange()
+    end
     GAME.galcon.float = {}
     local OPTS = {
         neutrals = 25,
@@ -598,19 +609,23 @@ function galcon_classic_init()
     local playcount = 0
     local modIds = {saandId=-1, aphidId=-1}--temporary for saandbuff
     local teams = {g2.new_team("T1", 0xaa0000), g2.new_team("T2", 0x0000aa)};
+    local miniTeams = {{}, {}}
 
     for uid,client in pairs(GAME.clients) do
-        if string.lower(client.name) == "binah." then
-            modIds.saandId = client.uid
-        elseif string.lower(client.name) == "hostaphid" then
-            modIds.aphidId = client.uid
-            --print(modIds.aphidId)
-        end
         if client.status == "play" then
             playcount = playcount+1
             local p = ""
             if(GAME.galcon.global.TEAMS_MODE) then
-                p = g2.new_user(client.displayName, client.color, teams[(playcount%2) + 1])
+                local pick = math.random(1, #teams)
+                --print("pick: "..pick)
+                if(#miniTeams[pick] < GAME.galcon.global.MAX_PLAYERS/2) then
+                    p = g2.new_user(client.displayName, client.color, teams[pick])
+                    miniTeams[pick][#miniTeams[pick] + 1] = p
+                else
+                    local opts = {1, 2}
+                    table.remove(opts, indexOf(opts, pick))
+                    p = g2.new_user(client.displayName, client.color, teams[opts[1]])
+                end
             
             else
                 p = g2.new_user(client.displayName, client.color)
@@ -638,10 +653,6 @@ function galcon_classic_init()
     if playcount > 1 and GAME.galcon.global.SOLO_MODE then
         net_send('',"message","Solo mode disabled due to multiple players!")
         GAME.galcon.global.SOLO_MODE = false
-    else
-        if GAME.galcon.global.SOLO_MODE then
-            users[#users+1] = g2.new_user("Dummy", rollRandColor())
-        end
     end
     local sw = OPTS.sw -- ELIM RATIO 560x360 -- Saand ratio 520x360
     local sh = OPTS.sh 
@@ -1341,17 +1352,22 @@ function playersWithStatus(status)
 end
 
 function requeueLoser(uid)
-    for i, v in pairs(GAME.clients) do
-        if #playersWithStatus("queue") > 0 then
-            --print("v.uid: ".. v.uid .. " uid: ".. uid)
-            if (v.uid == uid) then
-                v.status = "away"
-                clients_queue()
-                v.status = "queue"
-                clients_queue()
-                net_send("","message",v.name .. " is /queue")
-            end
-        end
+    local puid = botOrHostUIDFix(uid)
+    GAME.galcon.global.PLAYER_QUEUE[#GAME.galcon.global.PLAYER_QUEUE + 1] = GAME.clients[puid]
+    for r=2, #GAME.galcon.global.PLAYER_QUEUE do
+        GAME.clients[botOrHostUIDFix(GAME.galcon.global.PLAYER_QUEUE[r].uid)].status = "away"
+    end
+    clients_queue()
+    for r=1, #GAME.galcon.global.PLAYER_QUEUE do
+        GAME.clients[botOrHostUIDFix(GAME.galcon.global.PLAYER_QUEUE[r].uid)].status = "queue"
+    end
+    clients_queue()
+    net_send("", "message", GAME.galcon.global.PLAYER_QUEUE[1].displayName .. " is next in line!")
+end
+
+function removeFromQueue(uid)
+    if(has_value(GAME.galcon.global.PLAYER_QUEUE, GAME.clients[uid])) then
+        table.remove(GAME.galcon.global.PLAYER_QUEUE, indexOf(GAME.galcon.global.PLAYER_QUEUE, GAME.clients[uid]))
     end
 end
 
@@ -1383,129 +1399,148 @@ function getFloatCoins()
     return coins
 end
 
-function galcon_stop(res, timerWinner, time)
-    if res == true then
-        local winner = timerWinner or most_production()
-        local loser
-        printEndProdAndShip()
-        if winner ~= nil and winner ~= "galaxy227" then
-            loser = find_enemy(winner.user_uid)
-            if GAME.galcon.gamemode ~= "Race" then
-                if GAME.galcon.global.stupidSettings.breadmode and (GAME.clients[winner.user_uid].name == "bread" or GAME.clients[loser.user_uid].name == "bread") then 
-                    local message = getBreadMessage()
-                    net_send("", "message", winner.title_value.." "..message.. " "..loser.title_value)
-                    if(GAME.clients[loser.user_uid] ~= nil) then
-                        GAME.clients[loser.user_uid].title = message 
-                    end
-                elseif GAME.galcon.global.stupidSettings.saandmode then
-                    if string.lower(GAME.clients[winner.user_uid].name) == "binah." then
-                        net_send("","message",winner.title_value.." enslaved "..loser.title_value)
-                        net_send("", "message", "BOW THEE SUBJECT "..loser.title_value.."!")
+function galcon_stop(res, timerWinner, time) 
+    if(not GAME.galcon.global.TEAMS_MODE) then
+        if res == true then
+            local winner = timerWinner or most_production()
+            local loser
+            printEndProdAndShip()
+            if winner ~= nil and winner ~= "galaxy227" then
+                loser = find_enemy(winner.user_uid)
+                if GAME.galcon.gamemode ~= "Race" then
+                    if GAME.galcon.global.stupidSettings.breadmode and (GAME.clients[winner.user_uid].name == "bread" or GAME.clients[loser.user_uid].name == "bread") then 
+                        local message = getBreadMessage()
+                        net_send("", "message", winner.title_value.." "..message.. " "..loser.title_value)
                         if(GAME.clients[loser.user_uid] ~= nil) then
-                            GAME.clients[loser.user_uid].title = "Saand Minion"
+                            GAME.clients[loser.user_uid].title = message 
+                        end
+                    elseif GAME.galcon.global.stupidSettings.saandmode then
+                        if string.lower(GAME.clients[winner.user_uid].name) == "binah." then
+                            net_send("","message",winner.title_value.." enslaved "..loser.title_value)
+                            net_send("", "message", "BOW THEE SUBJECT "..loser.title_value.."!")
+                            if(GAME.clients[loser.user_uid] ~= nil) then
+                                GAME.clients[loser.user_uid].title = "Saand Minion"
+                            end
+                        else
+                            if GAME.clients[winner.user_uid] ~= nil then
+                                if (GAME.clients[winner.user_uid].title) == "Saand Minion" then
+                                    GAME.clients[winner.user_uid].title = "Freed Minion"
+                                    net_send("", "message", winner.title_value.." escaped the dominion!")
+                                else
+                                    net_send("", "message", winner.title_value.." dodged enslavement!")
+                                end
+                            end 
                         end
                     else
-                        if GAME.clients[winner.user_uid] ~= nil then
-                            if (GAME.clients[winner.user_uid].title) == "Saand Minion" then
-                                GAME.clients[winner.user_uid].title = "Freed Minion"
-                                net_send("", "message", winner.title_value.." escaped the dominion!")
-                            else
-                                net_send("", "message", winner.title_value.." dodged enslavement!")
-                            end
-                        end 
+                        local messageOptions = {winner.title_value.." conquered the galaxy"}
+                        net_send("","message",messageOptions[math.random(1, #messageOptions)])
                     end
                 else
-                    local messageOptions = {winner.title_value.." conquered the galaxy"}
-                    net_send("","message",messageOptions[math.random(1, #messageOptions)])
+                    net_send("","message",winner.title_value.." finished in "..GAME.galcon.finishTime.." seconds")
+                end
+
+                for j, u in pairs(GAME.galcon.scorecard) do
+                    local uid = winner.user_uid --stupid negatives in lua being treated as strings
+                    if(tonumber(uid) < 0) then
+                        uid = tonumber(uid)
+                    end
+                    if uid == j then
+                        if GAME.galcon.global.stupidSettings.silverMode and (GAME.clients[uid].name == "silvershad0w") then
+                            u = u + 15
+                        else
+                            u = u + 1
+                        end
+                        GAME.galcon.scorecard[j] = u
+                        if(playerData.getUserData(uid).displayName ~= "Error Player") then
+                            handlePlayerMatchUpdate(botUidFix({uid=uid}), true, GAME.galcon.gamemode)
+                            handlePlayerXpUpdate(botUidFix({uid=uid}), true)
+                            if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(uid) > 0 then
+                                local count = 1
+                                if(GAME.galcon.gamemode == "Float") then
+                                    count = getFloatCoins()
+                                end
+                                net_send(j,"message","You earned "..count.." "..GAME.galcon.global.CONFIGS.saandCoins.currency_name.."!")
+                                GAME.clients[j].coins = GAME.clients[j].coins + count
+                                playerData.updateCoins(winner.user_uid, count)
+                                playerData.saveData()
+                                editPlayerData("coin-u", winner.user_uid, count)
+                            end
+                        end               
+                    end
+                end
+                
+                if loser ~= nil and loser.user_uid ~= nil then
+                    local winner_uid = botUidFix({uid=winner.user_uid}) --dumb hack to make botUidFix work since its expecting a table with .uid property
+                    local loser_uid = botUidFix({uid=loser.user_uid})
+                    if(playerData.getUserData(winner_uid).displayName ~= "Error Player" and playerData.getUserData(loser_uid).displayName ~= "Error Player") then
+                        handlePlayerMatchUpdate(loser_uid, false, GAME.galcon.gamemode)
+                        handlePlayerXpUpdate(loser_uid, false)
+                        
+                        playerWinData.loadData(true)
+                        playerWinData.updateMatches(winner_uid, loser_uid, true)
+                        playerWinData.updateMatches(loser_uid, winner_uid, false)
+                        playerWinData.saveData()
+                        local samebot = false
+                        if(tonumber(winner.user_uid) < 0 and tonumber(loser.user_uid) < 0) then
+                            if(GAME.clients[tonumber(winner.user_uid)].botName == GAME.clients[tonumber(loser.user_uid)].botName) then
+                                samebot = true
+                            end
+                        end
+                        if not samebot then
+                            if(GAME.galcon.global.RANKED) then
+                                elo.load_ratings()
+                                elo.update_elo(string.lower(winner_uid), string.lower(loser_uid), true)
+                                elo.save_ratings()
+                            end
+                        else
+                            print("same bot!")
+                        end
+                    end
+                end
+            
+                --print("loser uid: ".. loser.user_uid)
+                if GAME.galcon.global.WINNER_STAYS == true and loser ~= nil then
+                    requeueLoser(loser.user_uid)
                 end
             else
-                net_send("","message",winner.title_value.." finished in "..GAME.galcon.finishTime.." seconds")
-            end
-
-            for j, u in pairs(GAME.galcon.scorecard) do
-                local uid = winner.user_uid --stupid negatives in lua being treated as strings
-                if(tonumber(uid) < 0) then
-                    uid = tonumber(uid)
-                end
-                if uid == j then
-                    if GAME.galcon.global.stupidSettings.silverMode and (GAME.clients[uid].name == "silvershad0w") then
-                        u = u + 15
-                    else
-                        u = u + 1
-                    end
-                    GAME.galcon.scorecard[j] = u
-                    if(playerData.getUserData(uid).displayName ~= "Error Player") then
-                        handlePlayerMatchUpdate(botUidFix({uid=uid}), true, GAME.galcon.gamemode)
-                        handlePlayerXpUpdate(botUidFix({uid=uid}), true)
-                        if GAME.galcon.global.CONFIGS.saandCoins.enableSaandCoins and tonumber(uid) > 0 then
-                            local count = 1
-                            if(GAME.galcon.gamemode == "Float") then
-                                count = getFloatCoins()
-                            end
-                            net_send(j,"message","You earned "..count.." "..GAME.galcon.global.CONFIGS.saandCoins.currency_name.."!")
-                            GAME.clients[j].coins = GAME.clients[j].coins + count
-                            playerData.updateCoins(winner.user_uid, count)
-                            playerData.saveData()
-                            editPlayerData("coin-u", winner.user_uid, count)
-                        end
-                    end               
+                if winner == "galaxy227" then
+                    net_send("", "message", "galaxy227 wins by timers default!")
                 end
             end
-            
-            if loser ~= nil and loser.user_uid ~= nil then
-                local winner_uid = botUidFix({uid=winner.user_uid}) --dumb hack to make botUidFix work since its expecting a table with .uid property
-                local loser_uid = botUidFix({uid=loser.user_uid})
-                if(playerData.getUserData(winner_uid).displayName ~= "Error Player" and playerData.getUserData(loser_uid).displayName ~= "Error Player") then
-                    handlePlayerMatchUpdate(loser_uid, false, GAME.galcon.gamemode)
-                    handlePlayerXpUpdate(loser_uid, false)
-                    
-                    playerWinData.loadData(true)
-                    playerWinData.updateMatches(winner_uid, loser_uid, true)
-                    playerWinData.updateMatches(loser_uid, winner_uid, false)
-                    playerWinData.saveData()
-                    local samebot = false
-                    if(tonumber(winner.user_uid) < 0 and tonumber(loser.user_uid) < 0) then
-                        if(GAME.clients[tonumber(winner.user_uid)].botName == GAME.clients[tonumber(loser.user_uid)].botName) then
-                            samebot = true
-                        end
-                    end
-                    if not samebot then
-                        elo.load_ratings()
-                        elo.update_elo(string.lower(winner_uid), string.lower(loser_uid), true)
-                        elo.save_ratings()
-                    else
-                        print("same bot!")
-                    end
-                end
+            if(winner ~= nil and tonumber(winner.user_uid) < -10) then
+                getBotGG(tonumber(winner.user_uid), true)
             end
-           
-            --print("loser uid: ".. loser.user_uid)
-            if GAME.galcon.global.WINNER_STAYS == true and loser ~= nil then
-                requeueLoser(loser.user_uid)
+            if(loser ~= nil and tonumber(loser.user_uid) < -10) then
+                getBotGG(tonumber(loser.user_uid), false)
             end
+        end
+        g2.net_send("","sound","sfx-stop");
+        --[[ if GAME.galcon.setmode == false then
+            GAME.engine:next(GAME.modules.lobby)
         else
-            if winner == "galaxy227" then
-                net_send("", "message", "galaxy227 wins by timers default!")
-            end
+            g2.state = "menu" ]]
+            g2.state = "play"
+            GAME.galcon.gameStarted = false
+            GAME.engine:next(GAME.modules.lobby)
+        --[[ end ]]
+        for i,v in pairs(GAME.clients) do
+            v.inGame = false
         end
-        if(winner ~= nil and tonumber(winner.user_uid) < -10) then
-            getBotGG(tonumber(winner.user_uid), true)
-        end
-        if(loser ~= nil and tonumber(loser.user_uid) < -10) then
-            getBotGG(tonumber(loser.user_uid), false)
-        end
-    end
-    g2.net_send("","sound","sfx-stop");
-    --[[ if GAME.galcon.setmode == false then
-        GAME.engine:next(GAME.modules.lobby)
     else
-        g2.state = "menu" ]]
-        g2.state = "play"
-        GAME.galcon.gameStarted = false
-        GAME.engine:next(GAME.modules.lobby)
-    --[[ end ]]
-    for i,v in pairs(GAME.clients) do
-        v.inGame = false
+        --local winner = most_production_teams()
+        --print(winner)
+        g2.net_send("","sound","sfx-stop");
+        --[[ if GAME.galcon.setmode == false then
+            GAME.engine:next(GAME.modules.lobby)
+        else
+            g2.state = "menu" ]]
+            g2.state = "play"
+            GAME.galcon.gameStarted = false
+            GAME.engine:next(GAME.modules.lobby)
+        --[[ end ]]
+        for i,v in pairs(GAME.clients) do
+            v.inGame = false
+        end
     end
 end
 
@@ -1597,6 +1632,7 @@ function printEndProdAndShip()
         local rem = math.floor(math.fmod(ships[o], 1) * 1000)
         ship = ship + (rem/1000)
         local fixedUID = o.user_uid
+        print(o)
         if(tonumber(o.user_uid) < 0) then fixedUID = tonumber(o.user_uid) end
         net_send("","chat", json.encode({color=GAME.clients[fixedUID].color,value= o.title_value .. "- Production: "..v .. "   Ships: "..ship}))
 

@@ -3,7 +3,7 @@ function _elo_init()
     local elo = {}
 
     local ELOS = {}
-    local RESET_DEFAULT_ELO = 1500
+    local RESET_DEFAULT_ELO = 1000
     local DEFAULT_ELO = RESET_DEFAULT_ELO
 
     local RESET_K = 32

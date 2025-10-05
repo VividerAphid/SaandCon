@@ -235,11 +235,19 @@ function handleNetMessage(e)
         --resetLobbyHtml()
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,6)) == "/homes" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         GAME.galcon.global.HOME_COUNT = string.sub(e.value, 8, string.len(e.value))
         net_send("", "message", "Home count changed to " .. string.sub(e.value, 8, string.len(e.value)))
         --resetLobbyHtml()
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,9)) == "/homeprod" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if(GAME.galcon.gamemode == "Grid") then
             print("set grid prod")
             GAME.galcon.global.GRID.HOME_PROD = string.sub(e.value, 11, string.len(e.value))
@@ -251,16 +259,28 @@ function handleNetMessage(e)
         --resetLobbyHtml()
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,11)) == "/startships" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("", "message", "Starting ships changed to " .. string.sub(e.value, 13, string.len(e.value)))
         GAME.galcon.global.STARTING_SHIPS = string.sub(e.value, 13, string.len(e.value))
         --resetLobbyHtml()
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,13)) == "/gridneutcost" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("", "message", "Grid neut cost changed to " .. string.sub(e.value, 15, string.len(e.value)))
         GAME.galcon.global.GRID.NEUT_COST = string.sub(e.value, 15, string.len(e.value))
         --resetLobbyHtml()
     end
     if e.type =='net:message' and string.lower(string.sub(e.value,1,13)) == "/gridneutprod" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("", "message", "Grid neut prod changed to " .. string.sub(e.value, 15, string.len(e.value)))
         GAME.galcon.global.GRID.NEUT_PROD = string.sub(e.value, 15, string.len(e.value))
         --resetLobbyHtml()
@@ -641,6 +661,10 @@ function handleNetMessage(e)
         wardrobeCoins(e)
     end
     if e.type == 'net:message' and string.lower(e.value) == "/classic" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Classic"
             GAME.galcon.global.SOLO_MODE = false
@@ -650,6 +674,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.find(string.lower(e.value), "/seed") ~= nil then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("", "message", e.name .." " .. e.value)
         local extract = string.sub(e.value, 7, string.len(e.value))
         local seed = math.random(os.time())
@@ -679,6 +707,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/replayseed" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("", "message", GAME.clients[e.uid].displayName .. " /replayseed")
         GAME.galcon.global.SEED_DATA.SEED = GAME.galcon.global.SEED_DATA.PREV_SEED
         GAME.galcon.global.SEED_DATA.SEED_STRING = GAME.galcon.global.SEED_DATA.PREV_SEED_STRING
@@ -686,6 +718,10 @@ function handleNetMessage(e)
         resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/keepseed" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("", "message", GAME.clients[e.uid].displayName .. " /keepseed")
         if GAME.galcon.global.SEED_DATA.KEEP_SEED then
             net_send("", "message", "keepseed off!")
@@ -701,6 +737,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/stages" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Stages"
             GAME.galcon.global.SOLO_MODE = false
@@ -710,6 +750,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/frenzy" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Frenzy"
             GAME.galcon.global.SOLO_MODE = false
@@ -719,6 +763,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/grid" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Grid"
             GAME.galcon.global.SOLO_MODE = false
@@ -729,6 +777,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/gridstyle mix" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gametype = "Mix"
             net_send("","message",GAME.clients[e.uid].displayName .. " /gridstyle mix")
@@ -736,6 +788,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/gridstyle standard" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gametype = "Standard"
             net_send("","message",GAME.clients[e.uid].displayName .. " /gridstyle standard")
@@ -743,6 +799,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/gridstyle donut" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gametype = "Donut"
             net_send("","message",GAME.clients[e.uid].displayName .. " /gridstyle donut")
@@ -750,6 +810,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/gridstyle hexagon" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gametype = "Hexagon"
             net_send("","message",GAME.clients[e.uid].displayName .. " /gridstyle hexagon")
@@ -757,6 +821,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/float" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Float"
             GAME.galcon.global.SOLO_MODE = true --DONT FORGET TO CHANGE THIS LATER IF FLOAT BECOMES 2 PLAYER
@@ -766,6 +834,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/line" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Line"
             GAME.galcon.global.SOLO_MODE = true
@@ -775,6 +847,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/race" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Race"
             GAME.galcon.global.SOLO_MODE = false
@@ -784,6 +860,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/expand 1" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         if g2.state == "lobby" then
             GAME.galcon.gamemode = "Classic"
             GAME.galcon.global.SOLO_MODE = false
@@ -804,6 +884,10 @@ function handleNetMessage(e)
         end
     end
     if e.type == 'net:message' and string.lower(e.value) == "/solo" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("","message",GAME.clients[e.uid].displayName .. " /solo")
         if(GAME.galcon.global.SOLO_MODE) then
             net_send("", "message", "Solo mode off!")
@@ -815,52 +899,85 @@ function handleNetMessage(e)
         resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/mapstyle mix" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("","message",GAME.clients[e.uid].displayName .. " /mapstyle mix")
         GAME.galcon.global.MAP_STYLE = "mix"
         resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/mapstyle classic" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("","message",GAME.clients[e.uid].displayName .. " /mapstyle classic")
         GAME.galcon.global.MAP_STYLE = 0
         resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/mapstyle philbuff" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("","message",GAME.clients[e.uid].displayName .. " /mapstyle philbuff")
         GAME.galcon.global.MAP_STYLE = 1
         resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/mapstyle 12p" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("","message",GAME.clients[e.uid].displayName .. " /mapstyle 12p")
         GAME.galcon.global.MAP_STYLE = 2
         resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/mapstyle saandbuff" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("","message",GAME.clients[e.uid].displayName .. " /mapstyle saandbuff")
         GAME.galcon.global.MAP_STYLE = 3
         resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/mapstyle wonk" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
         net_send("","message",GAME.clients[e.uid].displayName .. " /mapstyle wonk")
         GAME.galcon.global.MAP_STYLE = 4
         resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/randradius" then
-        GAME.galcon.global.CONFIGS.randRadiusMode = not GAME.galcon.global.CONFIGS.randRadiusMode
-        net_send("","message",GAME.clients[e.uid].displayName .. " /randradius")
-        if(GAME.galcon.global.CONFIGS.randRadiusMode) then
-            net_send("","message","Random radius enabled!")
-        else
-            net_send("","message","Random radius disabled!")
+        if(not GAME.galcon.global.RANKED) then
+            GAME.galcon.global.CONFIGS.randRadiusMode = not GAME.galcon.global.CONFIGS.randRadiusMode
+            net_send("","message",GAME.clients[e.uid].displayName .. " /randradius")
+            if(GAME.galcon.global.CONFIGS.randRadiusMode) then
+                net_send("","message","Random radius enabled!")
+            else
+                net_send("","message","Random radius disabled!")
 
+            end
+        else
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
         end
+        
     end
     if e.type == 'net:message' and string.lower(string.sub(e.value, 1, 16)) == "/togglesaandbuff" then
-        local version = string.lower(string.sub(e.value, 18))
-        version = tonumber(version)
-        if(version ~= nil) then
-            GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED[version] = not GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED[version]
-        end
-        modeTab(e)
+        if(not GAME.galcon.global.RANKED) then
+            local version = string.lower(string.sub(e.value, 18))
+            version = tonumber(version)
+            if(version ~= nil) then
+                GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED[version] = not GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED[version]
+            end
+            modeTab(e)
+        else
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+        end  
     end
     if e.type == 'net:message' and string.lower(e.value) == "/set" then
         GAME.galcon.setmode = true
@@ -890,6 +1007,7 @@ function handleNetMessage(e)
         GAME.galcon.global.WINNER_STAYS = GAME.galcon.global.CONFIGS.defaults.WINNER_STAYS
         GAME.galcon.global.MAX_PLAYERS = GAME.galcon.global.CONFIGS.defaults.MAX_PLAYERS
         GAME.galcon.global.SOLO_MODE = false
+        GAME.galcon.global.TEAMS_MODE = GAME.galcon.global.CONFIGS.defaults.TEAMS_MODE
         GAME.galcon.global.MAP_STYLE = GAME.galcon.global.CONFIGS.defaults.MAP_STYLE
         GAME.galcon.global.SAANDBUFF_DATA = GAME.galcon.global.CONFIGS.defaults.SAANDBUFF_DATA
         GAME.galcon.global.TIMER_LENGTH = GAME.galcon.global.CONFIGS.defaults.TIMER_LENGTH
@@ -901,6 +1019,10 @@ function handleNetMessage(e)
         GAME.galcon.global.GRID.START_SHIPS = GAME.galcon.global.CONFIGS.defaults.GRID.START_SHIPS
         GAME.galcon.global.SEED_DATA = GAME.galcon.global.CONFIGS.defaults.SEED_DATA
         GAME.galcon.global.stupidSettings = GAME.galcon.global.CONFIGS.defaults.stupidSettings
+        GAME.galcon.global.PLAYLIST = GAME.galcon.global.CONFIGS.defaults.PLAYLIST
+        GAME.galcon.global.PLAYLIST_INDEX = GAME.galcon.global.CONFIGS.defaults.PLAYLIST_INDEX
+        GAME.galcon.global.PLAYLIST_NAME = GAME.galcon.global.CONFIGS.defaults.PLAYLIST_NAME
+        GAME.galcon.global.PLAYLIST_STYLE = GAME.galcon.global.CONFIGS.defaults.PLAYLIST_STYLE
         resetLobbyHtml()
     end
     if e.type == 'net:message' and string.lower(e.value) == "/countdown" then
@@ -913,6 +1035,60 @@ function handleNetMessage(e)
                 GAME.galcon.global.CONFIGS.startTimerLength = 3
             end
         end
+    end
+    if e.type == 'net:message' and string.lower(e.value) == "/toggleplaylist" then
+        if(not GAME.galcon.global.RANKED) then
+           GAME.galcon.global.PLAYLIST_MODE = not GAME.galcon.global.PLAYLIST_MODE
+            if(GAME.galcon.global.PLAYLIST_MODE) then
+                local playLists = loadPlayLists()
+                GAME.galcon.global.PLAYLIST = playLists["ElimV2"]
+                net_send("", "message", "Playlist mode started!")
+                -- handlePlayListModeChange()
+                resetLobbyHtml()
+            else
+                net_send("", "message", "Playlist mode stopped!")
+                GAME.galcon.global.PLAYLIST = {}
+                GAME.galcon.global.PLAYLIST_INDEX = 0
+                GAME.galcon.global.PLAYLIST_STYLE = GAME.galcon.global.CONFIGS.defaults.PLAYLIST_STYLE
+            end
+        else
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+        end
+    end
+    if e.type == 'net:message' and string.lower(e.value) == "/toggleranked" then
+        GAME.galcon.global.RANKED = not GAME.galcon.global.RANKED
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Ranked mode on!")
+            GAME.galcon.global.MAX_PLAYERS = GAME.galcon.global.CONFIGS.defaults.MAX_PLAYERS
+            GAME.galcon.global.TEAMS_MODE = GAME.galcon.global.CONFIGS.defaults.TEAMS_MODE
+            GAME.galcon.global.PLAYLIST = loadPlayLists()['ElimV2']
+            GAME.galcon.global.PLAYLIST_NAME = "ElimV2"
+            GAME.galcon.global.PLAYLIST_MODE = true
+            GAME.galcon.global.PLAYLIST_INDEX = 0
+            resetLobbyHtml()
+        else
+            net_send("", "message", "Ranked mode off!")
+            GAME.galcon.global.PLAYLIST = {}
+            GAME.galcon.global.PLAYLIST_NAME = "ElimV2"
+            GAME.galcon.global.PLAYLIST_MODE = false
+            GAME.galcon.global.PLAYLIST_INDEX = 0
+            resetLobbyHtml()
+        end
+    end
+    if e.type == 'net:message' and string.lower(e.value) == "/toggle2v2" then
+        if(GAME.galcon.global.RANKED) then
+            net_send("", "message", "Settings changes are disabled during ranked mode!")
+            return
+        end
+        GAME.galcon.global.TEAMS_MODE = not GAME.galcon.global.TEAMS_MODE
+        if(GAME.galcon.global.TEAMS_MODE) then
+            net_send("", "message", "Teams mode enabled!")
+            GAME.galcon.global.MAX_PLAYERS = 4
+        else
+            net_send("", "message", "Teams mode disabled!")
+            GAME.galcon.global.MAX_PLAYERS = 2
+        end
+        resetLobbyHtml()
     end
 end
 
@@ -976,5 +1152,6 @@ function playStateCheck(e)
         GAME.clients[uid].status = "away"
         clients_queue()
         net_send("","message",GAME.clients[uid].displayName .. " is /away")
+        removeFromQueue(uid)
     end
 end

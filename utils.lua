@@ -71,6 +71,16 @@ function has_value (tab, val)
     return false
 end
 
+function indexOf (tab, val)
+    for index, value in pairs(tab) do
+        --print(value .. " v " .. val)
+        if value == val then
+            return index
+        end
+    end
+    return -1
+end
+
 --NO NEED FOR THIS I JUST WANTED TO MAKE MY OWN
 -- function hexToDecimalAphid(str)
 --     local converted = 0
@@ -203,6 +213,14 @@ function most_production()
     return best_o
 end
 
+function most_production_teams()
+    local players = count_production()
+    for o,v in pairs(players) do
+        print(o)
+        print(v)
+    end
+end
+
 function most_production_tie_check()
     local r = count_production()
     local best_o = nil
@@ -260,11 +278,31 @@ function hostUidFix(e)
 end
 
 function botUidFix(e)
-    if(tonumber(e.uid) < 0) then
-        return GAME.clients[tonumber(e.uid)].botName
+    if(e.uid) then
+        if(tonumber(e.uid) < 0) then
+            return GAME.clients[tonumber(e.uid)].botName
+        else
+            return e.uid
+        end
     else
-        return e.uid
+        if(tonumber(e) < 0) then
+            return GAME.clients[tonumber(e)].botName
+        else
+            return e
+        end
     end
+end
+
+function botOrHostUIDFix(uid)
+    local puid = 0
+    if(tonumber(uid) < 0) then
+        puid = tonumber(uid)
+    else
+        if (uid == g2.uid) then
+            puid = g2.uid
+        end
+    end
+    return puid
 end
 
 function rollRandColor()
@@ -411,4 +449,93 @@ function keywords_removeKeyword(keyword)
     end
 
     keywords_refreshKeywords()
+end
+
+function getNextPlaylistMode()
+    --random
+    --order
+    --no-repeat
+    local repeatMode = GAME.galcon.global.PLAYLIST_STYLE
+    local nextPick = {mode="ERROR", variant="ERROR", v="ERROR"}
+    if(repeatMode == "order") then
+        if(GAME.galcon.global.PLAYLIST_INDEX == #GAME.galcon.global.PLAYLIST) then
+            GAME.galcon.global.PLAYLIST_INDEX = 1
+        else
+            GAME.galcon.global.PLAYLIST_INDEX = GAME.galcon.global.PLAYLIST_INDEX + 1
+        end
+        nextPick = GAME.galcon.global.PLAYLIST[GAME.galcon.global.PLAYLIST_INDEX]
+    elseif(repeatMode == "no-repeat") then
+        if(GAME.galcon.global.PLAYLIST_INDEX == 0) then
+            GAME.galcon.global.PLAYLIST_INDEX = math.random(1, #GAME.galcon.global.PLAYLIST)
+            nextPick = GAME.galcon.global.PLAYLIST[GAME.galcon.global.PLAYLIST_INDEX]
+        else
+            local optIndexes = {}
+            for r=1, #GAME.galcon.global.PLAYLIST do
+                if(r ~= GAME.galcon.global.PLAYLIST_INDEX) then
+                    optIndexes[#optIndexes + 1] = r
+                end
+            end
+            GAME.galcon.global.PLAYLIST_INDEX = optIndexes[math.random(1, #optIndexes)]
+            nextPick = GAME.galcon.global.PLAYLIST[GAME.galcon.global.PLAYLIST_INDEX]
+        end
+    else
+        local pickIndex = math.random(1, #GAME.galcon.global.PLAYLIST)
+        nextPick = GAME.galcon.global.PLAYLIST[pickIndex]
+    end
+
+    return nextPick
+end 
+
+function handlePlayListModeChange()
+    local nextMode = getNextPlaylistMode()
+    local modeConverts = {classic="Classic", grid="Grid", stages="Stages", frenzy="Frenzy", float="Float", line="Line", race="Race"}
+    local variantConverts = {"classic", "philbuff", "12 planet", "saandbuff", "wonk", "1ship"}
+    
+    if(modeConverts[string.lower(nextMode.mode)] ~= nil) then
+        GAME.galcon.gamemode = modeConverts[string.lower(nextMode.mode)]
+        net_send("","message", "Next mode: " .. modeConverts[string.lower(nextMode.mode)])
+        if(string.lower(nextMode.variant) == "mix") then
+            GAME.galcon.global.MAP_STYLE = "mix"
+            net_send("", "message", "Next map style: mix")
+        else    
+            local variantIndex = indexOf(variantConverts, string.lower(nextMode.variant))
+            if(variantIndex ~= -1) then
+                GAME.galcon.global.MAP_STYLE = variantIndex - 1
+                net_send("", "message", "Next map style: ".. nextMode.variant)
+            else
+                print("Didn't find ".. nextMode.variant.. " in the list of variants! Setting to 'mix'")
+                GAME.galcon.global.MAP_STYLE = "mix"
+                net_send("", "message", "Next map style: mix")
+            end
+        end
+        if(string.lower(nextMode.mode) == "saandbuff") then
+            if(nextMode.v ~= nil) then
+                for r=1, #GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED do
+                    GAME.galcon.global.SAANDBUFF_DATA[r] = false
+                end
+                GAME.galcon.global.SAANDBUFF_DATA[nextMode.v] = true
+            else    
+                for r=1, #GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED do
+                    GAME.galcon.global.SAANDBUFF_DATA[r] = true
+                end
+            end
+        end
+
+    else
+        print("Didn't find "..nextMode.mode.." in the list of modes! Setting to 'Classic'")
+        GAME.galcon.gamemode = "Classic"
+        GAME.galcon.global.MAP_STYLE = 3
+        for r=1, #GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED do
+            GAME.galcon.global.SAANDBUFF_DATA[r] = true
+        end
+        net_send("", "message", "Next mode: Classic")
+        net_send("", "message", "Next map style: saandbuff")
+    end
+end
+
+function tstFunc()
+    local tstArr = {"a", "b", "c", "d"}
+    print(tstArr[1])
+    table.remove(tstArr, 1)
+    print(tstArr[1])
 end
