@@ -300,6 +300,8 @@ function botOrHostUIDFix(uid)
     else
         if (uid == g2.uid) then
             puid = g2.uid
+        else
+            puid = uid
         end
     end
     return puid
@@ -534,8 +536,14 @@ function handlePlayListModeChange()
 end
 
 function tstFunc()
-    local tstArr = {"a", "b", "c", "d"}
-    print(tstArr[1])
-    table.remove(tstArr, 1)
-    print(tstArr[1])
+    local fake = nil
+    local tststr = fake or "YEP"
+    print(tststr)
+end
+
+function printQueue()
+    print("Player queue is: ")
+    for r=1, #GAME.galcon.global.PLAYER_QUEUE do
+        print(GAME.galcon.global.PLAYER_QUEUE[r])
+    end
 end

@@ -203,8 +203,8 @@ function _clients_queue()
                 net_send("","message",q.displayName .. " is /play")
                 return
             else
-                if(has_value(GAME.galcon.global.PLAYER_QUEUE, q) == false) then
-                    GAME.galcon.global.PLAYER_QUEUE[#GAME.galcon.global.PLAYER_QUEUE + 1] = q
+                if(has_value(GAME.galcon.global.PLAYER_QUEUE, q.uid) == false) then
+                    GAME.galcon.global.PLAYER_QUEUE[#GAME.galcon.global.PLAYER_QUEUE + 1] = q.uid
                 end
             end
         end
@@ -1353,22 +1353,31 @@ end
 
 function requeueLoser(uid)
     local puid = botOrHostUIDFix(uid)
-    GAME.galcon.global.PLAYER_QUEUE[#GAME.galcon.global.PLAYER_QUEUE + 1] = GAME.clients[puid]
+    GAME.galcon.global.PLAYER_QUEUE[#GAME.galcon.global.PLAYER_QUEUE + 1] = puid
     for r=2, #GAME.galcon.global.PLAYER_QUEUE do
-        GAME.clients[botOrHostUIDFix(GAME.galcon.global.PLAYER_QUEUE[r].uid)].status = "away"
+        local id = GAME.galcon.global.PLAYER_QUEUE[r]
+        GAME.clients[botOrHostUIDFix(id)].status = "away"
     end
     clients_queue()
     for r=1, #GAME.galcon.global.PLAYER_QUEUE do
-        GAME.clients[botOrHostUIDFix(GAME.galcon.global.PLAYER_QUEUE[r].uid)].status = "queue"
+        local id = GAME.galcon.global.PLAYER_QUEUE[r]
+        GAME.clients[botOrHostUIDFix(id)].status = "queue"
     end
     clients_queue()
-    net_send("", "message", GAME.galcon.global.PLAYER_QUEUE[1].displayName .. " is next in line!")
+    if(#GAME.galcon.global.PLAYER_QUEUE > 0) then
+        net_send("", "message", GAME.clients[GAME.galcon.global.PLAYER_QUEUE[1]].displayName .. " is next in line!")
+    end
 end
 
 function removeFromQueue(uid)
-    if(has_value(GAME.galcon.global.PLAYER_QUEUE, GAME.clients[uid])) then
-        table.remove(GAME.galcon.global.PLAYER_QUEUE, indexOf(GAME.galcon.global.PLAYER_QUEUE, GAME.clients[uid]))
+    --print("uid is: "..uid.." and type "..type(uid))
+    if(has_value(GAME.galcon.global.PLAYER_QUEUE, uid)) then
+        --print("Found "..uid.." at: "..indexOf(GAME.galcon.global.PLAYER_QUEUE, uid))
+        --print("Length of queue is: "..#GAME.galcon.global.PLAYER_QUEUE)
+        --printQueue()
+        table.remove(GAME.galcon.global.PLAYER_QUEUE, indexOf(GAME.galcon.global.PLAYER_QUEUE, uid))
     end
+   -- printQueue()
 end
 
 function getBreadMessage()
