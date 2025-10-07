@@ -198,7 +198,7 @@ function _clients_queue()
                         q.color = rollRandColor()
                     end
                 end
-                removeFromQueue(q.uid)
+                removeFromQueue(q.uid, "_clients_queue()")
                 q.status = "play"
                 net_send("","message",q.displayName .. " is /play")
                 return
@@ -294,7 +294,7 @@ function clients_init()
         if e.type == 'net:leave' then
             --print("called from first net:leave")
             local player = playerData.getUserData(botUidFix(e))
-            removeFromQueue(botOrHostUIDFix(e.uid))
+            removeFromQueue(botOrHostUIDFix(e.uid), "net:leave")
             net_send("","message",player.displayName .. " left")
             GAME.clients[e.uid] = nil
             g2.net_send("","sound","sfx-leave");
@@ -1361,15 +1361,23 @@ function requeueLoser(uid)
     clients_queue()
     for r=1, #GAME.galcon.global.PLAYER_QUEUE do
         local id = GAME.galcon.global.PLAYER_QUEUE[r]
-        GAME.clients[botOrHostUIDFix(id)].status = "queue"
+        if(GAME.clients[botOrHostUIDFix(id)]) then
+            GAME.clients[botOrHostUIDFix(id)].status = "queue"
+        else
+            removeFromQueue(id)
+        end
     end
     clients_queue()
     if(#GAME.galcon.global.PLAYER_QUEUE > 0) then
-        net_send("", "message", GAME.clients[GAME.galcon.global.PLAYER_QUEUE[1]].displayName .. " is next in line!")
+        net_send("", "message", "---")
+        local encoded = json.encode({color=0xffff00,value= GAME.clients[GAME.galcon.global.PLAYER_QUEUE[1]].displayName .. " is next in line!"})
+        net_send("","chat", encoded)
+        net_send("", "message", "---")
     end
 end
 
-function removeFromQueue(uid)
+function removeFromQueue(uid, debugtext)
+    --print("From "..(debugtext or "not specified"))
     --print("uid is: "..uid.." and type "..type(uid))
     if(has_value(GAME.galcon.global.PLAYER_QUEUE, uid)) then
         --print("Found "..uid.." at: "..indexOf(GAME.galcon.global.PLAYER_QUEUE, uid))
@@ -1641,7 +1649,7 @@ function printEndProdAndShip()
         local rem = math.floor(math.fmod(ships[o], 1) * 1000)
         ship = ship + (rem/1000)
         local fixedUID = o.user_uid
-        print(o)
+        --print(o)
         if(tonumber(o.user_uid) < 0) then fixedUID = tonumber(o.user_uid) end
         net_send("","chat", json.encode({color=GAME.clients[fixedUID].color,value= o.title_value .. "- Production: "..v .. "   Ships: "..ship}))
 

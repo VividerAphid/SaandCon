@@ -536,14 +536,13 @@ function handlePlayListModeChange()
 end
 
 function tstFunc()
-    local fake = nil
-    local tststr = fake or "YEP"
-    print(tststr)
+    local encoded = json.encode({color=0xffff00,value= "TEST", background=true})
+    net_send(g2.uid, "chat", encoded)
 end
 
 function printQueue()
     print("Player queue is: ")
     for r=1, #GAME.galcon.global.PLAYER_QUEUE do
-        print(GAME.galcon.global.PLAYER_QUEUE[r])
+        print(GAME.galcon.global.PLAYER_QUEUE[r]..", type "..type(GAME.galcon.global.PLAYER_QUEUE[r]))
     end
 end
