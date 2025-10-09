@@ -52,7 +52,7 @@ function loadConfigs()
                 recID = 0, 
             },
         },
-        version = "25.10.6a", --Do not change unless you made changes to code
+        version = "25.10.9a", --Do not change unless you made changes to code
         wipeKeyWord = "25.10.5b", --Warning: Changing this if you have existing data will wipe that data!
         chat_keywords = {"Mins", "/addbot", "/away", "/awayall", "/defaults", "/givecoins", "/kickbot", "/kickallbots", "/replayseed", "/reset", "/rollcolor", "/start", "/surrender", "/version",},
     }

@@ -161,7 +161,6 @@ function _clients_queue()
         '0xbb00ff','0xff88ff',
         '0x9999ff','0x00ff00',
     }
-
     local q = nil
     for k,e in pairs(GAME.clients) do
         -- set color of "away" and "queue" players to grey
@@ -187,17 +186,8 @@ function _clients_queue()
     for i,v in pairs(colors) do
         if v ~= nil then
             if(#playersWithStatus("play") < GAME.galcon.global.MAX_PLAYERS) then
-                if(q.colorData ~= nil) then
-                    q.color = q.colorData
-                    editPlayerData("color", q.uid, q.color)
-                else
-                    q.color = colors[math.random(1, #colors)]
-                    if(tonumber(q.uid) > 0) then
-                        editPlayerData("color", q.uid, q.color)
-                    else
-                        q.color = rollRandColor()
-                    end
-                end
+                local qColor = assignClientColor(q)
+                q.color = qColor
                 removeFromQueue(q.uid, "_clients_queue()")
                 q.status = "play"
                 net_send("","message",q.displayName .. " is /play")
@@ -205,10 +195,37 @@ function _clients_queue()
             else
                 if(has_value(GAME.galcon.global.PLAYER_QUEUE, q.uid) == false) then
                     GAME.galcon.global.PLAYER_QUEUE[#GAME.galcon.global.PLAYER_QUEUE + 1] = q.uid
+                    print("Adding to queue: "..q.uid)
+                    printQueue()
                 end
+                local prepColor = assignClientColor(q)
             end
         end
     end
+end
+
+function assignClientColor(q)
+    local colors = {
+        '0x0000ff','0xff0000',
+        '0xffff00','0x00ffff',
+        '0xffffff','0xff8800',
+        '0x99ff99','0xff9999',
+        '0xbb00ff','0xff88ff',
+        '0x9999ff','0x00ff00',
+    }
+    local picked = ""
+    if(q.colorData ~= nil) then
+        picked = q.colorData
+        editPlayerData("color", q.uid, picked)
+    else
+        picked = colors[math.random(1, #colors)]
+        if(tonumber(q.uid) > 0) then
+            editPlayerData("color", q.uid, picked)
+        else
+            picked = rollRandColor()
+        end
+    end
+    return picked
 end
 
 function clients_init()
@@ -1352,6 +1369,8 @@ function playersWithStatus(status)
 end
 
 function requeueLoser(uid)
+    print("Requeueing")
+    printQueue()
     local puid = botOrHostUIDFix(uid)
     GAME.galcon.global.PLAYER_QUEUE[#GAME.galcon.global.PLAYER_QUEUE + 1] = puid
     for r=2, #GAME.galcon.global.PLAYER_QUEUE do
@@ -2011,7 +2030,7 @@ function register_init()
             end
             playersPlay = #playersWithStatus("play") + #playersWithStatus("queue")
             -- update server list title
-            g2_api_call("register",json.encode({title=GAME.data.title .. " - "..playersPlay..'/'..playersLimit,port=GAME.data.port}))
+            g2_api_call("register",json.encode({title=GAME.data.title .. " - On: "..playersPlay, port=GAME.data.port}))
         end
     end
 end
