@@ -820,6 +820,7 @@ function galcon_classic_init()
 	    end
 
         local a = math.random(0,360)
+        local totalProd = 0
         --local homeCoords = {0,0}
         for i=1, GAME.galcon.global.HOME_COUNT do
             for i,user in pairs(users) do
@@ -829,6 +830,7 @@ function galcon_classic_init()
     
                 G.home = g2.new_planet(user, x, y, home_production, home_ships);
                 G.home.planet_r = home_r
+                totalProd = totalProd + home_production
                 a = a + 360/#users
     
                 local planetHome = {}
@@ -850,7 +852,6 @@ function galcon_classic_init()
             end
             a = math.random(0,360)
         end
-        
         local sb_versions = GAME.galcon.global.SAANDBUFF_DATA.VERSIONS_ENABLED
         local enabled = {}
         local distOn = GAME.galcon.global.SAANDBUFF_DATA.DISTANCE_ENABLED
@@ -899,6 +900,7 @@ function galcon_classic_init()
             else 
                 prod = math.random(prodMin, prodMax)
             end
+            totalProd = totalProd + prod
             local radius = prodToRadius(prod)
             local x = math.random(radius, sw - radius)
             local y = math.random(radius, sh - radius)
@@ -994,12 +996,9 @@ function galcon_classic_init()
             table.insert(planets, planetSym)
         end
         if mapStyle == 3 then
-            -- if modIds.saandId ~= -1 then
-            --     net_send(modIds.saandId, "message", picked)
-            -- end
-            -- if modIds.aphidId ~= -1 then
-            --     net_send(modIds.aphidId, "message", picked)
-            -- end
+            if(stylePick == 11) then
+                loopV11Planets(totalProd, planets)
+            end
             net_send("", "message", picked)
         end
     end

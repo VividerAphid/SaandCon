@@ -68,7 +68,7 @@ function _playerDataInit()
                 return playerData.getErrorPlayer()
             else
                 local entry = PDATA[uid]
-                local returnPlayer = {displayName=entry.dN, title=entry.t, color=entry.co, coins=entry.cn, ship=entry.sh, skin=entry.sk, ownedShips=entry.oSh, ownedSkins=entry.oSk, prestige=entry.p, level=entry.l, xp=entry.x, stats=convertStatTableFromSave(entry.st)}
+                local returnPlayer = {displayName=entry.dN, title=entry.t, quote=entry.q, color=entry.co, coins=entry.cn, ship=entry.sh, skin=entry.sk, ownedShips=entry.oSh, ownedSkins=entry.oSk, prestige=entry.p, level=entry.l, xp=entry.x, stats=convertStatTableFromSave(entry.st)}
                 return returnPlayer
             end
         end

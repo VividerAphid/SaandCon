@@ -1041,7 +1041,7 @@ function handleNetMessage(e)
            GAME.galcon.global.PLAYLIST_MODE = not GAME.galcon.global.PLAYLIST_MODE
             if(GAME.galcon.global.PLAYLIST_MODE) then
                 local playLists = loadPlayLists()
-                GAME.galcon.global.PLAYLIST = playLists["ElimV2"]
+                GAME.galcon.global.PLAYLIST = playLists["ElimV3"]
                 net_send("", "message", "Playlist mode started!")
                 -- handlePlayListModeChange()
                 resetLobbyHtml()

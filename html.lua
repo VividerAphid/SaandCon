@@ -167,7 +167,7 @@ function loadProfile(e, targetPlayerUID)
                     <td class='box' background='white:0x999999'><div font='font-gui2:25'> Skins Unlocked: ]]..#player.ownedSkins..[[</div></table>
                 <tr><td>
                 <tr><td class='box' background='white:0x999999'><table><tr><td><div font='font-gui2:25'> Elo: ]]..common_utils.round(elo.get_elo(targetPlayerUID))..[[   </div>
-                    <td><img height=25, width=25 src="]]..getRankIcon(common_utils.round(elo.get_elo(targetPlayerUID)))..[["></table>
+                    <td><img height=25, width=25 src="]]..getRankIcon(common_utils.round(elo.get_elo(targetPlayerUID)))..[[" ></table>
                 <tr><td>
                 <tr><td><table>
                     <tr><td class='box' background='white:0xdddddd'><div font='font-gui2:25'> Totals: </div>
