@@ -1534,7 +1534,7 @@ function galcon_stop(res, timerWinner, time)
                 end
             
                 --print("loser uid: ".. loser.user_uid)
-                if GAME.galcon.global.WINNER_STAYS == true and loser ~= nil then
+                if GAME.galcon.global.WINNER_STAYS == true and loser ~= nil and (#playersWithStatus("play") + #playersWithStatus("queue")) > 2 then
                     requeueLoser(loser.user_uid)
                 end
             else
