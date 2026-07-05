@@ -825,6 +825,9 @@ function playerInState(state)
                     wins = u
                 end
             end
+            if(GAME.galcon.global.HIDE_SCORE) then
+                wins = "?"
+            end
             local builtName = ""
             if(e.status == "queue") then
                 builtName = GAME.clients[e.uid].displayName.."&nbsp;{"..playerData.getUserData(e.uid).level

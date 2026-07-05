@@ -13,16 +13,17 @@ function loadConfigs()
             WINNER_STAYS = true,
             TEAMS_MODE = false,
             RANKED = false,
+            HIDE_SCORE = false,
             PLAYLIST_MODE = false,
             PLAYLIST = {},
             PLAYLIST_NAME = "",
-            PLAYLIST_STYLE = "random", --order, no-repeat, random
+            PLAYLIST_STYLE = "no-repeat", --order, no-repeat, random
             PLAYLIST_INDEX = 0,
             MAX_PLAYERS = 2,
             MAX_BOT_COUNT = 16,
             MAP_STYLE = 3,
             SAANDBUFF_DATA = {
-                VERSIONS_ENABLED = {true, true, true, true, true, true, true, true, true, true, true, true, true}, --V1-V13
+                VERSIONS_ENABLED = {true, true, true, true, true, true, true, true, true, true, false, true, true}, --V1-V13
                 DISTANCE_ENABLED = false,
             },
             TIMER_LENGTH = 0,
@@ -52,9 +53,9 @@ function loadConfigs()
                 recID = 0, 
             },
         },
-        version = "26.5.1a", --Do not change unless you made changes to code
+        version = "26.7.4a", --Do not change unless you made changes to code
         wipeKeyWord = "25.10.5b", --Warning: Changing this if you have existing data will wipe that data!
-        chat_keywords = {"Mins", "/addbot", "/away", "/awayall", "/defaults", "/givecoins", "/kickbot", "/kickallbots", "/replayseed", "/reset", "/rollcolor", "/start", "/surrender", "/version",},
+        chat_keywords = {"Mins", "/addbot", "/away", "/awayall", "/defaults", "/givecoins", "/hidescore", "/kickbot", "/kickallbots", "/replayseed", "/reset", "/rollcolor", "/start", "/surrender", "/version",},
     }
     return configs
 end

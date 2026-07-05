@@ -998,6 +998,16 @@ function handleNetMessage(e)
             net_send('', "message", "Winner stays mode is deactivated.")
         end
     end
+    if e.type == 'net:message' and string.lower(e.value) == "/hidescore" then
+        if not GAME.galcon.global.HIDE_SCORE then
+            GAME.galcon.global.HIDE_SCORE = true
+            net_send('', "message", "Hide Score on!")
+        else
+            GAME.galcon.global.HIDE_SCORE = false
+            net_send('', "message", "Hide Score off!")
+        end
+        resetLobbyHtml()
+    end
     if e.type == 'net:message' and string.lower(e.value) == "/defaults" then
         net_send("","message",GAME.clients[e.uid].displayName .. " /defaults")
         net_send("","message","Lobby reset to default settings.")
@@ -1019,6 +1029,7 @@ function handleNetMessage(e)
         GAME.galcon.global.GRID.START_SHIPS = GAME.galcon.global.CONFIGS.defaults.GRID.START_SHIPS
         GAME.galcon.global.SEED_DATA = GAME.galcon.global.CONFIGS.defaults.SEED_DATA
         GAME.galcon.global.stupidSettings = GAME.galcon.global.CONFIGS.defaults.stupidSettings
+        GAME.galcon.global.HIDE_SCORE = GAME.galcon.global.CONFIGS.defaults.HIDE_SCORE
         GAME.galcon.global.PLAYLIST = GAME.galcon.global.CONFIGS.defaults.PLAYLIST
         GAME.galcon.global.PLAYLIST_INDEX = GAME.galcon.global.CONFIGS.defaults.PLAYLIST_INDEX
         GAME.galcon.global.PLAYLIST_NAME = GAME.galcon.global.CONFIGS.defaults.PLAYLIST_NAME

@@ -72,6 +72,7 @@ function menu_init()
             BOT_TYPES = {punchingbag={func=punchingbag_bot,uid=-1, displayName="Punching Bag"}, protowaffle={func=bot_protowaffle, uid=-3, displayName="Protowaffle"}, classic={func=bot_classic, uid=-2, displayName="Classic"}},
             BOT_UID = -10000,
             BOT_COUNT = 0,
+            HIDE_SCORE = _CONFIGS.defaults.HIDE_SCORE,
             PLAYLIST_MODE = _CONFIGS.defaults.PLAYLIST_MODE,
             PLAYLIST = _CONFIGS.defaults.PLAYLIST,
             PLAYLIST_NAME = _CONFIGS.defaults.PLAYLIST_NAME,
